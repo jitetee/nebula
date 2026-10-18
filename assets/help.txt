@@ -1,0 +1,256 @@
+# Nebula command registry — single source for `help`, `help <cmd>`, `help search`,
+# tab-completion and "did you mean". Format:
+#   @name|Category|args|one-line summary
+#     indented detail lines
+@help|Basics|[command]|Command list / detailed help
+  help            list every command by category
+  help <command>  usage + examples for one command
+  help search <word>  find commands by keyword
+  Example: help backup
+@about|Basics||About Nebula
+  Shows the banner and credits.
+@tour|Basics||30-second guided tour
+  Walks through the main features. Runs once after your first login.
+@clear|Basics||Clear screen
+  Alias: cls
+@exit|Basics||Leave Nebula
+  Aliases: quit, bye
+@ask|AI|<question>|Ask Nebula AI anything
+  One-off question. Needs tgpt (nebula deps).
+  Example: ask what is a symlink
+@chat|AI||Multi-turn AI conversation
+  Nebula AI remembers the conversation. Chats are logged to data/chats.
+  In chat:  /clear forget context · /help · /exit
+  Example: chat
+@explain|AI|[command]|Explain a shell command
+  With no argument explains your last command.
+  Example: explain tar -xzf a.tgz -C /tmp
+@fix|AI|[error text]|Suggest a fix for the last failed command
+  Uses the last command that failed (and its exit code).
+  Paste extra error text after fix for better answers.
+  Nebula never runs the fix for you.
+  Example: fix permission denied
+@summarize|AI|<file>|Summarize a text file
+  Reads the first 8 KB. Use - to read from a pipe.
+  Example: summarize notes.txt
+@translate|AI|<lang> <text>|Translate text
+  Example: translate swahili good morning, how are you
+@tell|AI|<request>|Talk to Termux in plain English
+  Describe what you want; Nebula AI shows a plan of commands, you approve, it runs
+  them in YOUR shell (cd and exports stick).
+  tell show the 5 biggest files here
+  tell install python and make a virtualenv here
+  [Y]es run · [n]o · [s]tep by step · [e]dit each command first.
+  Risky commands (rm -r, dd, sudo, curl | sh …) are marked ⚠ and need you to type yes.
+  Just typing a sentence at the prompt works too (see: english).
+  Missing a tool? Type its command (e.g. gh auth login): Nebula offers to install it,
+  then runs what you typed.
+  In the nebula shell:  ?request = plain English · !command = send exactly as typed.
+@english|AI|ask/auto/off|How eager plain-English mode is
+  english ask    offer to translate sentences (default)
+  english auto   run read-only plans (ls, du, git status…) at once; everything else asks
+  english off    never translate
+@joke|AI||Tell a joke
+  Random topic each time.
+@fact|AI||Random fun fact
+  Random topic each time.
+@meme|Info||Fetch a random meme
+
+@weather|Info|[city]|Weather with hourly charts
+  Example: weather Nairobi
+@crypto|Info|[coin]|Crypto market with charts
+  crypto              top 10 coins: price, 24h, 7-day sparkline, market share
+  crypto btc          detail card with a 30-day area chart
+  crypto eth --days 90 --kes     longer range, other currency
+  Currencies: --usd --eur --gbp --kes --ngn --zar --inr --jpy
+  Needs jq. Data from CoinGecko (free, may rate-limit).
+@news|Info|[topic]|Headline cards with trending words
+  news                world headlines
+  news tech|africa|business|science|health|sport|hn
+  news 3              details of story 3     news open 3   open the link
+  news ai 3           Nebula AI explains it simply
+  news --feed <rss-url>   any RSS feed
+@sports|Info|[league] [view]|Scores and tables
+  sports              asks which league
+  sports epl          today's matches (live / upcoming / finished)
+  sports football     asks which football league
+  sports epl table    league table with points bars
+  sports nba next     tomorrow's games
+  Views: today · live · next · yesterday · table · or a date (2026-10-13)
+  Leagues: epl laliga bundesliga seriea ligue1 ucl uel cafcl afcon worldcup
+           mls nba wnba nfl nhl mlb f1 atp wta
+  Needs jq. Data from ESPN's public scoreboards.
+@ip|Info||Public IP + location
+@define|Info|<word>|Dictionary lookup
+  Example: define ephemeral
+@bible|Info|[ref]|Bible verse lookup
+
+@remind|Tools|<when> <text>|Notification reminders
+  when: 90s · 10m · 2h · 1h30m · 2d · 14:30 (next 14:30)
+  remind list          show pending
+  remind rm <id>       cancel one
+  Example: remind 10m call mom
+  Needs termux-api + the Termux:API app for notifications.
+@timer|Tools|[minutes]|Countdown timer with voice alert
+  Example: timer 25
+@note|Tools|<text>|Save a timestamped note
+  Example: note buy airtime
+@notes|Tools|[search/rm/edit]|Show / search / delete notes
+  notes                 list with numbers
+  notes search <word>   find notes
+  notes rm <number>     delete one
+  notes edit            open in your editor
+@todo|Tools|[text]|Todo list with priorities
+  todo                  list (high priority first)
+  todo <text>           add
+  todo done <n>         check off
+  todo pri <n> high|med|low   set priority
+  todo rm <n>           remove
+  todo clear            clear all
+  Example: todo pri 2 high
+@calc|Tools|[expr]|Terminal calculator
+@qr|Tools|<text>|Render a QR code
+  Needs qrencode.
+@serve|Tools|[dir] [port]|Share a folder over Wi-Fi
+  Starts a web server (python) and shows the URL + QR code.
+  Anyone on your network can read the folder, so it asks first.
+  Example: serve ~/storage/downloads 8080
+@apps|Tools||Launcher listing Nebula apps
+@passwd|Security||Change your login password
+  Asks for the current password first. 3 wrong tries closes the session.
+  In plain zsh type: nebula passwd   (inside the nebula shell: passwd)
+@lock|Security||Lock Nebula now
+  Re-enter your password (or fingerprint) to continue.
+@autolock|Security|[minutes/off]|Auto-lock after idle time
+  Default 10 minutes.
+  Example: autolock 5
+@fingerprint|Security|on/off/status|Fingerprint unlock
+  Needs termux-api + Termux:API app and an enrolled fingerprint.
+  Password always works as fallback.
+@logins|Security|[count]|Show login history
+  Lists successful and failed attempts (default last 15).
+@noauth|Security|on/off|Toggle session lock
+  Turns the login screen off/on.
+@reset-auth|Security||Reset username/password
+  Clears credentials; you create new ones next launch.
+@whoami|Security||Show logged-in user
+@backup|Data|[--encrypt] [dir]|Back up your data to /sdcard
+  Saves login, notes, todos, reminders, chats and themes into
+  /sdcard/Nebula (needs storage permission: termux-setup-storage).
+  Offers a passphrase to encrypt (recommended).
+  Keeps the 10 newest backups.
+  Example: backup --encrypt
+@restore|Data|[number/latest/file]|Restore a backup
+  restore            pick from a list
+  restore latest     newest backup
+  Your current data is saved first so you can undo.
+@doctor|System|[--fix]|Health check and dependency audit
+  doctor --fix opens the dependency picker for anything missing.
+  For device-specific problems use: settings
+@settings|System||Device settings, health and fixes
+  Arrow-key screens:
+    Device     model, Android, CPU (e.g. armv7l), memory, Termux source
+    Health     what's wrong on this phone and how to fix it
+    Features   voice, sounds, compact startup
+    Security   login lock, auto-lock, fingerprint, password
+    Install missing   one picker for everything that unlocks features
+    Get Termux:API    guide for phones that can't use the Play Store
+  Commands the device can't run are hidden everywhere else;
+  Settings tells you why and offers the fix.
+@device|System||Device report (plain text)
+  Same facts as Settings → Device, plus the list of issues.
+@status|System|[section]|Full system dashboard
+  Bars and charts for CPU (overall + per core), memory, swap, every storage
+  mount, battery, network (with speeds), temperatures, top processes, and a
+  trend history.
+  status                 everything        status cpu mem disk  pick sections
+  status --live [secs]   auto-refreshing, press q to quit
+  Sections: cpu mem disk battery net temp top trend
+  Anything Android won't let Termux read is skipped.
+@sysinfo|System||Quick system info
+@dash|System|[seconds]|Full-screen live dashboard
+  Uses your whole screen: panels for CPU, memory, storage, battery, network,
+  processes, trend, plus weather/crypto/news/sports/todo/reminders from your home screen.
+  It lays itself out for your screen (1 column on a phone, up to 4 on a wide terminal)
+  and re-flows the moment you resize or rotate.
+  Keys: q quit · r refresh · space pause · +/- speed · j/k scroll · 1-9 toggle panels · ? help
+@layout|System|auto/phone/wide|How Nebula uses your screen
+  layout             show the current screen size and mode
+  layout auto        adapt to the screen (default)
+  layout phone       always a single column
+  layout wide        use every column that fits
+@setup|System||Finish a pkg install
+  After  pkg install nebula  run this once: it adds the zsh hook, the Termux
+  look and offers packages.   nebula setup --undo   removes the hooks.
+@update|System||Update Nebula
+  nebula update              check, show what's new, install
+  nebula update --check      only check          --force   reinstall
+  nebula update --rollback   undo the last update
+  Installed with pkg? Then:  pkg update && pkg upgrade nebula
+@scan|System||Re-scan this device
+  Re-checks hardware, Termux:API, storage and permissions.
+@install|System|<tool>|Install anything, the best way
+  Looks the tool up in Nebula's database (130+ tools), picks pkg, pip or npm
+  for you, installs prerequisites (e.g. Node for npm tools), shows live
+  progress, repairs common failures and falls back to another method.
+  install python            install firebase-tools      install cmatrix
+  install                   fuzzy-pick from the list
+  install list [category]   browse      install search <word>
+  install info <tool>       how it would be installed
+  install <tool> -v         show raw terminal output
+  install <tool> --via pip  force a method        -y  skip the question
+  install log               show the last install log
+  Unknown names are searched on pkg, pip and npm.
+@uninstall|System|<tool>|Remove a tool Nebula installed
+  Example: uninstall cmatrix
+@play|Media|<song>|Find and play music on this phone
+  Searches your whole device (Music, Download, SD card…), tolerates typos,
+  and plays the best match with whatever player you have.
+  play summer                play summer --all (queue every match)
+  play                       fuzzy-pick from your library
+  play --reindex             rescan the phone      play --shuffle
+  play --bg song / play stop   background playback
+  No player? Nebula tells you what to install (light: mpg123 · full: mpv).
+@deps|System||Pick packages to install
+  Arrow-key menu. Nothing installs without your OK.
+
+
+@time|System||Live clock
+@date|System||Current date and time
+@theme|Look|[name]|Prompt themes + studio
+  theme                  list presets (nebula compact minimal forest sky hacker classic zen)
+  theme <name>           switch preset
+  theme studio           design your prompt with a live preview
+  theme set accent cyan  quick colour (slots: accent path git time user error dim)
+  theme export / import  share your prompt with a code (NEBT1:…) or file
+  theme reset            back to the default
+  Changes show up in your open shell at the next prompt.
+@prompt|Look||Open the prompt studio
+  Same as: theme studio
+@home|Look|[edit/preset]|Your startup screen
+  home                   show it now
+  home edit              choose widgets, order, city, coins, league
+  home preset dashboard  presets: classic minimal dashboard focus newsroom info clean
+  home refresh           update weather / crypto / news / sports now
+  home off / on          hide or show it at login
+  Widgets: logo greeting sysinfo disk battery network todo reminders weather
+           crypto news sports tip trend
+  Network widgets are cached, so login is always instant.
+@profile|Look|[use/save]|Switch your whole setup
+  profile                list          profile use work     apply
+  profile save mine      snapshot your current voice/lock/prompt/home
+  profile show|new|rm|export|import
+  Built-in: default work chill minimal saver
+  Applies voice, sounds, auto-lock, startup mode, prompt theme and home screen.
+@voice|Look|on/off|Toggle Nebula AI voice
+  Works from any shell:  nebula voice off   ·   or start muted: nebula --no-voice
+@sounds|Look|on/off|Toggle UI sounds
+  Needs sox for sound effects. Also in: settings → Features.
+
+@banner|Look|<text>|Build a custom banner
+  Letters and digits only.
+  Example: banner NEBULA
+@motd|Look||Reprint the banner
+@ls|Files||List files with icons
+  Aliases: ll (long)
+@cd|Files|<dir>|Change directory

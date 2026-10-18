@@ -1,0 +1,21 @@
+# key|Name|sport|espn-path|aliases (space separated)
+epl|Premier League|soccer|soccer/eng.1|premier england english epl
+championship|EFL Championship|soccer|soccer/eng.2|efl
+laliga|La Liga|soccer|soccer/esp.1|spain spanish laliga
+bundesliga|Bundesliga|soccer|soccer/ger.1|germany german
+seriea|Serie A|soccer|soccer/ita.1|italy italian
+ligue1|Ligue 1|soccer|soccer/fra.1|france french
+ucl|Champions League|soccer|soccer/uefa.champions|champions uefa ucl
+uel|Europa League|soccer|soccer/uefa.europa|europa uel
+cafcl|CAF Champions League|soccer|soccer/caf.champions|caf africa african
+afcon|Africa Cup of Nations|soccer|soccer/caf.nations|afcon
+worldcup|World Cup|soccer|soccer/fifa.world|fifa wc
+mls|MLS|soccer|soccer/usa.1|usa america
+nba|NBA|basketball|basketball/nba|nba
+wnba|WNBA|basketball|basketball/wnba|wnba
+nfl|NFL|american football|football/nfl|nfl gridiron
+nhl|NHL|hockey|hockey/nhl|nhl
+mlb|MLB|baseball|baseball/mlb|mlb
+f1|Formula 1|racing|racing/f1|f1 formula
+atp|ATP Tennis|tennis|tennis/atp|atp men
+wta|WTA Tennis|tennis|tennis/wta|wta women

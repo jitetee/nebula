@@ -1,0 +1,49 @@
+#!/data/data/com.termux/files/usr/bin/env bash
+# nebula sysinfo panel — bash port of GR3YH4TT3R93/termux-motd/20-sysinfo
+# Adapted to run without zsh-specific array splitting.
+
+W=$'\e[0;39m'; G=$'\e[1;32m'; C=$'\e[1;36m'; B=$'\033[1m'; R=$'\033[0m'
+
+# Load averages (robust: "load average:" may be preceded by users/uptime/etc)
+read -r LOAD1 LOAD5 LOAD15 < <(
+  uptime 2>/dev/null \
+    | sed -E 's/.*load average[s]?: *//I; s/,/ /g' \
+    | awk '{print $1, $2, $3}'
+)
+
+# Memory
+read -r _ TOTAL USED _ _ _ AVAIL < <(free -htm 2>/dev/null | awk '/^Mem:/')
+
+# Processes
+read -r PROC_USER PROC_ALL PROC_ROOT < <(
+  ps -eo user= 2>/dev/null | sort | uniq -c | awk '
+    { total += $1; if ($2=="root") root=$1; else user+=$1 }
+    END { print user+0, total+0, root+0 }'
+)
+
+CPU=$(nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo 2>/dev/null || echo "?")
+
+if [[ -d /system/app && -d /system/priv-app ]] && command -v getprop >/dev/null 2>&1; then
+  DISTRO="Android $(getprop ro.build.version.release)"
+  MODEL="$(getprop ro.product.brand) $(getprop ro.product.model)"
+else
+  DISTRO="$(uname -s)"
+  MODEL="$(uname -n)"
+fi
+
+KERNEL=$(uname -sr)
+UP=$(uptime -p 2>/dev/null || uptime)
+
+cat <<EOF
+${W}${B}System Info:${R}
+${C}  Distro    : ${W}${DISTRO}
+${C}  Host      : ${W}${MODEL}
+${C}  Kernel    : ${W}${KERNEL}
+
+${C}  Uptime    : ${W}${UP}
+${C}  Load      : ${G}${LOAD1:-?}${W} (1m), ${G}${LOAD5:-?}${W} (5m), ${G}${LOAD15:-?}${W} (15m)
+${C}  Processes : ${G}${PROC_USER:-0}${W} (user), ${G}${PROC_ALL:-0}${W} (total)
+
+${C}  CPU       : ${G}${CPU}${W} vCPU core(s)
+${C}  Memory    : ${G}${USED:-?}${W} used, ${G}${AVAIL:-?}${W} avail, ${G}${TOTAL:-?}${W} total${R}
+EOF

@@ -1,0 +1,20 @@
+Press Tab to open the fuzzy picker — it knows folders, tools, songs and files.
+Type cd and Nebula suggests your most-visited folder. Press → to accept.
+nebula install <tool> picks pkg, pip or npm for you.
+nebula play <song> searches your whole phone, typos included.
+Run settings to see what your phone can and can't do.
+theme studio lets you design your prompt with a live preview.
+home edit changes what shows here at login.
+status --live shows CPU, memory and storage updating in real time.
+profile use work switches voice, theme and home screen in one go.
+fix explains the last command that failed.
+backup --encrypt keeps your notes and login safe on /sdcard.
+remind 10m call mom sets a reminder with a notification.
+sports epl table shows the league table with points bars.
+crypto btc --days 90 draws a price chart.
+Ctrl-R searches your command history, Ctrl-T picks a file.
+Alt-C jumps to a folder from your most-used list.
+news ai 2 asks Nebula AI to explain a story simply.
+theme export gives you a share code for your prompt.
+nebula update --rollback undoes a bad update.
+Three wrong passwords close the session — logins shows what happened.

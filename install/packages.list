@@ -1,0 +1,47 @@
+# name | tier | description
+# tier:  b = basic (pre-selected)   e = extra (optional)   h = heavy / big download
+zsh|b|Shell Nebula runs in (required for the UI)
+git|b|Version control (handy; updates use GitHub directly)
+gawk|b|Text engine Nebula uses for charts and rendering
+jq|b|Reads live data for crypto and sports dashboards
+curl|b|Used by weather, news, crypto, ip, define
+tgpt|b|The engine behind Nebula AI (ask, joke, fact)
+openssl-tool|b|Hashes your login password
+lsd|b|Icon-rich ls / ll / la
+espeak|b|Nebula AI voice (text-to-speech)
+sox|e|UI sound effects
+mpg123|e|Tiny MP3 player for `play`
+mpv|h|Plays every audio format for `play`
+neofetch|e|System info panel
+ripgrep|e|Fast text search
+fd|e|Fast file search
+file|e|File type detection for ls icons
+termux-api|e|Phone TTS fallback (needs Termux:API app)
+zsh-completions|e|Extra tab completions
+figlet|e|Big text banners
+tree|e|Directory tree view
+htop|e|Process viewer
+wget|e|Downloader
+unzip|e|Archive extraction
+nano|e|Simple text editor
+python|e|Python runtime
+tmux|e|Terminal multiplexer
+neovim|e|Modern vim editor
+openssh|e|SSH client/server
+whois|e|Domain lookup
+dnsutils|e|dig / nslookup
+inetutils|e|ping, ftp, telnet tools
+tsu|e|su wrapper for rooted devices
+dos2unix|e|Line-ending converter
+zstd|e|Zstandard compression
+tidy|e|HTML tidy
+ncdu|e|Disk usage explorer
+bmon|e|Bandwidth monitor
+gum|e|Pretty shell prompts
+byobu|h|Tmux/screen front-end
+cmatrix|h|Matrix rain (fun)
+hollywood|h|Hacker-movie screen (fun, big)
+ffmpeg|h|Audio/video toolkit (big)
+pulseaudio|h|Audio server (big)
+proot|h|Userspace chroot
+proot-distro|h|Linux distros in Termux (big)

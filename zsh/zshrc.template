@@ -1,0 +1,40 @@
+# ─────────────────────────────────────────────────────────────────────────
+#  nebula .zshrc — fully self-contained
+#  Everything below is built in-house: prompt, plugins, aliases, motd.
+#  No oh-my-zsh, no powerlevel10k, no external frameworks.
+# ─────────────────────────────────────────────────────────────────────────
+
+# Path: ensure Termux + user bins are reachable
+typeset -U path PATH
+path=( "$HOME/bin" "$HOME/.local/bin" "$PREFIX/bin" $path )
+
+# Suppress Termux's default motd (nebula ships its own)
+export TERMUX_MOTD_DISABLE=1
+
+# Editor preference
+export EDITOR="${EDITOR:-nano}"
+export VISUAL="$EDITOR"
+export PAGER="${PAGER:-less}"
+export LESS="-R"
+
+# Better history (more aggressive than nsh.zsh defaults — user-level)
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE="__NEBULA_INSTALL_DIR__/data/.zsh_history"   # kept with Nebula data, not in $HOME
+
+# Friendly options
+setopt AUTO_CD                    # type a dir name to cd into it
+setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
+setopt EXTENDED_GLOB
+setopt INTERACTIVE_COMMENTS
+setopt NO_BEEP
+
+# ── nebula ──────────────────────────────────────────────────────────────────
+# nebula-BEGIN
+export NEBULA_HOME="__NEBULA_INSTALL_DIR__"
+export NEBULA_CFG="${NEBULA_CFG:-$NEBULA_HOME/data}"
+[[ -f "$NEBULA_HOME/zsh/nsh.zsh" ]] && source "$NEBULA_HOME/zsh/nsh.zsh"
+# nebula-END
+
+# Personal overrides (kept out of the managed block above)
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

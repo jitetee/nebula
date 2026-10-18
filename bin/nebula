@@ -1,0 +1,327 @@
+#!/data/data/com.termux/files/usr/bin/env bash
+# nebula — Nebula AI UI shell
+
+
+set -u
+
+# Resolve repo root (supports symlinked install)
+_self="${BASH_SOURCE[0]}"
+if _r=$(readlink -f "$_self" 2>/dev/null) && [[ -n $_r ]]; then _self=$_r
+else                                                     # no readlink -f: follow links by hand (relative targets too)
+  while [[ -L $_self ]]; do _t=$(readlink "$_self"); [[ $_t == /* ]] && _self=$_t || _self="$(dirname "$_self")/$_t"; done
+fi
+NEBULA_HOME="$(cd "$(dirname "$_self")/.." && pwd)"
+export NEBULA_HOME
+# User data (credentials, notes, theme) lives next to the app, NOT in $HOME
+NEBULA_CFG="${NEBULA_CFG:-$NEBULA_HOME/data}"
+export NEBULA_CFG
+mkdir -p "$NEBULA_CFG" 2>/dev/null && chmod 700 "$NEBULA_CFG" 2>/dev/null
+
+# shellcheck disable=SC1091
+source "$NEBULA_HOME/lib/ui.sh"
+source "$NEBULA_HOME/lib/voice.sh"
+source "$NEBULA_HOME/lib/sound.sh"
+source "$NEBULA_HOME/lib/auth.sh"
+source "$NEBULA_HOME/lib/commands.sh"
+source "$NEBULA_HOME/lib/help.sh"
+source "$NEBULA_HOME/lib/md.sh"
+source "$NEBULA_HOME/lib/update.sh"
+source "$NEBULA_HOME/lib/viz.sh"
+source "$NEBULA_HOME/lib/pick.sh"
+source "$NEBULA_HOME/lib/ai.sh"
+source "$NEBULA_HOME/lib/data.sh"
+source "$NEBULA_HOME/lib/pkgmgr.sh"
+source "$NEBULA_HOME/lib/play.sh"
+source "$NEBULA_HOME/lib/talk.sh"
+source "$NEBULA_HOME/lib/tools.sh"
+source "$NEBULA_HOME/lib/dash.sh"
+source "$NEBULA_HOME/lib/home.sh"
+source "$NEBULA_HOME/lib/security.sh"
+source "$NEBULA_HOME/lib/device.sh"
+source "$NEBULA_HOME/lib/menu.sh"
+source "$NEBULA_HOME/lib/settings.sh"
+source "$NEBULA_HOME/lib/prompt.sh"
+source "$NEBULA_HOME/lib/profile.sh"
+[[ -f "$NEBULA_HOME/lib/banner.sh" ]] && source "$NEBULA_HOME/lib/banner.sh"
+device::refresh_hidden 2>/dev/null
+
+export NEBULA_VOICE="${NEBULA_VOICE:-1}"
+export NEBULA_SOUNDS="${NEBULA_SOUNDS:-1}"
+
+nebula::boot_sequence() {
+  clear
+  ui::banner           # full motd: logo + sysinfo + datetime + disk
+  sound::power_on
+  printf "\n${C_DIM}  initializing subsystems...${C_RESET}\n"
+  local steps=(
+    "loading UI kernel"
+    "mounting voice module"
+    "calibrating neural net"
+    "handshake with tgpt"
+    "authentication ready"
+  )
+  # Fast path: skip per-step animation when NEBULA_FAST_BOOT=1 (default on)
+  if [[ ${NEBULA_FAST_BOOT:-1} -eq 1 ]]; then
+    for s in "${steps[@]}"; do ui::say_status OK "$s"; done
+  else
+    for s in "${steps[@]}"; do
+      sleep 0.18
+      ui::say_status OK "$s"
+      sound::beep
+    done
+    sleep 0.3
+  fi
+  echo
+  # Drain any keystrokes the user typed during boot — otherwise they leak
+  # into the upcoming auth prompt and trigger phantom failed logins.
+  if [[ -t 0 ]]; then
+    stty sane 2>/dev/null
+    while IFS= read -r -t 0 -n 1000 _drain 2>/dev/null; do :; done
+  fi
+}
+
+nebula::post_login() {
+  clear
+  ui::banner
+  voice::greet
+  ui::maker_intro
+  printf "\n  ${C_DIM}Type ${C_RESET}${C_GREEN}help${C_RESET}${C_DIM} for commands. ${C_RESET}${C_GREEN}exit${C_RESET}${C_DIM} to leave.${C_RESET}\n\n"
+  remind::check
+  update::check
+  [[ -f $NEBULA_CFG/.setup_done ]] || { grep -q "nebula-BEGIN" "$HOME/.zshrc" 2>/dev/null || ui::say_status INFO "Finish setup (shell hook, look, packages):  nebula setup"; }
+  # First run (or stale cache): look at the device, tell the user only if it matters
+  if device::ensure_scan; then
+    local e w i; read -r e w i < <(device::issue_counts)
+    if (( e + w > 0 )); then
+      ui::say_status WARN "Device check: $e error(s), $w warning(s) — type ${C_BOLD}settings${C_RESET} to review."
+    fi
+    settings::_flag_on compact && ui::say_status INFO "Compact startup is on for this device (settings → Features)."
+  fi
+  if [[ ! -f $NEBULA_CFG/.toured && -t 0 ]]; then
+    if ui::confirm "New here? Take a 30-second tour?" Y; then cmd::tour
+    else touch "$NEBULA_CFG/.toured"; fi
+  fi
+}
+
+# Remember the last command (for explain) and the last failure (for fix)
+nebula::_record() {
+  local c=$1 rc=$2
+  case "${c%% *}" in fix|explain|help|chat|ask) return 0 ;; esac
+  printf '%s\n' "$c" > "$NEBULA_CFG/.last_cmd"
+  (( rc != 0 )) && printf '%s|%s\n' "$rc" "$c" > "$NEBULA_CFG/.last_fail"
+  return 0
+}
+
+# Run a line in the underlying shell; suggest a fix for typos
+# Names Nebula uses that are also real commands: when you clearly mean the real one
+# (flags like `install -m 755 …`, `date +%s`, `time ls`), hand it to the shell.
+nebula::shadowed() {
+  local c=$1 a=$2
+  case $c in
+    install|play|passwd|ip) [[ $a == -* || $a == +* ]] && command -v "$c" >/dev/null 2>&1 ;;
+    date|time) [[ -n $a ]] ;;
+    *) return 1 ;;
+  esac
+}
+
+# Run a line in the underlying shell. Unknown command? Offer to install it, or treat a
+# sentence as plain English — before bash prints an error.
+nebula::run_shell() {
+  local line=$1 rc first; local -a w
+  read -ra w <<<"$line"; first=${w[0]:-}
+  if [[ -n $first && $first != */* && $first != *=* && -z $(type -t "$first" 2>/dev/null) ]]; then
+    cmd::cnf "${w[@]}"; case $? in
+      20) tell::exec_file "$NEBULA_CFG/.plan.sh"; return $? ;;
+    esac
+  fi
+  eval "$line"; rc=$?
+  nebula::_record "$line" "$rc"
+  (( rc == 127 )) && "$NEBULA_HOME/lib/suggest.sh" "${line%% *}"
+  return $rc
+}
+
+nebula::repl() {
+  local line cmd args idle rc
+  local ps=$'\001'"$C_MAGENTA"$'\002❯\001'"$C_RESET"$'\002 '
+  HISTFILE="$NEBULA_CFG/.repl_history"; HISTSIZE=500; HISTFILESIZE=500
+  set -o history 2>/dev/null; history -r 2>/dev/null
+  while :; do
+    [[ -s $NEBULA_CFG/reminders.due ]] && remind::due
+    idle=$(auth::idle_seconds)
+    local to=(); (( idle > 0 )) && to=(-t "$idle")
+    IFS= read -e -r "${to[@]}" -p "$ps" line; rc=$?
+    if (( rc > 128 )); then            # idle timeout → lock
+      echo; auth::unlock || exit 1
+      continue
+    fi
+    (( rc != 0 )) && { echo; break; }
+    [[ -z ${line// } ]] && continue
+    history -s "$line" 2>/dev/null
+    cmd=${line%% *}
+    if [[ $line == *" "* ]]; then args=${line#* }; else args=""; fi
+
+    case $line in
+      '!'*) nebula::run_shell "${line#!}"; continue ;;      # !cmd → exactly as typed, straight to Termux
+      '?'*) cmd::tell "${line#\?}"; continue ;;            # ?request → plain English
+    esac
+    if nebula::shadowed "$cmd" "$args"; then nebula::run_shell "$line"; continue; fi
+    device::gate "$cmd" || continue
+    case "$cmd" in
+      help|h|\?)    cmd::help $args ;;
+      about|intro)  cmd::about ;;
+      ask)          cmd::ask $args ;;
+      joke)         cmd::joke ;;
+      meme)         cmd::meme ;;
+      fact)         cmd::fact ;;
+      news)         cmd::news ;;
+      crypto)       cmd::crypto $args ;;
+      ip)           cmd::ip ;;
+      define)       cmd::define $args ;;
+      weather)      cmd::weather $args ;;
+      sysinfo|sys)  cmd::sysinfo ;;
+      qr)           cmd::qr $args ;;
+      note)         cmd::note $args ;;
+      notes)        cmd::notes $args ;;
+      todo)         cmd::todo $args ;;
+      timer)        cmd::timer $args ;;
+      doctor)       cmd::doctor $args ;;
+      motd)         ui::banner ;;
+      banner)       cmd::banner $args ;;
+      time|date)    cmd::time ;;
+      ls)           ui::ls $args ;;
+      ll)           ui::ll $args ;;
+      cd)           cd "${args:-$HOME}" || ui::say_status ERR "cd failed" ;;
+      clear|cls)    clear; ui::banner ;;
+      voice)        cmd::voice_toggle $args ;;
+      theme)        cmd::theme $args ;;
+      noauth)       cmd::noauth $args ;;
+      update)       cmd::update $args ;;
+      deps)         bash "$NEBULA_HOME/install/install.sh" --deps-only ;;
+      whoami)       cmd::whoami ;;
+      reset-auth)   auth::confirm && { auth::reset; exit 0; } ;;
+      exit|quit|bye)
+        voice::bye
+        sound::power_off
+        ui::say_status INFO "Shutting down nebula…"
+        sleep 0.6
+        break
+        ;;
+      *)
+        if declare -F "cmd::${cmd}" >/dev/null 2>&1; then
+          "cmd::${cmd}" $args
+        else
+          nebula::run_shell "$line"
+        fi
+        ;;
+    esac
+  done
+}
+
+nebula::usage() {
+  cat <<EOF
+nebula — Nebula AI UI shell
+
+USAGE:
+  nebula                       Launch interactive shell (login + REPL)
+  nebula ask <question...>     One-shot: ask Nebula AI, print answer, exit
+  nebula joke | fact           One-shot: joke / fact (tgpt)
+  nebula news                  Top headlines (Hacker News)
+  nebula crypto [coin]         Crypto price (CoinGecko)
+  nebula ip                    Public IP + geo
+  nebula define <word>         Dictionary lookup
+  nebula weather [city]        Current weather (wttr.in)
+  nebula sysinfo               System info
+  nebula qr <text>             Render a terminal QR code
+  nebula note <text>           Append a timestamped note
+  nebula notes                 Show all notes
+  nebula todo [text|done N]    Todo list
+  nebula timer <minutes>       Pomodoro timer
+  nebula time                 Live clock with hacker UI
+  nebula calc <expr>          Calculator
+  nebula bible <ref>          Bible verse lookup
+  nebula apps                 List available nebula apps
+  nebula doctor                Audit optional deps + nebula health
+  nebula motd                  Print the motd banner
+  nebula banner <text>         Build custom banner (letters/digits only)
+  nebula update                Update from GitHub (nebula update --check / --rollback)
+  nebula install <tool>        Install anything the best way (python, firebase-tools…)
+  nebula play <song>           Find and play music on this phone
+  nebula sports | crypto | news   Live dashboards
+  nebula deps                  Open the dependency picker (add packages)
+  nebula help [command]        Command list / detailed help
+  nebula chat | explain | fix | summarize | translate   AI helpers
+  nebula status | remind | serve | backup | restore     Tools
+  nebula passwd | lock | autolock | logins | fingerprint Security
+  nebula theme [name]          List / switch prompt themes
+  nebula noauth [on|off]       Toggle session lock (auth)
+
+FLAGS:
+  --no-voice      Start with voice muted
+  --no-sounds     Disable sound effects
+  --reset-auth    Clear saved credentials
+  --no-auth       Skip authentication for this session
+  --version, -v   Print version
+  --help, -h      Print this help
+EOF
+}
+
+main() {
+  # Parse flags that can appear before a subcommand
+  local passthrough=()
+  while (( $# )); do
+    case "${1:-}" in
+      --version|-v) echo "nebula $(update::local_version)"; exit 0 ;;
+      --help|-h)    nebula::usage; exit 0 ;;
+      --reset-auth) auth::reset; exit 0 ;;
+      --no-voice)   export NEBULA_VOICE=0; shift ;;
+      --no-sounds)  export NEBULA_SOUNDS=0; shift ;;
+      --no-auth)    export NEBULA_NO_AUTH=1; shift ;;
+      *)            passthrough+=("$1"); shift ;;
+    esac
+  done
+  set -- "${passthrough[@]:-}"
+
+  # One-shot mode: `nebula ask ...`, `nebula joke`, etc.
+  [[ -n ${1:-} ]] && { device::gate "$1" || exit 1; }
+  case "${1:-}" in
+    ask)       shift; cmd::ask "$@"; exit $? ;;
+    joke)      cmd::joke; exit $? ;;
+    fact)      cmd::fact; exit $? ;;
+    meme)      cmd::meme; exit $? ;;
+    news)      cmd::news; exit $? ;;
+    crypto)    shift; cmd::crypto "$@"; exit $? ;;
+    ip)        cmd::ip; exit $? ;;
+    define)    shift; cmd::define "$@"; exit $? ;;
+    weather)   shift; cmd::weather "$@"; exit $? ;;
+    sysinfo)   cmd::sysinfo; exit $? ;;
+    qr)        shift; cmd::qr "$@"; exit $? ;;
+    note)      shift; cmd::note "$@"; exit $? ;;
+    notes)     cmd::notes; exit $? ;;
+    todo)      shift; cmd::todo "$@"; exit $? ;;
+    timer)     shift; cmd::timer "$@"; exit $? ;;
+    calc)      shift; cmd::calc "$@"; exit $? ;;
+    bible)     shift; cmd::bible "$@"; exit $? ;;
+    apps)      cmd::apps; exit 0 ;;
+    doctor)    cmd::doctor; exit $? ;;
+    motd)      ui::banner; exit 0 ;;
+    banner)    shift; cmd::banner "$@"; exit $? ;;
+    update)    shift; cmd::update "$@"; exit $? ;;
+    deps)      bash "$NEBULA_HOME/install/install.sh" --deps-only; exit $? ;;
+    theme)     shift; cmd::theme "$@"; exit $? ;;
+    "")        : ;;
+    *)
+      if declare -F "cmd::${1}" >/dev/null 2>&1; then
+        _c=$1; shift; "cmd::${_c}" "$@"; exit $?
+      fi
+      nebula::usage; exit 1 ;;
+  esac
+
+  # Interactive mode
+  export NEBULA_REPL=1
+  nebula::boot_sequence
+  [[ ${NEBULA_NO_AUTH:-0} -eq 1 || -f "$NEBULA_CFG/no-lock" ]] || auth::login || exit 1
+  nebula::post_login
+  nebula::repl
+}
+
+main "$@"

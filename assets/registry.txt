@@ -1,0 +1,133 @@
+# name|aliases|methods (first = preferred; join packages with +)|category|description
+# methods: pkg · pip · npm · cargo · go · gem
+python|py python3|pkg:python+python-pip|Languages|Python 3 with pip
+pip|pip3 python-pip|pkg:python-pip|Languages|Python package manager
+nodejs|node nodejs-lts|pkg:nodejs-lts;pkg:nodejs|Languages|Node.js runtime + npm
+npm||pkg:nodejs-lts;pkg:nodejs|Languages|Node package manager (comes with Node.js)
+golang|go|pkg:golang|Languages|Go compiler
+rust|rustc cargo|pkg:rust|Languages|Rust toolchain
+ruby|gem|pkg:ruby|Languages|Ruby
+php||pkg:php|Languages|PHP
+perl||pkg:perl|Languages|Perl
+lua|lua5|pkg:lua54;pkg:lua|Languages|Lua
+java|openjdk jdk|pkg:openjdk-17|Languages|OpenJDK 17
+kotlin||pkg:kotlin|Languages|Kotlin
+clang|gcc cc|pkg:clang|Build|C/C++ compiler (clang)
+make||pkg:make|Build|GNU make
+cmake||pkg:cmake|Build|CMake
+build-essential|build-tools|pkg:clang+make+cmake+binutils+pkg-config|Build|Compiler + build tools
+typescript|tsc|npm:typescript|Languages|TypeScript compiler
+ts-node||npm:ts-node|Languages|Run TypeScript directly
+git||pkg:git|Dev|Version control
+gh|github-cli|pkg:gh|Dev|GitHub CLI
+lazygit||pkg:lazygit|Dev|Git terminal UI
+neovim|nvim|pkg:neovim|Editors|Modern vim
+vim||pkg:vim|Editors|Vim editor
+nano||pkg:nano|Editors|Simple editor
+micro||pkg:micro|Editors|Friendly terminal editor
+emacs||pkg:emacs|Editors|Emacs
+helix|hx|pkg:helix|Editors|Modal editor
+tmux||pkg:tmux|Terminal|Terminal multiplexer
+htop||pkg:htop|Terminal|Process viewer
+btop||pkg:btop|Terminal|Resource monitor
+neofetch||pkg:neofetch|Terminal|System info
+fastfetch||pkg:fastfetch|Terminal|Faster system info
+ripgrep|rg|pkg:ripgrep|Terminal|Fast text search
+fd|fd-find|pkg:fd|Terminal|Fast file search
+bat||pkg:bat|Terminal|cat with syntax highlighting
+eza|exa|pkg:eza|Terminal|Modern ls
+lsd||pkg:lsd|Terminal|Icon-rich ls
+tree||pkg:tree|Terminal|Directory tree
+ncdu||pkg:ncdu|Terminal|Disk usage explorer
+jq||pkg:jq|Terminal|JSON processor
+yq||pkg:yq|Terminal|YAML processor
+zoxide||pkg:zoxide|Terminal|Smarter cd
+ranger||pkg:ranger|Terminal|File manager
+mc|midnight-commander|pkg:mc|Terminal|Midnight Commander
+glow||pkg:glow|Terminal|Markdown viewer
+gawk|awk|pkg:gawk|Terminal|GNU awk (Nebula needs it)
+openssh|ssh sshd|pkg:openssh|Network|SSH client and server
+rsync||pkg:rsync|Network|Fast file sync
+wget||pkg:wget|Network|Downloader
+curl||pkg:curl|Network|HTTP client
+aria2||pkg:aria2|Network|Multi-connection downloader
+nmap||pkg:nmap|Network|Network scanner
+whois||pkg:whois|Network|Domain lookup
+dnsutils|dig nslookup|pkg:dnsutils|Network|DNS tools
+netcat|nc|pkg:netcat-openbsd|Network|Netcat
+httpie|http|pkg:httpie;pip:httpie|Network|Friendly HTTP client
+speedtest|speedtest-cli|pip:speedtest-cli|Network|Internet speed test
+nginx||pkg:nginx|Network|Web server
+lynx||pkg:lynx|Network|Text web browser
+w3m||pkg:w3m|Network|Text web browser
+proot||pkg:proot|System|Userspace chroot
+proot-distro|distro|pkg:proot-distro|System|Linux distros in Termux
+tsu||pkg:tsu|System|su wrapper for rooted devices
+termux-api|api|pkg:termux-api|System|Phone features (needs the Termux:API app)
+termux-services|services|pkg:termux-services|System|Run background services
+android-tools|adb fastboot|pkg:android-tools|System|adb and fastboot
+unzip||pkg:unzip|Files|Unzip
+zip||pkg:zip|Files|Zip
+p7zip|7z|pkg:p7zip|Files|7-Zip
+ffmpeg||pkg:ffmpeg|Media|Audio/video toolkit (big)
+mpv||pkg:mpv|Media|Plays everything (audio/video)
+mpg123||pkg:mpg123|Media|Tiny MP3 player
+sox||pkg:sox|Media|Audio swiss-army knife
+cmus||pkg:cmus|Media|Terminal music player
+yt-dlp|youtube-dl ytdlp|pkg:yt-dlp;pip:yt-dlp|Media|Download video/audio from the web
+imagemagick|convert magick|pkg:imagemagick|Media|Image tools
+pandoc||pkg:pandoc|Media|Document converter
+qrencode|qr|pkg:qrencode|Media|QR codes
+espeak||pkg:espeak|Media|Text-to-speech
+figlet||pkg:figlet|Fun|Big text banners
+toilet||pkg:toilet|Fun|Fancy text banners
+cowsay||pkg:cowsay|Fun|Talking cow
+cmatrix||pkg:cmatrix|Fun|Matrix rain
+hollywood||pkg:hollywood|Fun|Hacker-movie screen
+sl||pkg:sl|Fun|Steam locomotive
+lolcat||pkg:lolcat;gem:lolcat|Fun|Rainbow colors
+sqlite|sqlite3|pkg:sqlite|Databases|SQLite
+postgresql|postgres|pkg:postgresql|Databases|PostgreSQL
+mariadb|mysql|pkg:mariadb|Databases|MariaDB
+redis||pkg:redis|Databases|Redis
+numpy||pkg:python-numpy;pip:numpy|Python|Numerical arrays
+pandas||pip:pandas|Python|Data analysis
+scipy||pkg:python-scipy;pip:scipy|Python|Scientific computing
+matplotlib||pkg:matplotlib;pip:matplotlib|Python|Plotting
+pillow|PIL|pkg:python-pillow;pip:pillow|Python|Image library
+requests||pip:requests|Python|HTTP for humans
+flask||pip:flask|Python|Web micro-framework
+django||pip:django|Python|Web framework
+fastapi||pip:fastapi+uvicorn|Python|Modern API framework
+beautifulsoup4|bs4 beautifulsoup|pip:beautifulsoup4|Python|HTML parsing
+pyyaml|yaml|pip:pyyaml|Python|YAML for Python
+rich||pip:rich|Python|Rich terminal output
+tqdm||pip:tqdm|Python|Progress bars
+black||pip:black|Python|Python formatter
+flake8||pip:flake8|Python|Python linter
+pytest||pip:pytest|Python|Test runner
+ipython||pip:ipython|Python|Better Python shell
+virtualenv|venv|pip:virtualenv|Python|Virtual environments
+pipx||pip:pipx|Python|Install Python CLIs in isolation
+poetry||pip:poetry|Python|Python dependency manager
+openai||pip:openai|Python|OpenAI Python SDK
+anthropic||pip:anthropic|Python|Anthropic Python SDK
+firebase-tools|firebase|npm:firebase-tools|Node|Firebase CLI
+vercel||npm:vercel|Node|Vercel CLI
+netlify-cli|netlify|npm:netlify-cli|Node|Netlify CLI
+wrangler|cloudflare|npm:wrangler|Node|Cloudflare Workers CLI
+yarn||npm:yarn|Node|Yarn package manager
+pnpm||npm:pnpm|Node|pnpm package manager
+nodemon||npm:nodemon|Node|Auto-restart Node apps
+pm2||npm:pm2|Node|Node process manager
+eslint||npm:eslint|Node|JavaScript linter
+prettier||npm:prettier|Node|Code formatter
+http-server||npm:http-server|Node|Zero-config static server
+serve||npm:serve|Node|Static file server
+live-server||npm:live-server|Node|Live-reload dev server
+localtunnel|lt|npm:localtunnel|Node|Expose localhost
+angular|ng @angular/cli|npm:@angular/cli|Node|Angular CLI
+vue-cli|vue @vue/cli|npm:@vue/cli|Node|Vue CLI
+eas-cli|eas|npm:eas-cli|Node|Expo Application Services CLI
+gemini-cli|gemini|npm:@google/gemini-cli|AI|Gemini in your terminal
+claude-code|claude|npm:@anthropic-ai/claude-code|AI|Claude Code CLI

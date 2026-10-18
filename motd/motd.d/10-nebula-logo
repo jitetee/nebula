@@ -1,0 +1,60 @@
+#!/data/data/com.termux/files/usr/bin/env bash
+# nebula logo — colors follow the active theme ($PREFIX/opt/nebula/data/theme).
+
+# Colours follow your prompt colours (theme studio): accent → top rows, path → lower rows
+_ca=51; _cp=39
+if [[ -r "$NEBULA_CFG/prompt.conf" ]]; then
+  while IFS='=' read -r _k _v; do
+    [[ $_v =~ ^[0-9]{1,3}$ ]] || continue
+    case $_k in c_accent) _ca=$_v ;; c_path) _cp=$_v ;; esac
+  done < "$NEBULA_CFG/prompt.conf"
+fi
+C=$'\033[38;5;'"${_ca}"'m'
+D=$'\033[38;5;'"${_cp}"'m'
+O=$'\033[38;5;215m'
+R=$'\033[0m'
+
+# If the user has set a custom banner via `nebula banner <text>`, prefer it.
+_NEBULA_HOME_GUESS="${NEBULA_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+_NEBULA_CUSTOM_BANNER="${NEBULA_CFG:-$_NEBULA_HOME_GUESS/data}/banner.txt"
+[[ -s $_NEBULA_CUSTOM_BANNER ]] || _NEBULA_CUSTOM_BANNER="$_NEBULA_HOME_GUESS/assets/banner.txt"
+# Too wide for this screen? Show a one-line title instead of a wrapped, broken logo.
+source "${NEBULA_HOME:-$_NEBULA_HOME_GUESS}/lib/layout.sh" 2>/dev/null
+_cols=$(ui::cols 2>/dev/null || tput cols 2>/dev/null || echo 80); _w=0
+if [[ -s $_NEBULA_CUSTOM_BANNER ]]; then
+  # widest line in CHARACTERS, whatever the locale (drop UTF-8 continuation bytes, then count bytes)
+  _w=$(LC_ALL=C sed 's/\x1b\[[0-9;]*m//g; s/[\x80-\xBF]//g' "$_NEBULA_CUSTOM_BANNER" | LC_ALL=C awk '{ if (length($0) > m) m = length($0) } END { print m + 0 }')
+  if (( _w + 1 > _cols )); then
+    printf '\n  %s%s⚡ NEBULA%s %s• AI UI%s\n\n' "$C" $'\033[1m' "$R" "$D" "$R"
+    exit 0
+  fi
+fi
+if [[ -s $_NEBULA_CUSTOM_BANNER ]]; then
+  echo
+  # centre the logo when the screen is wider than it is (phones: no padding)
+  _pad=""; (( _cols - _w >= 8 )) && printf -v _pad '%*s' $(( (_cols - _w) / 2 )) ''
+  _row=0
+  while IFS= read -r _line || [[ -n $_line ]]; do
+    if (( _row < 2 )); then printf '%s%s%s%s\n' "$_pad" "$C" "$_line" "$R"
+    else                     printf '%s%s%s%s\n' "$_pad" "$D" "$_line" "$R"
+    fi
+    _row=$((_row + 1))
+  done < "$_NEBULA_CUSTOM_BANNER"
+  _sub="⚡ Nebula • AI UI ⚡"; printf -v _sp '%*s' $(( ${#_pad} + (_w - ${#_sub}) / 2 )) ''
+  printf '%s%s%s%s\n\n' "$_sp" "$O" "$_sub" "$R"
+  unset _NEBULA_HOME_GUESS _NEBULA_CUSTOM_BANNER _line _row _theme
+  exit 0
+fi
+unset _NEBULA_HOME_GUESS _NEBULA_CUSTOM_BANNER
+
+cat <<EOF
+
+${C} ███╗   ██╗ ███████╗ ██████╗  ██╗   ██╗ ██╗        ██╗   
+${C} ████╗  ██║ ██╔════╝ ██╔══██╗ ██║   ██║ ██║       ██╔██╗ 
+${D} ██╔██╗ ██║ █████╗   ██████╔╝ ██║   ██║ ██║      ██╔══██╗
+${D} ██║╚██╗██║ ██╔══╝   ██╔══██╗ ██║   ██║ ██║      ███████║
+${D} ██║ ╚████║ ███████╗ ██████╔╝ ╚██████╔╝ ███████╗ ██╔══██║${R}
+                     ${O}⚡ Nebula • AI UI ⚡${R}
+
+EOF
+unset _theme

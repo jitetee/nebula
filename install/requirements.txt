@@ -1,0 +1,2 @@
+# No python packages required for core nebula functionality.
+# Add your custom python dependencies here.

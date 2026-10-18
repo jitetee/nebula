@@ -1,0 +1,45 @@
+#!/data/data/com.termux/files/usr/bin/env bash
+# nebula diskspace — inline mini-bar + compact "used out of total"
+
+b=$'\033[1m'; c=$'\e[1;36m'; w=$'\e[0;39m'; g=$'\e[1;32m'; y=$'\e[1;33m'; r=$'\e[1;31m'; d=$'\e[2m'; nc=$'\033[0m'
+
+width=20  # bar cells (doubled)
+# Shrink the mount label so a 20-cell bar still fits on a phone screen:
+# 2 indent + label + 1 + [bar] + 1 + "100%" + 2 + "NNNN/NNNN"
+source "${NEBULA_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}/lib/layout.sh" 2>/dev/null
+cols=$(ui::cols 2>/dev/null || tput cols 2>/dev/null || echo 60)
+# fixed part = width+21 (with sizes) or width+12 (narrow screens drop the sizes)
+show_size=1; fixed=$(( width + 21 ))
+if (( cols < fixed + 6 )); then show_size=0; fixed=$(( width + 12 )); fi
+mw=$(( cols - fixed )); (( mw > 22 )) && mw=22; (( mw < 4 )) && mw=4
+
+printf "\n${b}Disk Usage:${nc}\n"
+
+df -H 2>/dev/null \
+  | awk 'NR>1 && $1 !~ /tmpfs|devtmpfs|overlay|apex/ && $6 ~ /^\/$|^\/data$|^\/storage|^\/home/ {print}' \
+  | while read -r _fs total used _avail pct mount; do
+      usage="${pct%\%}"
+      [[ $usage =~ ^[0-9]+$ ]] || continue
+
+      if   (( usage >= 95 )); then color=$r
+      elif (( usage >= 75 )); then color=$y
+      else                          color=$g
+      fi
+
+      filled=$(( usage * width / 100 ))
+      (( filled > width )) && filled=$width
+      empty=$(( width - filled ))
+
+      bar=""
+      for ((i=0; i<filled; i++)); do bar+="█"; done
+      for ((i=0; i<empty;  i++)); do bar+="░"; done
+
+      label=$mount
+      (( ${#label} > mw )) && label="…${label: -$((mw-1))}"
+      if (( show_size )); then
+        printf "  ${c}%-${mw}s${nc} ${color}[%s]${nc} ${color}%3d%%${nc}  ${w}%4s${nc}${d}/${nc}${w}%-4s${nc}\n" \
+          "$label" "$bar" "$usage" "$used" "$total"
+      else
+        printf "  ${c}%-${mw}s${nc} ${color}[%s]${nc} ${color}%3d%%${nc}\n" "$label" "$bar" "$usage"
+      fi
+    done
