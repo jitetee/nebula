@@ -48,21 +48,28 @@ ui::maker_intro() {
 ${C_CYAN}${C_BOLD}⚡ Nebula • AI UI ⚡${C_RESET}
 ${C_GRAY}────────────────────────${C_RESET}
   A Nebula AI shell UI for Termux
-  ${C_GRAY}Based on cvui by cybervaultke (MIT)${C_RESET}
+  ${C_GRAY}Based on cvui${C_RESET}
+  ${C_GRAY}by cybervaultke (MIT)${C_RESET}
 ${C_GRAY}────────────────────────${C_RESET}
 EOF
 }
 
 ui::say_status() {
-  # ui::say_status OK "message"
-  local tag=$1; shift
+  # ui::say_status OK "message"   (long messages wrap under themselves instead of breaking mid-word)
+  local tag=$1 icon col; shift
   case $tag in
-    OK)   printf "  ${C_GREEN}✔${C_RESET} %s\n" "$*";;
-    WARN) printf "  ${C_YELLOW}⚠${C_RESET} %s\n" "$*";;
-    ERR)  printf "  ${C_RED}✖${C_RESET} %s\n" "$*";;
-    INFO) printf "  ${C_BLUE}ℹ${C_RESET} %s\n" "$*";;
-    *)    printf "  • %s\n" "$*";;
+    OK)   icon="✔"; col=$C_GREEN ;;
+    WARN) icon="⚠"; col=$C_YELLOW ;;
+    ERR)  icon="✖"; col=$C_RED ;;
+    INFO) icon="ℹ"; col=$C_BLUE ;;
+    *)    icon="•"; col="" ;;
   esac
+  local msg="$*" cols
+  if (( ${#msg} > 20 )) && cols=$(ui::cols 2>/dev/null) && [[ $cols =~ ^[0-9]+$ ]] && (( ${#msg} + 4 > cols - 1 )); then
+    printf '  %s%s%s %s\n' "$col" "$icon" "$C_RESET" "$msg" | ui::wrap "$(( cols - 1 ))" 4
+  else
+    printf '  %s%s%s %s\n' "$col" "$icon" "$C_RESET" "$msg"
+  fi
 }
 
 ui::prompt_char() {

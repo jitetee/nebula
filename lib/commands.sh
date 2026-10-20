@@ -157,7 +157,7 @@ cmd::notes() {
       [[ -z $kw ]] && { ui::say_status WARN "Usage: notes search <word>"; return 1; }
       [[ -s $f ]] || { ui::say_status INFO "No notes yet."; return 0; }
       printf "${C_CYAN}${C_BOLD}🔎 Notes matching '%s'${C_RESET}\n" "$kw"
-      grep -in -- "$kw" "$f" | awk -F: '{n=$1; sub(/^[0-9]+:/,""); printf "  %3d  %s\n", n, $0}' || true
+      grep -in -- "$kw" "$f" | awk -F: '{n=$1; sub(/^[0-9]+:/,""); printf "  %3d  %s\n", n, $0}' | ui::wrap "$(( $(ui::cols) - 1 ))" 7 || true
       return 0 ;;
     rm|del|remove)
       local n="${2:-}"
@@ -176,7 +176,7 @@ cmd::notes() {
     return 0
   fi
   printf "${C_CYAN}${C_BOLD}📝 Your notes${C_RESET}  ${C_DIM}(search · rm <n> · edit)${C_RESET}\n"
-  awk '{printf "  %3d  %s\n", NR, $0}' "$f"
+  awk '{printf "  %3d  %s\n", NR, $0}' "$f" | ui::wrap "$(( $(ui::cols) - 1 ))" 7
 }
 
 # ── todo ─────────────────────────────────────────────────────────────────
@@ -188,9 +188,10 @@ cmd::todo() {
   case "$sub" in
     done|do)
       local n="${2:-}"
-      [[ -z $n ]] && { ui::say_status WARN "Usage: todo done <number>"; return 1; }
+      [[ $n =~ ^[0-9]+$ ]] || { ui::say_status WARN "Usage: todo done <number>   (numbers from 'todo')"; return 1; }
+      (( $(grep -c '^- \[' "$f") >= n && n >= 1 )) || { ui::say_status ERR "No todo #$n"; return 1; }
       awk -v n="$n" '
-        /^- \[ \]/ { i++; if (i==n) { sub(/\[ \]/, "[x]") } }
+        /^- \[/ { i++; if (i==n) { sub(/\[ \]/, "[x]") } }
         { print }
       ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
       ui::say_status OK "Marked #$n done."
@@ -198,7 +199,8 @@ cmd::todo() {
       ;;
     rm|remove)
       local n="${2:-}"
-      [[ -z $n ]] && { ui::say_status WARN "Usage: todo rm <number>"; return 1; }
+      [[ $n =~ ^[0-9]+$ ]] || { ui::say_status WARN "Usage: todo rm <number>"; return 1; }
+      (( $(grep -c '^- \[' "$f") >= n && n >= 1 )) || { ui::say_status ERR "No todo #$n"; return 1; }
       awk -v n="$n" '
         /^- \[/ { i++; if (i==n) next }
         { print }
@@ -235,14 +237,14 @@ cmd::todo() {
           if ($0 ~ /\[x\]/) r=5; else if ($0 ~ /\] \(H\) /) r=1; else if ($0 ~ /\] \(M\) /) r=2; else if ($0 ~ /\] \(L\) /) r=4; else r=3
           R[i]=r }
         END { for (r=1;r<=5;r++) for (k=1;k<=i;k++) if (R[k]==r) {
-            line=L[k]
+            line=L[k]; sub(/^- /, "", line)
             if (r==5) { gsub(/\[x\]/, "\033[38;5;120m[✓]\033[0m", line); printf "  \033[2m%2d. %s\033[0m\n", k, line; continue }
             gsub(/\[ \]/, "\033[38;5;221m[ ]\033[0m", line)
             gsub(/\(H\)/, "\033[38;5;203m(H)\033[0m", line)
             gsub(/\(M\)/, "\033[38;5;221m(M)\033[0m", line)
             gsub(/\(L\)/, "\033[38;5;75m(L)\033[0m", line)
             printf "  %2d. %s\n", k, line } }
-      ' "$f"
+      ' "$f" | ui::wrap "$(( $(ui::cols) - 1 ))" 6
       ;;
     *)
       printf -- '- [ ] %s\n' "$*" >> "$f"
@@ -318,17 +320,19 @@ cmd::doctor() {
   local fix=0 miss_req=0 miss_opt=0
   [[ ${1:-} == --fix || ${1:-} == fix ]] && fix=1
   printf "${C_CYAN}${C_BOLD}🩺 nebula Doctor${C_RESET}\n"
-  printf "${C_GRAY}────────────────────────────────${C_RESET}\n"
+  printf "${C_GRAY}%s${C_RESET}\n" "$(ui::rep ─ $(( $(ui::cols) > 33 ? 32 : $(ui::cols) - 2 )))"
   _nebula_doctor_check() {
-    local label=$1 bin=$2 required=${3:-optional}
-    if command -v "$bin" >/dev/null 2>&1; then
-      printf "  ${C_GREEN}✔${C_RESET} %-22s ${C_DIM}(%s)${C_RESET}\n" "$label" "$(command -v "$bin")"
+    local label=$1 bin=$2 required=${3:-optional} b found="" cols lw=22 pw
+    cols=$(ui::cols); (( cols < 56 )) && lw=12; pw=$(( cols - lw - 8 )); (( pw < 8 )) && pw=8
+    for b in ${bin//,/ }; do command -v "$b" >/dev/null 2>&1 && { found=$(command -v "$b"); break; }; done
+    if [[ -n $found ]]; then
+      printf "  ${C_GREEN}✔${C_RESET} %-${lw}s ${C_DIM}(%s)${C_RESET}\n" "$label" "$(viz::trunc "$found" "$pw")"
     else
       if [[ $required == required ]]; then
-        printf "  ${C_RED}✖${C_RESET} %-22s ${C_RED}MISSING (required)${C_RESET}\n" "$label"
+        printf "  ${C_RED}✖${C_RESET} %-${lw}s ${C_RED}MISSING${cols:+$( (( cols >= 56 )) && echo ' (required)')}${C_RESET}\n" "$label"
         miss_req=$((miss_req+1))
       else
-        printf "  ${C_YELLOW}○${C_RESET} %-22s ${C_DIM}not installed${C_RESET}\n" "$label"
+        printf "  ${C_YELLOW}○${C_RESET} %-${lw}s ${C_DIM}not installed${C_RESET}\n" "$label"
         miss_opt=$((miss_opt+1))
       fi
     fi
@@ -342,15 +346,15 @@ cmd::doctor() {
   _nebula_doctor_check "tgpt"      tgpt
   _nebula_doctor_check "gawk"      awk
   _nebula_doctor_check "jq"        jq
-  _nebula_doctor_check "mpv/mpg123" mpg123
+  _nebula_doctor_check "mpv/mpg123" mpv,mpg123
   _nebula_doctor_check "fd"        fd
   _nebula_doctor_check "espeak"    espeak
-  _nebula_doctor_check "sox"       play
+  _nebula_doctor_check "sox"       sox,play
   _nebula_doctor_check "qrencode"  qrencode
   _nebula_doctor_check "neofetch"  neofetch
   _nebula_doctor_check "python"    python3
   _nebula_doctor_check "termux-api" termux-notification
-  printf "${C_GRAY}────────────────────────────────${C_RESET}\n"
+  printf "${C_GRAY}%s${C_RESET}\n" "$(ui::rep ─ $(( $(ui::cols) > 33 ? 32 : $(ui::cols) - 2 )))"
   local ok=1 f
   for f in "$NEBULA_HOME/bin/nebula" "$NEBULA_HOME/motd/init.sh" "$NEBULA_HOME/lib/auth.sh" "$NEBULA_HOME/assets/help.txt"; do
     if [[ -e $f ]]; then
@@ -362,7 +366,7 @@ cmd::doctor() {
   done
   # data + safety checks
   if [[ -d $NEBULA_CFG && -w $NEBULA_CFG ]]; then
-    printf "  ${C_GREEN}✔${C_RESET} data folder writable ${C_DIM}(%s)${C_RESET}\n" "$NEBULA_CFG"
+    printf "  ${C_GREEN}✔${C_RESET} data folder writable ${C_DIM}(%s)${C_RESET}\n" "$NEBULA_CFG" | ui::wrap "$(( $(ui::cols) - 1 ))" 4
   else
     printf "  ${C_RED}✖${C_RESET} data folder not writable: %s\n" "$NEBULA_CFG"; ok=0
   fi

@@ -190,6 +190,7 @@ _np_precmd() {
 }
 _np_preexec() { _np_t0=$EPOCHSECONDS }
 
+
 # the studio's live preview runs this (fake data, same build code)
 _np_preview() {
   emulate -L zsh
@@ -203,11 +204,15 @@ _np_preview() {
   print -rn -- $'\x1f'; print -P -- "$RPROMPT"
 }
 
-# redraw the prompt right away when the window is resized across a breakpoint
+# Redraw the prompt right away when the window is resized across a width breakpoint.
+# IMPORTANT: a TRAP function must return 0. A non-zero status (which `(( … )) || return` gives)
+# makes zsh abort the current line and print a fresh prompt: that is what happened every time the
+# Android keyboard opened or closed (the height changes, SIGWINCH fires, the prompt jumped a line).
 TRAPWINCH() {
-  (( ${_np[responsive]} )) || return
-  (( (${COLUMNS:-80} < 38 ? 0 : (${COLUMNS:-80} < 50 ? 1 : 2)) != _np_wb )) || return
+  (( ${_np[responsive]} )) || return 0
+  (( (${COLUMNS:-80} < 38 ? 0 : (${COLUMNS:-80} < 50 ? 1 : 2)) != _np_wb )) || return 0
   _np_build; zle && zle reset-prompt 2>/dev/null
+  return 0
 }
 
 _np_load

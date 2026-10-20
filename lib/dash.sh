@@ -145,7 +145,7 @@ dash::top() {
   local rows; rows=$(ps -eo rss=,comm= 2>/dev/null | awk '$1>0' | sort -rn | head -n "$n")
   [[ -n $rows ]] || return 1
   local mx; mx=$(head -1 <<<"$rows" | awk '{print $1}')
-  local nw=$(( w >= 50 ? 18 : 12 )) bw=$(( w - nw - 18 )); (( bw < 6 )) && bw=6; (( bw > 30 )) && bw=30
+  local nw=$(( w >= 50 ? 18 : 12 )) bw; bw=$(( w - nw - 18 )); (( bw < 6 )) && bw=6; (( bw > 30 )) && bw=30
   dash::h "⚙  Top processes" "by memory"
   while read -r rss comm; do
     printf '     %-*s ' "$nw" "$(viz::trunc "${comm##*/}" "$nw")"; viz::bar "$rss" "$mx" "$bw" "$C_MAGENTA"; printf ' %s%s%s\n' "$C_DIM" "$(ui::human_kb "$rss")" "$C_RESET"

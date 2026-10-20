@@ -228,6 +228,23 @@ autoload -Uz add-zsh-hook
 add-zsh-hook preexec _nebula_rec_preexec
 add-zsh-hook precmd  _nebula_rec_precmd
 
+# ── hardware keys (Termux extra-keys row sends Alt+digit) ──────────────
+# Alt-1 vol- · Alt-2 vol+ · Alt-3 mute · Alt-4 brightness- · Alt-5 brightness+ · Alt-6 torch · Alt-7 lock
+_nebula_hwkey() {  # silent: result shows as a one-line message under the prompt
+  local out; out=$("$NSH_HOME/../lib/hwkey.sh" "$@" 2>&1 | head -n1)
+  zle -M "$out"
+}
+_nebula_hw_1() { _nebula_hwkey vol down }
+_nebula_hw_2() { _nebula_hwkey vol up }
+_nebula_hw_3() { _nebula_hwkey vol mute }
+_nebula_hw_4() { _nebula_hwkey bright down }
+_nebula_hw_5() { _nebula_hwkey bright up }
+_nebula_hw_6() { _nebula_hwkey torch }
+for _k in 1 2 3 4 5 6; do zle -N _nebula_hw_$_k; bindkey "^[$_k" _nebula_hw_$_k; done
+_nebula_lock_key() { zle -I; "$NSH_HOME/../lib/lock.sh" || exit 1; zle reset-prompt; }
+zle -N _nebula_lock_key; bindkey '^[7' _nebula_lock_key
+unset _k
+
 # ── 7. other aliases ────────────────────────────────────────────────────
 alias ..="cd .."
 alias c="clear"
@@ -247,6 +264,7 @@ if (( ! ${NSH_SKIP_AUTH:-0} )) && [[ -o interactive && -z $NEBULA_REPL ]]; then
         zle -I 2>/dev/null
         "$NSH_HOME/../lib/lock.sh" || exit 1
         zle reset-prompt 2>/dev/null
+        return 0     # a trap must return 0 or zsh aborts the current line
       }
     fi
     unset _nebula_al

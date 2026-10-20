@@ -36,7 +36,7 @@ remind::_list() {
   printf "${C_CYAN}${C_BOLD}⏰ Reminders${C_RESET}\n"
   sort -t'|' -k2,2n "$f" | while IFS='|' read -r id ep _ text; do
     printf "  ${C_GREEN}#%s${C_RESET} ${C_DIM}%s${C_RESET}  %s\n" "$id" "$(date -d "@$ep" '+%a %H:%M' 2>/dev/null)" "$text"
-  done
+  done | ui::wrap "$(( $(ui::cols) - 1 ))" 6
 }
 
 # Reminders that fired while there was no phone notification path
@@ -225,10 +225,40 @@ cmd::tour() {
   clear
   for s in "${steps[@]}"; do
     i=$((i+1)); title=${s%%|*}; body=${s#*|}
-    printf "\n${C_CYAN}${C_BOLD}%s${C_RESET}  ${C_DIM}(%d/%d)${C_RESET}\n  %s\n" "$title" "$i" "${#steps[@]}" "$body"
+    printf "\n${C_CYAN}${C_BOLD}%s${C_RESET}  ${C_DIM}(%d/%d)${C_RESET}\n" "$title" "$i" "${#steps[@]}"
+    printf '  %s\n' "$body" | ui::wrap "$(( $(ui::cols) - 1 ))" 2
     [[ -t 0 ]] || continue
     read -r -p "  ⏎ next · q to stop " a; [[ ${a,,} == q* ]] && break
   done
   mkdir -p "$NEBULA_CFG"; touch "$NEBULA_CFG/.toured"
-  printf "\n  ${C_GREEN}That's it!${C_RESET} Type ${C_BOLD}help${C_RESET} any time. Replay with ${C_BOLD}tour${C_RESET}.\n\n"
+  printf "\n  ${C_GREEN}That's it!${C_RESET} Type ${C_BOLD}help${C_RESET} any time. Replay with ${C_BOLD}tour${C_RESET}.\n\n" | ui::wrap "$(( $(ui::cols) - 1 ))" 2
 }
+
+# ── keys: extra-keys cheat sheet + reload ───────────────────────────────
+cmd::keys() {
+  if [[ ${1:-} == reload ]]; then
+    command -v termux-reload-settings >/dev/null 2>&1 || { ui::say_status ERR "termux-reload-settings not found (are you in Termux?)"; return 1; }
+    termux-reload-settings && ui::say_status OK "Termux settings reloaded."; return
+  fi
+  printf '%s%s⌨  Extra keys%s  %s(swipe a key up for its small key)%s\n' "$C_CYAN" "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
+  {
+    printf '  %s\n' "hist – Ctrl-R search history (swipe: help)"
+    printf '  %s\n' "file – Ctrl-T pick a file and insert it"
+    printf '  %s\n' "dir – Alt-C pick a folder and cd (swipe: cd ..)"
+    printf '  %s\n' "clr – clear the screen (swipe: status)"
+    printf '  %s\n' "^C ^D – interrupt / end of input (swipe ^C: ^Z)"
+    printf '  %s
+' "Arrows, HOME END PGUP PGDN, TAB CTRL ALT ESC BKSP are all on the row"
+    printf '  %s
+' "~ swipe for \` · & swipe for ; · ( [ { swipe for ) ] }"
+    printf '  %s\n' "KEYBOARD – show or hide the on-screen keyboard"
+    printf '  %s\n' "VOL- VOL+ MUTE – media volume down / up / mute (press MUTE again to restore)"
+    printf '  %s\n' "BRT- BRT+ – screen brightness down / up"
+    printf '  %s\n' "TORCH – flashlight on/off · lock – lock Nebula now"
+    printf '  %s\n' "(VOL, BRT and TORCH need the Termux:API app; they work in zsh, or via: nebula hw vol up)"
+  } | ui::wrap "$(( $(ui::cols) - 1 ))" 9
+  ui::hint "Edit assets/termux.properties, then: keys reload"
+}
+
+# nebula hw vol up|down|mute · bright up|down · torch   (same actions as the VOL/BRT/TORCH keys)
+cmd::hw() { "$NEBULA_HOME/lib/hwkey.sh" "$@"; }

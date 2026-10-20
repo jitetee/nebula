@@ -137,7 +137,7 @@ device::gate() {
   cap=$(device::cmd_cap "$c"); [[ -z $cap ]] && return 0
   device::cap "$cap" && return 0
   why=$(device::cap_help "$cap"); why=${why%%|*}
-  printf '  %s⚠ "%s" isn'"'"'t available on this device — %s.%s\n' "${C_YELLOW:-}" "$c" "$why" "${C_RESET:-}"
+  printf '  %s⚠ "%s" isn'"'"'t available on this device — %s.%s\n' "${C_YELLOW:-}" "$c" "$why" "${C_RESET:-}" | ui::wrap "$(( $(ui::cols) - 1 ))" 4
   printf '  %sOpen Settings to fix it:%s settings\n' "${C_DIM:-}" "${C_RESET:-}"
   return 1
 }

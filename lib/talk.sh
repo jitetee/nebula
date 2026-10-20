@@ -33,7 +33,7 @@ cmd::english() {
   case "${1:-}" in
     ask|auto|off) mkdir -p "$NEBULA_CFG"; echo "$1" > "$NEBULA_CFG/nl_mode"
       case $1 in ask) ui::say_status OK "Plain-English mode: ask first (default)";; auto) ui::say_status OK "Plain-English mode: read-only plans run at once, everything else asks";; off) ui::say_status OK "Plain-English mode off.";; esac ;;
-    *) ui::say_status INFO "Plain-English mode: $(nl::mode)   ·   english ask | auto | off"; printf '   %sask%s  offer to translate sentences · %sauto%s  run read-only plans at once · %soff%s  never\n' "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" ;;
+    *) ui::say_status INFO "Plain-English mode: $(nl::mode)   ·   english ask | auto | off"; printf '   %sask%s  offer to translate sentences · %sauto%s  run read-only plans at once · %soff%s  never\n' "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" | ui::wrap "$(( $(ui::cols) - 1 ))" 5 ;;
   esac
 }
 cmd::nl() { cmd::english "$@"; }      # old name, kept so existing habits still work
@@ -67,7 +67,7 @@ tell::safe() {
   while IFS= read -r seg; do
     seg=${seg#"${seg%%[![:space:]]*}"}; w=${seg%% *}
     case $w in
-      ls|cat|pwd|echo|df|du|free|uptime|uname|whoami|date|head|tail|wc|grep|find|which|type|file|stat|ps|id|env|printf|tree|sort|uniq|cut|awk|sed|nproc|hostname|ip|ifconfig|getprop|lsd|bat|rg|fd|jq|stat|realpath|basename|dirname|true) ;;
+      ls|cat|pwd|echo|df|du|free|uptime|uname|whoami|date|head|tail|wc|grep|find|which|type|file|stat|ps|id|env|printf|tree|sort|uniq|cut|awk|sed|nproc|hostname|ip|ifconfig|getprop|lsd|bat|rg|fd|jq|realpath|basename|dirname|true) ;;
       git) [[ $seg =~ ^git[[:space:]]+(status|log|diff|branch|remote|show|rev-parse|config[[:space:]]+--get) ]] || return 1 ;;
       *) return 1 ;;
     esac

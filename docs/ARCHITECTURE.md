@@ -28,12 +28,10 @@ nebula/
 │   ├── plugins/
 │   │   ├── autosuggestions/  # → / Ctrl-F to accept
 │   │   ├── syntax-highlighting/ # token-classifying highlighter
-│   │   ├── z/                # frecent directory jump
-│   │   └── fzf/              # Ctrl-R, Ctrl-T, Alt-C
+│   │   ├── nebula-pick/      # Tab picker (our own fuzzy finder, no fzf)
+│   │   └── z/                # frecent directory jump
 │   └── themes/
-│       ├── nebula.zsh-theme    # Nebula-blue 2-line (default)
-│       ├── minimal.zsh-theme # single-line, no git
-│       └── cyberpunk.zsh-theme # neon magenta/green
+│       └── studio.zsh-theme  # configurable prompt (`theme studio`)
 ├── install/
 │   ├── install.sh            # non-destructive installer
 │   └── uninstall.sh          # safe uninstall (restores backups)
@@ -99,5 +97,5 @@ Add a new command:
 
 Add a new prompt theme:
 
-1. Drop `zsh/themes/<name>.zsh-theme` that sets `PROMPT` / `RPROMPT`.
-2. Users switch via `nebula theme <name>`.
+1. Drop `assets/prompts/<name>.conf` (see the existing ones for the keys).
+2. Users switch via `theme <name>`.

@@ -68,10 +68,10 @@ home::gen_news() {
   local f; f=$(news::feed "${HC[news_topic]}") || return 1
   local body; body=$(curl -fsSL --max-time 8 -A nebula-termux "${f#*|}" 2>/dev/null) || return 1
   local rows; rows=$(news::parse <<<"$body" | head -n 3); [[ -n $rows ]] || return 1
-  local cols; cols=$(dash::cols) t l d s ep age
+  local t l d s ep
   while IFS=$'\037' read -r t l d s; do
-    ep=$(date -d "$d" +%s 2>/dev/null || echo 0); age=""; (( ep > 0 )) && age=" · $(viz::ago "$ep")"
-    printf '  %s▎%s %s%s%s\n' "$C_CYAN" "$C_RESET" "$(viz::trunc "$t" 26)" "$C_DIM" "$age$C_RESET"
+    ep=$(date -d "$d" +%s 2>/dev/null || echo 0)
+    printf '%s\t%s\n' "$ep" "$t"
   done <<<"$rows"
 }
 home::gen_sports() {
@@ -95,9 +95,13 @@ home::gen_sports() {
 
 # ── widgets (instant, local) ────────────────────────────────────────────
 home::w_greeting() {
-  local h; h=$(date +%H); h=$((10#$h)); local g="Good evening"
+  local h w; h=$(date +%H); h=$((10#$h)); w=$(ui::cols); local g="Good evening"
   (( h < 5 )) && g="Burning the midnight oil" || { (( h < 12 )) && g="Good morning" || { (( h < 17 )) && g="Good afternoon"; }; }
-  printf '\n  %s%s%s, %s%s%s ⚡  %s%s%s\n' "$C_CYAN" "$g" "$C_RESET" "$C_BOLD" "${NEBULA_USER:-$(id -un 2>/dev/null)}" "$C_RESET" "$C_DIM" "$(date '+%a %d %b · %H:%M')" "$C_RESET"
+  local who=${NEBULA_USER:-$(id -un 2>/dev/null)} when
+  if   (( w >= 60 )); then when=$(date '+%a %d %b · %H:%M')
+  elif (( w >= 44 )); then when=$(date '+%H:%M')
+  else when=""; (( w < 34 )) && g=${g%% *}; fi
+  printf '\n  %s%s%s, %s%s%s ⚡%s\n' "$C_CYAN" "$g" "$C_RESET" "$C_BOLD" "$who" "$C_RESET" "${when:+  $C_DIM$when$C_RESET}"
 }
 home::w_sysinfo() {
   printf '\n'
@@ -113,23 +117,38 @@ home::w_disk()    { printf '\n'; DASH_MAXDISK=2 dash::disk 2>/dev/null | sed -n 
 home::w_battery() { local b pct st temp; b=$(device::battery 2>/dev/null) || return; IFS='|' read -r pct st temp <<<"$b"; printf '\n  🔋 %s%% %s%s%s\n  ' "$pct" "$C_DIM" "${st}${temp:+ · ${temp}°C}" "$C_RESET"; ui::bar "$pct" "$(ui::bw $(( $(dash::w) - 6 )))" invert; printf '\n'; }
 home::w_network() { local ip; ip=$(ui::lan_ip); printf '\n  📶 %s%s%s\n' "$C_DIM" "${ip:-offline}" "$C_RESET"; }
 home::w_trend()   { local out; out=$(dash::trend 2>/dev/null) && printf '%s\n' "$out"; }
-home::w_tip()     { local f="$NEBULA_HOME/assets/tips.txt"; [[ -s $f ]] || return; printf '\n  %s💡 %s%s\n' "$C_DIM" "$(shuf -n1 "$f" 2>/dev/null || head -1 "$f")" "$C_RESET"; }
+home::w_tip()     { local f="$NEBULA_HOME/assets/tips.txt"; [[ -s $f ]] || return; printf '\n'; viz::wrap "$(( $(dash::w) - 1 ))" "  ${C_DIM}💡 " "     ${C_DIM}" "$(shuf -n1 "$f" 2>/dev/null || head -1 "$f")"; printf '%s' "$C_RESET"; }
 home::w_todo() {
   local f="$NEBULA_CFG/todo.md"; [[ -s $f ]] || return
   local rows; rows=$(awk '/^- \[ \]/{ line=$0; sub(/^- \[ \] /,"",line); r=3; if (line ~ /^\(H\)/) r=1; else if (line ~ /^\(M\)/) r=2; else if (line ~ /^\(L\)/) r=4; print r "\t" line }' "$f" | sort -n -s | head -3 | cut -f2-)
   [[ -n $rows ]] || return
   printf '\n  %s✅ To do%s\n' "$C_BOLD" "$C_RESET"
-  while IFS= read -r l; do l=${l/\(H\)/${C_RED}●${C_RESET}}; l=${l/\(M\)/${C_YELLOW}●${C_RESET}}; l=${l/\(L\)/${C_BLUE}●${C_RESET}}; printf '    %s\n' "$(viz::trunc "$l" 60)"; done <<<"$rows"
+  local tw=$(( $(dash::w) - 6 )); (( tw < 12 )) && tw=12
+  while IFS= read -r l; do l=$(viz::trunc "$l" "$(( tw ))"); l=${l/\(H\)/${C_RED}●${C_RESET}}; l=${l/\(M\)/${C_YELLOW}●${C_RESET}}; l=${l/\(L\)/${C_BLUE}●${C_RESET}}; printf '    %s\n' "$l"; done <<<"$rows"
 }
 home::w_reminders() {
   local f="$NEBULA_CFG/reminders"; [[ -s $f ]] || return
   local rows; rows=$(sort -t'|' -k2,2n "$f" | head -2); [[ -n $rows ]] || return
   printf '\n  %s⏰ Coming up%s\n' "$C_BOLD" "$C_RESET"
-  local id ep pid text; while IFS='|' read -r id ep pid text; do printf '    %s%s%s  %s\n' "$C_DIM" "$(date -d "@$ep" '+%a %H:%M' 2>/dev/null)" "$C_RESET" "$(viz::trunc "$text" 40)"; done <<<"$rows"
+  local id ep pid text tw=$(( $(dash::w) - 18 )); (( tw < 10 )) && tw=10
+  while IFS='|' read -r id ep pid text; do printf '    %s%s%s  %s\n' "$C_DIM" "$(date -d "@$ep" '+%a %H:%M' 2>/dev/null)" "$C_RESET" "$(viz::trunc "$text" "$tw")"; done <<<"$rows"
 }
 home::w_cached() {  # network widget from cache
   local w=$1 f age; f=$(home::cache "$w"); [[ -s $f ]] || return 0
-  age=$(home::age "$w"); printf '\n'; ui::clip "$(dash::w)" < "$f"; [[ -n $age && $age != now ]] && printf '  %s· %s%s\n' "$C_DIM" "$age" "$C_RESET"
+  age=$(home::age "$w"); printf '\n'
+  if [[ $w == news ]]; then home::fmt_news < "$f"; else ui::clip "$(dash::w)" < "$f"; fi
+  [[ -n $age && $age != now ]] && printf '  %s· %s%s\n' "$C_DIM" "$age" "$C_RESET"
+}
+# news cache lines are "epoch<TAB>title" (older caches hold ready-made lines, shown as they are)
+home::fmt_news() {
+  local w ep t age room line; w=$(dash::w)
+  while IFS=$'\t' read -r ep t; do
+    if [[ $ep =~ ^[0-9]+$ && -n $t ]]; then
+      age=""; (( ep > 0 )) && age=" · $(viz::ago "$ep")"
+      room=$(( w - 5 - ${#age} )); (( room < 10 )) && { age=""; room=$(( w - 5 )); }
+      printf '  %s▎%s %s%s%s\n' "$C_CYAN" "$C_RESET" "$(viz::trunc "$t" "$room")" "$C_DIM" "$age$C_RESET"
+    else line=$ep${t:+$'\t'$t}; printf '%s\n' "$line" | ui::clip "$w"; fi
+  done
 }
 
 home::widget() {
@@ -143,12 +162,12 @@ home::widget() {
 }
 
 # ── render ──────────────────────────────────────────────────────────────
-home::render() {
-  home::load
+home::render() {  # home::render [noclear]
+  home::load; local noclear=0; [[ ${1:-} == noclear ]] && noclear=1
   local widgets=${HC[widgets]} w compact=0
   [[ -f $NEBULA_CFG/compact ]] && compact=1
   (( compact )) && widgets="greeting sysinfo disk"        # lighter, but still shows status + storage
-  (( ${HC[clear]} )) && [[ -t 1 ]] && printf '\033[H\033[2J'
+  (( ${HC[clear]} && ! noclear )) && [[ -t 1 ]] && printf '\033[H\033[2J'
   ui::resized
   local cols n gw; cols=$(ui::cols); read -r n gw < <(ui::grid_dims 42 3)
   local UI_W=$gw b
@@ -220,7 +239,7 @@ home::editor() {
         HC[widgets]="${on[*]}"; home::save; MENU_INFO="" ;;
       act)
         case $w in
-          preview) HC[clear]=0 home::render; menu::wait ;;
+          preview) home::render noclear; menu::wait ;;
           presets) local p; p=$(for x in $(home::presets); do printf '%-10s %s\n' "$x" "$(sed -n '1s/^# *//p' "$NEBULA_HOME/assets/home/$x.conf")"; done | pick::choose "Home preset") && home::apply_preset "${p%% *}" ;;
           city)   read -r -p "  City (empty = auto-detect): " c; home::valid weather_city "$c" && { HC[weather_city]=$c; home::save; rm -f "$(home::cache weather)"; } ;;
           coins)  read -r -p "  Coins, comma separated (btc,eth,sol): " c; c=${c,,}; c=${c// /}; home::valid crypto_coins "$c" && { HC[crypto_coins]=$c; home::save; rm -f "$(home::cache crypto)"; } ;;
@@ -243,10 +262,10 @@ home::apply_preset() {
 
 cmd::home() {
   case "${1:-show}" in
-    show|"")  HC[clear]=0; home::render ;;
+    show|"")  home::render noclear ;;
     edit|editor|studio) home::editor ;;
     preset)   [[ -n ${2:-} ]] || { ui::say_status WARN "Usage: home preset <name>   (home presets)"; return 1; }
-              home::apply_preset "$2" && { ui::say_status OK "Home screen: $2"; home::refresh 2>/dev/null >/dev/null; home::load; HC[clear]=0; home::render; } ;;
+              home::apply_preset "$2" && { ui::say_status OK "Home screen: $2"; home::refresh 2>/dev/null >/dev/null; home::render noclear; } ;;
     presets|list) local p; printf "${C_CYAN}${C_BOLD}🏠 Home presets${C_RESET}\n"; for p in $(home::presets); do local lab; printf -v lab '%-10s' "$p"; ui::item "$lab" 10 "$(sed -n '1s/^# *//p' "$NEBULA_HOME/assets/home/$p.conf")"; done ;;
     refresh)  home::refresh; ;;
     off)      mkdir -p "$NEBULA_CFG"; touch "$NEBULA_CFG/home.off"; ui::say_status OK "Home screen hidden at login. Bring it back: home on" ;;

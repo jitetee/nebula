@@ -105,6 +105,24 @@ ui::clip() {
     }'
 }
 
+# ui::wrap <width> [hang=0] : stdin lines → word-wrapped to <width> cells (ANSI/UTF-8 aware).
+# Continuation lines are indented by <hang> spaces; leading indentation of a line is kept.
+ui::wrap() {
+  awk -v W="$1" -v H="${2:-0}" '
+    function vis(s,   t) { t = s; gsub(/\033\[[0-9;]*[a-zA-Z]/, "", t); if (bm) gsub(cont, "", t); return length(t) }
+    BEGIN { bm = (length("é") > 1); if (bm) cont = "[" sprintf("%c", 128) "-" sprintf("%c", 191) "]"
+            pad = ""; for (i = 0; i < H; i++) pad = pad " " }
+    {
+      if ($0 ~ /^[ \t]*$/) { print; next }
+      match($0, /^ */); lead = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+      n = split(rest, a, " "); line = lead; cur = vis(lead); base = cur
+      for (i = 1; i <= n; i++) { wl = vis(a[i])
+        if (cur > base && cur + 1 + wl > W) { print line; line = pad; cur = H; base = H }
+        if (cur > base) { line = line " " a[i]; cur += 1 + wl } else { line = line a[i]; cur += wl } }
+      print line
+    }'
+}
+
 # Grid helper: collect blocks, then print them in n columns.
 #   ui::blocks_reset; ui::blocks_add "text"; …; ui::blocks_flush <n> <gap>
 _UI_BLK=()
@@ -115,8 +133,9 @@ ui::blocks_flush() {
   if (( n <= 1 )); then for b in "${_UI_BLK[@]}"; do printf '%s\n' "$b"; done; rm -rf "$tmp"; return 0; fi
   # greedy: each block goes to the currently shortest column
   local -a h=(); for ((i=0;i<n;i++)); do h[i]=0; : > "$tmp/c$i"; done
-  local lines col k
+  local lines col k cw; cw=$(( ($(ui::cols) - gap * (n - 1)) / n ))
   for b in "${_UI_BLK[@]}"; do
+    b=$(printf '%s\n' "$b" | ui::clip "$cw")
     col=0; for ((k=1;k<n;k++)); do (( h[k] < h[col] )) && col=$k; done
     printf '%s\n' "$b" >> "$tmp/c$col"; lines=$(grep -c '' <<<"$b"); h[col]=$(( h[col] + lines ))
   done

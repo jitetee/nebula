@@ -103,7 +103,7 @@ cmd::logins() {
       else if ($2=="FAIL")        { c=R; ic="✖" }
       else if ($2=="LOCKOUT")     { c=R; ic="⛔" }
       else if ($2=="PASSWD"||$2=="RESET"||$2=="SETUP") { c=Y; ic="⚙" }
-      printf "  %s%s %s  %-8s %s%s\n", c, ic, $1, $2, $3, X }'
+      printf "  %s%s %s  %-8s %s%s\n", c, ic, $1, $2, $3, X }' | ui::wrap "$(( $(ui::cols) - 1 ))" 6
   local f; f=$(auth::_failed_since_ok)
   (( f > 0 )) && ui::say_status WARN "$f failed attempt(s) since the last successful login."
 }

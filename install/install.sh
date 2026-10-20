@@ -132,11 +132,20 @@ sel_tier() {   # sel_tier <regex of tiers>
 }
 sel_count() { local i c=0; for i in "${!NAMES[@]}"; do (( SEL[i] )) && c=$((c+1)); done; echo "$c"; }
 
+# term_size → "rows cols" of the real terminal (stty on /dev/tty works inside $(…), unlike tput)
+term_size() {
+  local sz r c; sz=$(stty size </dev/tty 2>/dev/null)
+  r=${sz% *}; c=${sz#* }
+  [[ $r =~ ^[0-9]+$ && $r -gt 0 ]] || r=$(tput lines 2>/dev/null || echo 24)
+  [[ $c =~ ^[0-9]+$ && $c -gt 0 ]] || c=$(tput cols 2>/dev/null || echo 40)
+  printf '%s %s' "$r" "$c"
+}
+
 # Returns 0 = proceed to install selection, 1 = skip
 deps_menu() {
-  local N=${#NAMES[@]} total cur=0 top=0 H rows cols key rest drawn=0 LINES_OUT
+  local N=${#NAMES[@]} total cur=0 top=0 H rows cols key rest drawn=0 LINES_OUT rc
   total=$((N + 2))
-  rows=$(tput lines 2>/dev/null || echo 24)
+  read -r rows cols < <(term_size)
   H=$(( rows - 7 )); (( H > 14 )) && H=14; (( H < 5 )) && H=5; (( H > total )) && H=$total
   LINES_OUT=$(( H + 3 ))
 
@@ -150,11 +159,16 @@ deps_menu() {
   fi
   printf '\033[?25l'
   trap 'printf "\033[?25h"' EXIT INT TERM
+  trap ':' WINCH                                   # a resize interrupts the key read → redraw
 
   local B=$'\033[1m' DIM=$'\033[2m' CY=$'\033[38;5;51m' GR=$'\033[38;5;120m' YL=$'\033[38;5;221m' RS=$'\033[0m'
 
   draw() {
-    cols=$(tput cols 2>/dev/null || echo 40)
+    local nh nr; read -r nr cols < <(term_size)
+    nh=$(( nr - 7 )); (( nh > 14 )) && nh=14; (( nh < 5 )) && nh=5; (( nh > total )) && nh=$total
+    if (( drawn && nh != H )); then                # screen height changed: wipe the old block, redraw at the new size
+      printf '\033[%dA\033[J' "$LINES_OUT"; drawn=0; H=$nh; LINES_OUT=$(( H + 3 ))
+    fi
     (( cur < top )) && top=$cur
     (( cur >= top + H )) && top=$(( cur - H + 1 ))
     (( drawn )) && printf '\033[%dA' "$LINES_OUT"
@@ -190,7 +204,9 @@ deps_menu() {
   local result=1
   while :; do
     draw
-    IFS= read -rsn1 key </dev/tty || break
+    IFS= read -rsn1 key </dev/tty; rc=$?
+    (( rc > 128 )) && continue                     # resize
+    (( rc != 0 )) && break
     if [[ $key == $'\033' ]]; then
       IFS= read -rsn2 -t 0.05 rest </dev/tty || rest=""
       key+=$rest
@@ -209,7 +225,7 @@ deps_menu() {
         else result=1; break; fi ;;
     esac
   done
-  printf '\033[?25h'; trap - EXIT INT TERM
+  printf '\033[?25h'; trap - EXIT INT TERM WINCH
   echo
   return $result
 }

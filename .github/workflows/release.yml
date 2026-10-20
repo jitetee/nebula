@@ -1,0 +1,41 @@
+name: release
+# Push a tag like v0.7.0 (after bumping VERSION) → builds the .deb, attaches it to a GitHub
+# release, and publishes an APT repository to GitHub Pages (branch gh-pages).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag must match VERSION
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: test "v$(tr -d '[:space:]' < VERSION)" = "${GITHUB_REF_NAME}" || { echo "Tag ${GITHUB_REF_NAME} != VERSION file"; exit 1; }
+      - run: sudo apt-get update && sudo apt-get install -y dpkg-dev gnupg
+      - name: Build .deb
+        run: bash packaging/build-deb.sh
+      - name: Import signing key (optional)
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          if [ -n "$GPG_PRIVATE_KEY" ]; then
+            echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+            echo "GPG_KEY=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')" >> "$GITHUB_ENV"
+          fi
+      - name: Build APT repository
+        run: bash packaging/make-repo.sh
+      - name: GitHub release with the .deb
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.deb
+      - name: Publish APT repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist/repo
+          publish_branch: gh-pages
+          force_orphan: true

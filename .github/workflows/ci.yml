@@ -1,0 +1,24 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y zsh shellcheck
+      - name: Syntax check (bash)
+        run: |
+          for f in bin/nebula lib/*.sh install/*.sh packaging/*.sh motd/init.sh motd/motd.d/*; do bash -n "$f" || exit 1; done
+      - name: Syntax check (zsh)
+        run: |
+          for f in zsh/nsh.zsh zsh/themes/*.zsh-theme zsh/plugins/*/*.zsh; do zsh -n "$f" || exit 1; done
+      - name: Registry sanity
+        run: |
+          awk -F'|' '!/^#/ && NF!=5 {print "bad registry line: "$0; bad=1} END{exit bad}' assets/registry.txt
+          awk -F'|' '/^@/ && NF!=4 {print "bad help line: "$0; bad=1} END{exit bad}' assets/help.txt
+      - name: Build the package
+        run: bash packaging/build-deb.sh

@@ -27,14 +27,15 @@ help::_list() {
 }
 
 help::_detail() {  # help::_detail <name>  → 0 if found
-  local name=$1
-  awk -F'|' -v n="$name" -v G="$C_GREEN" -v D="$C_DIM" -v B="$C_BOLD" -v R="$C_RESET" '
+  local name=$1 out
+  out=$(awk -F'|' -v n="$name" -v G="$C_GREEN" -v D="$C_DIM" -v B="$C_BOLD" -v R="$C_RESET" '
     /^@/ { if (on) exit
            if (substr($1,2)==n) { on=1; args=$3; if ($4=="" ) {}
              printf "\n%s%s%s %s%s%s\n%s%s%s\n\n", B, n, R, G, args, R, D, $NF, R; next } }
     on && /^  / { sub(/^  /,""); printf "  %s\n", $0 }
     END { exit !on }
-  ' "$(help::_file)"
+  ' "$(help::_file)") || return 1
+  printf '%s\n' "$out" | ui::wrap "$(( $(ui::cols) - 1 ))" 4
 }
 
 help::_search() {
@@ -46,7 +47,7 @@ help::_search() {
     /^@/ { flush(); split($0,a,"|"); name=substr(a[1],2); sum=a[4]; block=$0; next }
     /^  / { block=block " " $0 }
     END { flush(); if (!found) print "  (nothing found)" }
-  ' "$(help::_file)"
+  ' "$(help::_file)" | ui::wrap "$(( $(ui::cols) - 1 ))" 14
   echo
 }
 

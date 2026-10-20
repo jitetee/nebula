@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.1
+- **Fixed the prompt jumping to a new line every time the Android keyboard opens or closes.** The prompt's resize trap (`TRAPWINCH`) returned a non-zero status when the width hadn't changed, which makes zsh abort the line and print a fresh prompt. It (and the idle-lock trap) now return 0.
+- **New extra-keys layout** (`keys` shows a cheat sheet, `keys reload` applies it): the old `VOL+` / `VOL-` / `MUTE` buttons are not real Termux keys and just typed their own names. They are replaced by useful keys: `^C`, `^D`, `hist` (Ctrl-R), `file` (Ctrl-T), `dir` (Alt-C), `clr`, a `KEYBOARD` toggle, brackets and quotes, and swipe-up popups (PgUp/PgDn/Home/End, `| _ * ; ~`, `^Z`, `status`, `help`, `cd ..`). Needs Termux 0.118+.
+- **Fixed `todo done N`** marking the wrong task (or none) once any item was already done: it now uses the same numbering the list shows, and validates the number (`todo rm` too).
+- **Fixed the `home` command always clearing the screen**, and the editor's "Preview now" printing an error (`HC[clear]=0 cmd` is not valid bash). `home::render noclear` replaces it.
+- **Fixed `status` / `dash` top-processes bars** being far too wide on phones (variable used before it was set), which cut off the memory column.
+- **Fixed home-screen news refresh** (`local … t l d` ran `t` as a command and leaked variables). Headlines are now cached raw and formatted to your screen width at display time.
+- **Responsive fixes:** grid columns are clipped to their own width (no more chopped right column), greeting/todo/reminders/tip/news adapt to width, tips wrap, `help <cmd>`, `help search`, `doctor`, `tour`, `todo`, `notes`, `logins`, `reminders` and every status message (`ui::say_status`) now word-wrap with a hanging indent, install spinner no longer wraps (and follows resizes), menus count emoji as 2 cells, and the installer's package picker re-measures on resize.
+- `doctor` now recognises mpv or mpg123, and sox or play.
+- `README` trimmed to the essentials; `ARCHITECTURE.md` file tree corrected.
+
 ## 0.9.0
 - **Responsive everywhere.** One shared layout layer measures your screen (and re-measures on resize/rotation). Breakpoints xs/sm/md/lg/xl. Dashboards, the home screen, news, sports and crypto lay themselves out in 1–4 columns; bars, tables and charts scale to the space; lists wrap instead of overflowing. Checked at 30, 34, 44, 80, 130 and 200 columns: no overflowing lines.
 - **`nebula dash`**: a true full-screen dashboard (alternate screen) that fills the terminal, scrolls, toggles panels and reflows live when you resize. `status --live` opens it.

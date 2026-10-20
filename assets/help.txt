@@ -227,6 +227,9 @@
   Changes show up in your open shell at the next prompt.
 @prompt|Look||Open the prompt studio
   Same as: theme studio
+@keys|Look||Termux extra-keys cheat sheet
+  keys – show what each extra key does (swipe a key up for a second key)
+  keys reload – apply changes to assets/termux.properties (termux-reload-settings)
 @home|Look|[edit/preset]|Your startup screen
   home                   show it now
   home edit              choose widgets, order, city, coins, league

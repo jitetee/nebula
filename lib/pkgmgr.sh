@@ -84,14 +84,18 @@ pm::run() {
   printf '\033[?25l\n\n\033[2A'
   while kill -0 "$pid" 2>/dev/null; do
     if (( f % 4 == 0 )); then
+      cols=$(ui::cols)                                   # follow a resized screen
       local tail_; tail_=$(tail -c 700 "$log" 2>/dev/null | tr '\r' '\n' | sed 's/\x1b\[[0-9;?]*[a-zA-Z]//g')
       last=$(grep -v '^[[:space:]]*$' <<<"$tail_" | tail -1)
       pct=$(grep -o '[0-9]\{1,3\}%' <<<"$tail_" | tail -1 | tr -d %)
     fi
     el=$(( SECONDS - start ))
-    local bar=""; [[ -n $pct && $pct -le 100 ]] && bar=" $(viz::bar "$pct" 100 12 "$C_CYAN") ${pct}%"
+    # keep line 1 inside the screen: "  ⠋ label [bar] 45%  m:ss" — drop the bar first, then shorten the label
+    local bar="" lab=$label room=$(( cols - 13 ))
+    [[ -n $pct && $pct -le 100 ]] && (( room - ${#label} >= 20 )) && bar=" $(viz::bar "$pct" 100 12 "$C_CYAN") ${pct}%"
+    lab=$(viz::trunc "$label" "$(( room - ${#pct} - (${#bar} > 0 ? 17 : 0) ))")
     printf '\r\033[2K  %s%s%s %s%s  %s%d:%02d%s\n\033[2K  %s↳ %s%s\033[1A\r' \
-      "$C_CYAN" "${sp[f % 10]}" "$C_RESET" "$label" "$bar" "$C_DIM" $((el/60)) $((el%60)) "$C_RESET" \
+      "$C_CYAN" "${sp[f % 10]}" "$C_RESET" "$lab" "$bar" "$C_DIM" $((el/60)) $((el%60)) "$C_RESET" \
       "$C_DIM" "$(viz::trunc "$last" $((cols-6)))" "$C_RESET"
     f=$((f+1)); sleep 0.12
   done
@@ -285,7 +289,7 @@ cmd::install() {
             [[ -z $lf ]] && { ui::say_status INFO "No install logs yet."; return; }
             printf "${C_DIM}%s${C_RESET}\n" "$lf"; sed 's/\x1b\[[0-9;?]*[a-zA-Z]//g' "$lf" | tail -n 40; return ;;
     info)   local n=${names[0]:-}; pm::find "$n" || { ui::say_status ERR "Not in the database: $n"; return 1; }
-            printf "\n${C_BOLD}%s${C_RESET}  ${C_DIM}%s · %s${C_RESET}\n" "$PM_NAME" "$PM_CAT" "$PM_DESC"
+            printf "\n${C_BOLD}%s${C_RESET}  ${C_DIM}%s · %s${C_RESET}\n" "$PM_NAME" "$PM_CAT" "$PM_DESC" | ui::wrap "$(( $(ui::cols) - 1 ))" 2
             [[ -n $PM_ALIASES ]] && printf "  aliases: %s\n" "$PM_ALIASES"
             local m; IFS=';' read -ra ms <<<"$PM_METHODS"
             for m in "${ms[@]}"; do printf "  %s %s\n" "$(pm::have "${m%%:*}" && echo "${C_GREEN}✔${C_RESET}" || echo "${C_DIM}–${C_RESET}")" "$(pm::cmd "${m%%:*}" "${m#*:}")"; done; echo; return ;;
