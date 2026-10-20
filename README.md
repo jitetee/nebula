@@ -82,7 +82,7 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 ## Keyboard shortcuts
 
-The Termux extra-keys row has `^C`, `^D`, `hist` (Ctrl-R), `file` (Ctrl-T), `dir` (Alt-C), `clr`, brackets, quotes, a `KEYBOARD` toggle, and a hardware row (`VOL-` `VOL+` `MUTE` `BRT-` `BRT+` `TORCH` `lock`, needs Termux:API); swipe a key up for a second key (PgUp, Home, `|`, `status`…). `keys` shows the cheat sheet and `keys reload` applies edits to `assets/termux.properties`.
+The Termux extra-keys row keeps 24 buttons; swipe one up for a second key (`^C`, `hist`, `dir`, `file`, `clr`, `KEYBOARD`, brackets…). `VOL+` `VOL-` `MUTE` control volume, with brightness and torch on swipe-up (need Termux:API). `keys` shows the cheat sheet and `keys reload` applies edits to `assets/termux.properties`.
 
 | Key | Action |
 | :-- | :-- |

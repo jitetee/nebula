@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.9.1
+- **Fixed `shell-init: error retrieving current directory`** after the session's folder was deleted: the zsh config and `.bashrc` now move to `$HOME` when the current folder no longer exists.
 - **Fixed the prompt jumping to a new line every time the Android keyboard opens or closes.** The prompt's resize trap (`TRAPWINCH`) returned a non-zero status when the width hadn't changed, which makes zsh abort the line and print a fresh prompt. It (and the idle-lock trap) now return 0.
 - **New extra-keys layout** (`keys` shows a cheat sheet, `keys reload` applies it): the old `VOL+` / `VOL-` / `MUTE` buttons are not real Termux keys and just typed their own names. They are replaced by useful keys: `^C`, `^D`, `hist` (Ctrl-R), `file` (Ctrl-T), `dir` (Alt-C), `clr`, a `KEYBOARD` toggle, brackets and quotes, and swipe-up popups (PgUp/PgDn/Home/End, `| _ * ; ~`, `^Z`, `status`, `help`, `cd ..`). Needs Termux 0.118+.
 - **Fixed `todo done N`** marking the wrong task (or none) once any item was already done: it now uses the same numbering the list shows, and validates the number (`todo rm` too).

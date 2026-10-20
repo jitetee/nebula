@@ -240,23 +240,15 @@ cmd::keys() {
     command -v termux-reload-settings >/dev/null 2>&1 || { ui::say_status ERR "termux-reload-settings not found (are you in Termux?)"; return 1; }
     termux-reload-settings && ui::say_status OK "Termux settings reloaded."; return
   fi
-  printf '%s%s⌨  Extra keys%s  %s(swipe a key up for its small key)%s\n' "$C_CYAN" "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '%s%s⌨  Extra keys%s  %s(swipe a button up for the key in brackets)%s\n' "$C_CYAN" "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
   {
-    printf '  %s\n' "hist – Ctrl-R search history (swipe: help)"
-    printf '  %s\n' "file – Ctrl-T pick a file and insert it"
-    printf '  %s\n' "dir – Alt-C pick a folder and cd (swipe: cd ..)"
-    printf '  %s\n' "clr – clear the screen (swipe: status)"
-    printf '  %s\n' "^C ^D – interrupt / end of input (swipe ^C: ^Z)"
-    printf '  %s
-' "Arrows, HOME END PGUP PGDN, TAB CTRL ALT ESC BKSP are all on the row"
-    printf '  %s
-' "~ swipe for \` · & swipe for ; · ( [ { swipe for ) ] }"
-    printf '  %s\n' "KEYBOARD – show or hide the on-screen keyboard"
-    printf '  %s\n' "VOL- VOL+ MUTE – media volume down / up / mute (press MUTE again to restore)"
-    printf '  %s\n' "BRT- BRT+ – screen brightness down / up"
-    printf '  %s\n' "TORCH – flashlight on/off · lock – lock Nebula now"
-    printf '  %s\n' "(VOL, BRT and TORCH need the Termux:API app; they work in zsh, or via: nebula hw vol up)"
-  } | ui::wrap "$(( $(ui::cols) - 1 ))" 9
+    printf '  %s\n' "VOL+ (BRT+) · VOL- (BRT-) · MUTE (TORCH) – volume, brightness, flashlight; press MUTE again to restore. Need Termux:API."
+    printf '  %s\n' "CTRL (^C) · lock (^D) – interrupt, end of input; lock locks Nebula now"
+    printf '  %s\n' "TAB (hist) – Ctrl-R history search · ALT (dir) – Alt-C pick a folder and cd · / (file) – Ctrl-T pick a file"
+    printf '  %s\n' "UP (clr) – clear screen · ESC (keyboard) – show/hide the on-screen keyboard"
+    printf '  %s\n' "PGUP (HOME) · PGDN (END) – paging, line start/end"
+    printf '  %s\n' "Symbols: * (&) · - (_) · | (') · { ([) · $ (() · BKSP (\") · ~ (\`) · } (]) · ) (;)"
+  } | ui::wrap "$(( $(ui::cols) - 1 ))" 4
   ui::hint "Edit assets/termux.properties, then: keys reload"
 }
 

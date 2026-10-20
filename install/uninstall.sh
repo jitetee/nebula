@@ -67,6 +67,12 @@ if [[ -f $zshrc ]] && grep -q '# nebula-BEGIN' "$zshrc"; then
     !in_block { if (h) { for (i=1;i<=h;i++) print hdr[i]; h=0 } print }
   ' "$zshrc" > "$zshrc.nebula.tmp" && mv "$zshrc.nebula.tmp" "$zshrc" && say "Removed Nebula block from $zshrc"
 fi
+# the cwd guard we appended to ~/.bashrc
+if [[ -f $HOME/.bashrc ]] && grep -q 'nebula-cwd-guard' "$HOME/.bashrc"; then
+  awk '/# nebula-cwd-guard/{s=2} s>0{s--; next} {print}' "$HOME/.bashrc" > "$HOME/.bashrc.nebula.tmp" \
+    && mv "$HOME/.bashrc.nebula.tmp" "$HOME/.bashrc"
+fi
+
 # the auto-start snippet we appended to ~/.bashrc
 if [[ -f $HOME/.bashrc ]] && grep -q 'Auto-start zsh (only if installed)' "$HOME/.bashrc"; then
   awk '/# Auto-start zsh \(only if installed\)/{s=4} s>0{s--; next} {print}' "$HOME/.bashrc" > "$HOME/.bashrc.nebula.tmp" \

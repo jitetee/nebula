@@ -4,6 +4,9 @@
 #  No oh-my-zsh, no powerlevel10k, no external frameworks.
 # ─────────────────────────────────────────────────────────────────────────
 
+# If this session was opened inside a folder that no longer exists, move home instead of erroring
+[[ -d $PWD ]] || cd "$HOME"
+
 # Path: ensure Termux + user bins are reachable
 typeset -U path PATH
 path=( "$HOME/bin" "$HOME/.local/bin" "$PREFIX/bin" $path )

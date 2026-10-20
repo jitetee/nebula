@@ -393,6 +393,10 @@ install_nsh() {
 
   # Make zsh the login shell — guarded so a missing zsh can never lock you out
   [[ $SHELL != */zsh ]] && need_cmd chsh && chsh -s zsh 2>/dev/null && say "Default shell → zsh"
+  # recover when the session's folder was deleted (otherwise: "getcwd: cannot access parent directories")
+  if ! grep -q 'nebula-cwd-guard' "$HOME/.bashrc" 2>/dev/null; then
+    printf '\n# nebula-cwd-guard\n[[ -d $PWD ]] || cd "$HOME" 2>/dev/null\n' >> "$HOME/.bashrc"
+  fi
   if [[ ! -f $HOME/.bashrc ]] || ! grep -q 'exec zsh' "$HOME/.bashrc"; then
     printf '\n# Auto-start zsh (only if installed)\nif [[ -t 0 && $- == *i* ]] && command -v zsh >/dev/null 2>&1; then\n    exec zsh\nfi\n' >> "$HOME/.bashrc"
     say "Configured .bashrc to start zsh"
