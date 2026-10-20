@@ -3,6 +3,7 @@
 
 
 set -u
+[[ -d $PWD ]] || cd "$HOME" 2>/dev/null || cd /      # started from a deleted folder: recover instead of erroring in every child
 
 # Resolve repo root (supports symlinked install)
 _self="${BASH_SOURCE[0]}"

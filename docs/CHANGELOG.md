@@ -1,9 +1,10 @@
 # Changelog
 
-## 0.9.2
-- fixed updater
+## 0.9.3
+- update 2026-10-20 13:15
 
 ## 0.9.1
+- **Updates no longer time out on mobile data** (download limit raised from 15 s to 4 min, with retries), and `nebula update` / `nebula` move to your home folder when started from a deleted one, instead of printing `chdir: error retrieving current directory` at every step.
 - **`nebula update` now sees new commits, not just a new version number.** It said "up to date" whenever `VERSION` matched, even if the repo had newer commits pushed without a version bump. It now also compares the latest commit on GitHub with the one you installed (`data/.installed_sha`), shows `v0.9.1 → newer commit abc1234`, and the background notice says `New changes on GitHub`.
 - **Update notice that actually shows.** Nebula checks GitHub for a newer version in the background every 4 hours (never delaying startup) and shows `⚠ Update available: Nebula vX (you have vY)` after the home screen. Before, the check ran in the foreground once a day and its message was wiped by the screen clear after login. `nebula update --notice` prints it on demand.
 - `push.sh` bumps `VERSION` by one patch step per push (and the README badge and a CHANGELOG line) so that notice reaches everyone.

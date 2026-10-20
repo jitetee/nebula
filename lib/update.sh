@@ -75,6 +75,7 @@ update::_backup_app() {  # tar the app (not data/) so --rollback works
 update::via_pkg() { dpkg-query -W -f='${Status}' nebula 2>/dev/null | grep -q 'install ok installed'; }
 
 cmd::update() {
+  [[ -d $PWD ]] || { cd "$HOME" 2>/dev/null || cd /; ui::say_status INFO "Your folder no longer exists: moved to $PWD"; }   # a deleted cwd breaks every child process
   local check=0 force=0 rollback=0 branch=main a self=0
   while (( $# )); do
     case $1 in
@@ -127,7 +128,7 @@ cmd::update() {
   local tmp; tmp=$(mktemp -d "${PREFIX:-/tmp}/tmp/nebula-update.XXXXXX") || { ui::say_status ERR "Can't create a temp folder"; return 1; }
   trap 'rm -rf "$tmp"' RETURN
   ui::say_status INFO "Downloading…"
-  update::_curl "https://codeload.github.com/$repo/tar.gz/refs/heads/$branch" -o "$tmp/src.tar.gz" || { ui::say_status ERR "Download failed."; return 1; }
+  UPDATE_TIMEOUT=${NEBULA_DOWNLOAD_TIMEOUT:-240} update::_curl --retry 3 --retry-delay 2 --retry-all-errors --connect-timeout 15 "https://codeload.github.com/$repo/tar.gz/refs/heads/$branch" -o "$tmp/src.tar.gz" || { ui::say_status ERR "Download failed (slow or dropped connection). Try again: nebula update"; return 1; }
   mkdir -p "$tmp/src"; tar -xzf "$tmp/src.tar.gz" -C "$tmp/src" --strip-components=1 2>/dev/null || { ui::say_status ERR "That download isn't a valid archive."; return 1; }
   if [[ ! -f $tmp/src/bin/nebula || ! -f $tmp/src/install/install.sh || ! -f $tmp/src/VERSION ]] || ! bash -n "$tmp/src/bin/nebula" 2>/dev/null; then
     ui::say_status ERR "The download doesn't look like Nebula — nothing was changed."; return 1
