@@ -277,6 +277,7 @@ if (( ! ${NSH_SKIP_MOTD:-0} )) && [[ -o interactive ]]; then
   if [[ -r $_nsh_motd ]]; then
     _nebula_show_motd() {
       [[ -x $_nsh_motd ]] && "$_nsh_motd" || bash "$_nsh_motd"
+      bash "$NSH_HOME/../lib/update-notice.sh" 2>/dev/null          # "update available" warning (cached, never waits)
       add-zsh-hook -d precmd _nebula_show_motd
       [[ -s "$NEBULA_CFG/reminders" ]] && "$NEBULA_HOME/bin/nebula" remind check
     }

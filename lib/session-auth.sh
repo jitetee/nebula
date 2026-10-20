@@ -18,10 +18,8 @@ NEBULA_CFG="${NEBULA_CFG:-$NEBULA_HOME/data}"
 [[ -r "$NEBULA_HOME/lib/commands.sh" ]] && source "$NEBULA_HOME/lib/commands.sh"
 [[ -r "$NEBULA_HOME/lib/update.sh"   ]] && source "$NEBULA_HOME/lib/update.sh"
 
-# Check for updates before authentication bypass
-if command -v update::check >/dev/null 2>&1; then
-  update::check
-fi
+# (the "update available" notice is shown after the home screen: see nsh.zsh / update-notice.sh;
+#  anything printed here would be wiped by the clear that follows the login)
 
 [[ -n $NEBULA_REPL ]] && exit 0
 [[ -f "$NEBULA_CFG/no-lock" ]] && exit 0

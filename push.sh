@@ -6,6 +6,12 @@
 #   bash push.sh "fix the keyboard"   # commit message as argument
 #   NEBULA_REPO_URL=https://github.com/you/other.git bash push.sh
 #   BRANCH=dev bash push.sh           # branch to push (default: main)
+#   BUMP=minor bash push.sh           # version bump: patch (default) | minor | major | none
+#
+# Version: every push that has changes raises VERSION by one patch step (0.9.1 → 0.9.2),
+# updates the README badge and adds a CHANGELOG line with your commit message, so Nebula's
+# "update available" check on every phone notices the new release. (If your VERSION is already
+# higher than the one on GitHub it is used as it is. BUMP=none turns this off.)
 #
 # Login: GitHub no longer accepts account passwords over HTTPS. When asked for a
 # password, paste a Personal Access Token (GitHub → Settings → Developer settings →
@@ -63,13 +69,38 @@ if [[ ! -f .gitignore ]] || ! grep -q '^data/' .gitignore 2>/dev/null; then
 fi
 
 # 6. add + commit
-git add -A
-if git diff --cached --quiet; then
+if [[ -z $(git status --porcelain) ]]; then
   say "Nothing new to commit."
 else
   MSG="${*:-}"
   if [[ -z $MSG ]]; then read -r -p "  Commit message [update $(date '+%Y-%m-%d %H:%M')]: " MSG; fi
   MSG="${MSG:-update $(date '+%Y-%m-%d %H:%M')}"
+
+  # version bump (skipped when there is no VERSION file or BUMP=none)
+  BUMP="${BUMP:-patch}"
+  if [[ -f VERSION && $BUMP != none ]]; then
+    CURV=$(tr -d '[:space:]' < VERSION)
+    REMV=""; git fetch -q origin "$BRANCH" 2>/dev/null && REMV=$(git show FETCH_HEAD:VERSION 2>/dev/null | tr -d '[:space:]')
+    if [[ $CURV =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      if [[ -n $REMV && $CURV != "$REMV" && $(printf '%s\n%s\n' "$CURV" "$REMV" | sort -V | tail -1) == "$CURV" ]]; then
+        NEWV=$CURV; say "VERSION $CURV is already ahead of GitHub ($REMV): keeping it"
+      else
+        IFS=. read -r MA MI PA <<<"$CURV"
+        case $BUMP in major) NEWV="$((MA+1)).0.0" ;; minor) NEWV="$MA.$((MI+1)).0" ;; *) NEWV="$MA.$MI.$((PA+1))" ;; esac
+        # never go backwards or sideways of what is on GitHub
+        if [[ -n $REMV && $(printf '%s\n%s\n' "$NEWV" "$REMV" | sort -V | tail -1) != "$NEWV" || $NEWV == "$REMV" ]]; then
+          IFS=. read -r MA MI PA <<<"$REMV"; NEWV="$MA.$MI.$((PA+1))"
+        fi
+        echo "$NEWV" > VERSION; ok "Version $CURV → $NEWV"
+      fi
+      [[ -f README.md ]] && sed -i "s/badge\/version-[0-9.]*-/badge\/version-$NEWV-/" README.md
+      if [[ -f docs/CHANGELOG.md ]] && ! grep -q "^## $NEWV\$" docs/CHANGELOG.md; then
+        awk -v v="$NEWV" -v m="$MSG" 'NR==1{print; print ""; print "## " v; print "- " m; next} {print}' docs/CHANGELOG.md > docs/CHANGELOG.md.tmp && mv docs/CHANGELOG.md.tmp docs/CHANGELOG.md
+      fi
+    fi
+  fi
+
+  git add -A
   git commit -q -m "$MSG" || die "Commit failed."
   ok "Committed: $MSG"
 fi

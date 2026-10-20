@@ -1,6 +1,12 @@
 # Changelog
 
+## 0.9.2
+- fixed updater
+
 ## 0.9.1
+- **`nebula update` now sees new commits, not just a new version number.** It said "up to date" whenever `VERSION` matched, even if the repo had newer commits pushed without a version bump. It now also compares the latest commit on GitHub with the one you installed (`data/.installed_sha`), shows `v0.9.1 → newer commit abc1234`, and the background notice says `New changes on GitHub`.
+- **Update notice that actually shows.** Nebula checks GitHub for a newer version in the background every 4 hours (never delaying startup) and shows `⚠ Update available: Nebula vX (you have vY)` after the home screen. Before, the check ran in the foreground once a day and its message was wiped by the screen clear after login. `nebula update --notice` prints it on demand.
+- `push.sh` bumps `VERSION` by one patch step per push (and the README badge and a CHANGELOG line) so that notice reaches everyone.
 - **Fixed `shell-init: error retrieving current directory`** after the session's folder was deleted: the zsh config and `.bashrc` now move to `$HOME` when the current folder no longer exists.
 - **Fixed the prompt jumping to a new line every time the Android keyboard opens or closes.** The prompt's resize trap (`TRAPWINCH`) returned a non-zero status when the width hadn't changed, which makes zsh abort the line and print a fresh prompt. It (and the idle-lock trap) now return 0.
 - **New extra-keys layout** (`keys` shows a cheat sheet, `keys reload` applies it): the old `VOL+` / `VOL-` / `MUTE` buttons are not real Termux keys and just typed their own names. They are replaced by useful keys: `^C`, `^D`, `hist` (Ctrl-R), `file` (Ctrl-T), `dir` (Alt-C), `clr`, a `KEYBOARD` toggle, brackets and quotes, and swipe-up popups (PgUp/PgDn/Home/End, `| _ * ; ~`, `^Z`, `status`, `help`, `cd ..`). Needs Termux 0.118+.

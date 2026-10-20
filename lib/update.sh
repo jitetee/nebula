@@ -24,23 +24,44 @@ update::local_version() { [[ -r $NEBULA_HOME/VERSION ]] && tr -d '[:space:]' < "
 update::remote_version() {  # branch → version
   update::_curl "https://raw.githubusercontent.com/$(update::_repo)/${1:-main}/VERSION" 2>/dev/null | tr -d '[:space:]'
 }
+# Latest commit on the branch (short sha). Lets Nebula notice new commits even when VERSION was not bumped.
+update::remote_sha() {  # branch → 40-hex sha (empty if the API is unreachable / rate-limited)
+  local sha; sha=$(update::_curl -H 'Accept: application/vnd.github.sha' "https://api.github.com/repos/$(update::_repo)/commits/${1:-main}" 2>/dev/null | tr -d '[:space:]')
+  [[ $sha =~ ^[0-9a-f]{40}$ ]] && printf '%s' "$sha"
+}
+update::local_sha() { [[ -r $NEBULA_CFG/.installed_sha ]] && tr -d '[:space:]' < "$NEBULA_CFG/.installed_sha"; }
+# true if GitHub has a commit this install doesn't (or we can't tell which commit this install is)
+update::sha_differs() { [[ $1 =~ ^[0-9a-f]{40}$ && $1 != "$(update::local_sha)" ]]; }
+
 # true if $1 is newer than $2 (dotted numbers)
 update::newer() { [[ $1 != "$2" && $(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1) == "$1" ]]; }
 
-# Once a day, quietly: tell the user if a newer version exists (never blocks > 3s)
+# Update notice. Reads the cached answer (instant) and refreshes it in the BACKGROUND every few hours,
+# so starting a shell never waits for the network. Silence it with: export NEBULA_NO_UPDATE_CHECK=1
+UPDATE_EVERY=${UPDATE_EVERY:-14400}      # seconds between checks (4 h)
+
+update::refresh_cache() {   # fetch the latest version + commit and store them; keeps the old answer if offline
+  local f="$NEBULA_CFG/.update_check" last latest sha newv news
+  [[ -r $f ]] && IFS='|' read -r last latest sha < "$f"
+  newv=$(UPDATE_TIMEOUT=${UPDATE_TIMEOUT:-8} update::remote_version main); [[ $newv =~ ^[0-9][0-9.]*$ ]] && latest=$newv
+  news=$(UPDATE_TIMEOUT=${UPDATE_TIMEOUT:-8} update::remote_sha main);     [[ -n $news ]] && sha=$news
+  mkdir -p "$NEBULA_CFG"; printf '%s|%s|%s\n' "$(date +%s)" "${latest:-}" "${sha:-}" > "$f"
+}
+
 update::check() {
   [[ ${NEBULA_NO_UPDATE_CHECK:-0} == 1 ]] && return 0
   command -v curl >/dev/null 2>&1 || return 0
-  local f="$NEBULA_CFG/.update_check" now; now=$(date +%s)
-  local last=0 latest=""
-  [[ -r $f ]] && IFS='|' read -r last latest < "$f"
-  if (( now - ${last:-0} > 86400 )); then
-    latest=$(UPDATE_TIMEOUT=3 update::remote_version main)
-    [[ $latest =~ ^[0-9][0-9.]*$ ]] || latest=""
-    mkdir -p "$NEBULA_CFG"; printf '%s|%s\n' "$now" "$latest" > "$f"
+  local f="$NEBULA_CFG/.update_check" now last=0 latest="" sha="" cur cmd; now=$(date +%s)
+  [[ -r $f ]] && IFS='|' read -r last latest sha < "$f"
+  if (( now - ${last:-0} > UPDATE_EVERY )); then
+    mkdir -p "$NEBULA_CFG"; printf '%s|%s|%s\n' "$now" "${latest:-}" "${sha:-}" > "$f"     # claim it first: no parallel checks
+    ( update::refresh_cache >/dev/null 2>&1 & ) 2>/dev/null
   fi
-  if [[ -n $latest ]] && update::newer "$latest" "$(update::local_version)"; then
-    printf "  ${C_YELLOW}⬆ Nebula %s is available${C_RESET} ${C_DIM}(you have %s)${C_RESET} — run: ${C_BOLD}%s${C_RESET}\n" "$latest" "$(update::local_version)" "$(update::via_pkg && echo 'pkg upgrade nebula' || echo 'nebula update')"
+  cur=$(update::local_version); cmd=$(update::via_pkg && echo 'pkg upgrade nebula' || echo 'nebula update')
+  if [[ $latest =~ ^[0-9][0-9.]*$ ]] && update::newer "$latest" "$cur"; then
+    printf '\n'; ui::say_status WARN "Update available: Nebula v$latest (you have v$cur). Run: ${C_BOLD}$cmd${C_RESET}${C_YELLOW}  (what's new: nebula update --check)${C_RESET}"
+  elif ! update::via_pkg && update::sha_differs "$sha"; then
+    printf '\n'; ui::say_status WARN "New changes on GitHub (commit ${sha:0:7}, v${latest:-$cur}). Run: ${C_BOLD}nebula update${C_RESET}"
   fi
 }
 
@@ -58,6 +79,7 @@ cmd::update() {
   while (( $# )); do
     case $1 in
       --self) self=1 ;;
+      --notice) update::check; return 0 ;;
       --check|-c) check=1 ;; --force|-f) force=1 ;; --rollback) rollback=1 ;;
       --branch)   branch=${2:-main}; shift ;; --branch=*) branch=${1#--branch=} ;;
     esac; shift
@@ -87,10 +109,16 @@ cmd::update() {
     ui::say_status INFO "Repo: https://github.com/$repo  ·  override with: export NEBULA_REPO=https://github.com/<you>/<repo>"
     return 1
   fi
-  if ! update::newer "$latest" "$cur" && (( ! force )); then
-    ui::say_status OK "You're up to date (v$cur)."; return 0
+  local rsha; rsha=$(update::remote_sha "$branch"); local newcommit=0
+  update::sha_differs "$rsha" && newcommit=1
+  if ! update::newer "$latest" "$cur" && (( ! force && ! newcommit )); then
+    ui::say_status OK "You're up to date (v$cur${rsha:+, commit ${rsha:0:7}})."; return 0
   fi
-  printf "\n  ${C_BOLD}v%s${C_RESET} ${C_DIM}→${C_RESET} ${C_GREEN}${C_BOLD}v%s${C_RESET}\n" "$cur" "$latest"
+  if update::newer "$latest" "$cur"; then
+    printf "\n  ${C_BOLD}v%s${C_RESET} ${C_DIM}→${C_RESET} ${C_GREEN}${C_BOLD}v%s${C_RESET}\n" "$cur" "$latest"
+  else
+    printf "\n  ${C_BOLD}v%s${C_RESET} ${C_DIM}→ newer commit ${C_RESET}${C_GREEN}${C_BOLD}%s${C_RESET} ${C_DIM}(same version number; VERSION wasn't bumped)${C_RESET}\n" "$cur" "${rsha:0:7}"
+  fi
   local notes; notes=$(update::_curl "https://raw.githubusercontent.com/$repo/$branch/docs/CHANGELOG.md" 2>/dev/null | awk '/^## /{n++; next} n==1' | grep -v '^[[:space:]]*$' | head -8)
   [[ -n $notes ]] && { printf "  ${C_DIM}What's new:${C_RESET}\n"; sed 's/^/   /' <<<"$notes" | cut -c1-$(( $(ui::cols) - 2 )); }
   (( check )) && { printf "\n  Run ${C_BOLD}nebula update${C_RESET} to install it.\n"; return 0; }
@@ -107,7 +135,8 @@ cmd::update() {
   update::_backup_app
   ui::say_status INFO "Installing v$latest (your data stays untouched)…"
   if NEBULA_HOME="$NEBULA_HOME" NEBULA_CFG="$NEBULA_CFG" bash "$tmp/src/install/install.sh" --update; then
-    ui::say_status OK "Updated to v$(tr -d '[:space:]' < "$NEBULA_HOME/VERSION"). Restart your shell to load it:  exec zsh"
+    [[ -n $rsha ]] && { mkdir -p "$NEBULA_CFG"; printf '%s\n' "$rsha" > "$NEBULA_CFG/.installed_sha"; printf '%s|%s|%s\n' "$(date +%s)" "$latest" "$rsha" > "$NEBULA_CFG/.update_check"; }
+    ui::say_status OK "Updated to v$(tr -d '[:space:]' < "$NEBULA_HOME/VERSION")${rsha:+ (commit ${rsha:0:7})}. Restart your shell to load it:  exec zsh"
     ui::say_status INFO "Something wrong? nebula update --rollback"
   else
     ui::say_status ERR "The update failed part-way. Restoring the previous version…"
