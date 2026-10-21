@@ -14,18 +14,18 @@ cmd::passwd() {
     if   [[ -z $new ]];        then ui::say_status ERR "Password cannot be empty"
     elif (( ${#new} < 6 ));    then ui::say_status ERR "Use at least 6 characters"
     elif [[ $new != "$new2" ]]; then ui::say_status ERR "Passwords do not match"
-    elif [[ "$(auth::_hash "$new")" == "$NEBULA_HASH" ]]; then ui::say_status ERR "That is your current password"
+    elif auth::_verify "$new"; then ui::say_status ERR "That is your current password"
     else break; fi
   done
-  local created=${NEBULA_CREATED:-}
+  local created=${NEBULA_CREATED:-} newhash; newhash=$(auth::_hash "$new")
   ( umask 077
     {
       printf 'NEBULA_USER=%q\n' "$NEBULA_USER"
-      printf 'NEBULA_HASH=%s\n' "$(auth::_hash "$new")"
+      printf 'NEBULA_HASH=%s\n' "$newhash"
       printf 'NEBULA_CREATED=%q\n' "$created"
       printf 'NEBULA_CHANGED=%q\n' "$(date -Iseconds 2>/dev/null || date)"
     } > "$NEBULA_AUTH.tmp" && mv "$NEBULA_AUTH.tmp" "$NEBULA_AUTH" )
-  NEBULA_HASH=$(auth::_hash "$new")
+  NEBULA_HASH=$newhash
   auth::_log PASSWD "password changed"
   ui::say_status OK "Password changed."
 }

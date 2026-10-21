@@ -5,13 +5,63 @@ NEBULA_CFG="${NEBULA_CFG:-${NEBULA_HOME:-${PREFIX:-/data/data/com.termux/files/u
 NEBULA_AUTH="$NEBULA_CFG/auth"
 NEBULA_AUTHLOG="$NEBULA_CFG/auth.log"
 
-auth::_hash() {
-  # sha256; prefer openssl, fallback sha256sum
+# ── password hashing ─────────────────────────────────────────────────────
+# New format (stored in NEBULA_HASH):  pbkdf2:<iterations>:<salt hex>:<key hex>
+#   PBKDF2-HMAC-SHA256 with a random 16-byte salt, so identical passwords differ and every guess is slow.
+# Old format (versions up to 0.9.x): a bare 64-hex SHA-256. Still accepted, and upgraded the moment you
+# log in successfully (see auth::_upgrade).
+NEBULA_KDF_ITER="${NEBULA_KDF_ITER:-120000}"
+
+auth::_sha256() {   # legacy: unsalted sha256
+  if command -v openssl >/dev/null 2>&1; then printf '%s' "$1" | openssl dgst -sha256 | awk '{print $NF}'
+  else printf '%s' "$1" | sha256sum | awk '{print $1}'; fi
+}
+
+# auth::_kdf <password> <salt hex> <iterations> → key hex  (password goes in on stdin, never in a process list)
+auth::_kdf() {
+  local pw=$1 salt=$2 iter=$3 key=""
   if command -v openssl >/dev/null 2>&1; then
-    printf '%s' "$1" | openssl dgst -sha256 | awk '{print $NF}'
-  else
-    printf '%s' "$1" | sha256sum | awk '{print $1}'
+    key=$(printf '%s' "$pw" | openssl enc -aes-256-cbc -pbkdf2 -md sha256 -iter "$iter" -S "$salt" -P -pass stdin 2>/dev/null | sed -n 's/^key *= *//p')
   fi
+  if [[ -z $key ]] && command -v python3 >/dev/null 2>&1; then
+    key=$(printf '%s' "$pw" | python3 -c 'import sys,hashlib,binascii; print(binascii.hexlify(hashlib.pbkdf2_hmac("sha256", sys.stdin.buffer.read(), binascii.unhexlify(sys.argv[1]), int(sys.argv[2]), 32)).decode())' "$salt" "$iter" 2>/dev/null)
+  fi
+  printf '%s' "${key,,}"
+}
+
+auth::_salt() {     # 16 random bytes as hex
+  local s=""
+  if command -v openssl >/dev/null 2>&1; then s=$(openssl rand -hex 16 2>/dev/null); fi
+  [[ ${#s} -eq 32 ]] || s=$(head -c 16 /dev/urandom 2>/dev/null | od -An -tx1 | tr -d ' \n')
+  printf '%s' "$s"
+}
+
+# auth::_hash <password> → the value to store in NEBULA_HASH (new format; legacy sha256 only if no KDF is available)
+auth::_hash() {
+  local salt key; salt=$(auth::_salt)
+  [[ ${#salt} -eq 32 ]] && key=$(auth::_kdf "$1" "$salt" "$NEBULA_KDF_ITER")
+  if [[ ${#key} -eq 64 ]]; then printf 'pbkdf2:%s:%s:%s' "$NEBULA_KDF_ITER" "$salt" "$key"
+  else auth::_sha256 "$1"; fi
+}
+
+# auth::_verify <password> [stored hash] → 0 if it matches
+auth::_verify() {
+  local pw=$1 stored=${2:-${NEBULA_HASH:-}} _ iter salt key
+  if [[ $stored == pbkdf2:* ]]; then
+    IFS=: read -r _ iter salt key <<<"$stored"
+    [[ $iter =~ ^[0-9]+$ && $salt =~ ^[0-9a-f]{32}$ && $key =~ ^[0-9a-f]{64}$ ]] || return 1
+    [[ "$(auth::_kdf "$pw" "$salt" "$iter")" == "$key" ]]
+  else
+    [[ -n $stored && "$(auth::_sha256 "$pw")" == "$stored" ]]
+  fi
+}
+
+# After a successful login with an old-style hash: store a salted one instead (keeps the other lines of the file)
+auth::_upgrade() {
+  [[ ${NEBULA_HASH:-} == pbkdf2:* || ! -f $NEBULA_AUTH ]] && return 0
+  local h; h=$(auth::_hash "$1"); [[ $h == pbkdf2:* ]] || return 0
+  ( umask 077; sed "s|^NEBULA_HASH=.*|NEBULA_HASH=$h|" "$NEBULA_AUTH" > "$NEBULA_AUTH.tmp" && mv "$NEBULA_AUTH.tmp" "$NEBULA_AUTH" ) \
+    && { NEBULA_HASH=$h; chmod 600 "$NEBULA_AUTH"; auth::_log UPGRADE "password hash upgraded"; }
 }
 
 # Read a password while echoing `*` per keystroke. Supports backspace.
@@ -174,7 +224,8 @@ auth::_challenge() {
       printf "  👤 %s\n" "$u"
     fi
     auth::_read_password "  🔑 Password: " p
-    if [[ $u == "$NEBULA_USER" && "$(auth::_hash "$p")" == "$NEBULA_HASH" ]]; then
+    if [[ $u == "$NEBULA_USER" ]] && auth::_verify "$p"; then
+      auth::_upgrade "$p"
       export NEBULA_USER
       local failed; failed=$(auth::_failed_since_ok)
       auth::_log OK "$mode"
@@ -226,7 +277,7 @@ auth::confirm() {
   local tries=3 p
   while (( tries > 0 )); do
     auth::_read_password "  🔑 Confirm your password: " p
-    [[ "$(auth::_hash "$p")" == "$NEBULA_HASH" ]] && return 0
+    if auth::_verify "$p"; then auth::_upgrade "$p"; return 0; fi
     ((tries--))
     auth::_log FAIL "confirm"
     ui::say_status ERR "Wrong password. Attempts left: $tries"

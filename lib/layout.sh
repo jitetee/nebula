@@ -21,7 +21,7 @@ ui::_measure() {
   local r c sz
   if [[ -n ${NEBULA_COLS:-} && -n ${NEBULA_ROWS:-} ]]; then r=$NEBULA_ROWS; c=$NEBULA_COLS
   else
-    sz=$(stty size </dev/tty 2>/dev/null)
+    sz=$({ stty size </dev/tty; } 2>/dev/null)
     r=${sz% *}; c=${sz#* }
     [[ $r =~ ^[0-9]+$ && $c =~ ^[0-9]+$ && $c -gt 0 ]] || { c=${COLUMNS:-}; r=${LINES:-}; }
     [[ $c =~ ^[0-9]+$ && $c -gt 0 ]] || c=$(tput cols 2>/dev/null)

@@ -1,0 +1,35 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "nebula": {
+      "reports": {
+        ".read": false,
+        "$id": {
+          ".write": "auth != null && !data.exists()",
+          ".validate": "newData.hasChildren(['msg', 'ts'])",
+          "msg":     { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 800" },
+          "ver":     { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "android": { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "model":   { ".validate": "newData.isString() && newData.val().length <= 60" },
+          "arch":    { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "ts":      { ".validate": "newData.isNumber()" },
+          "$other":  { ".validate": false }
+        }
+      },
+      "rooms": {
+        "$code": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          "board":  { ".validate": "newData.isString() && newData.val().matches(/^[XO-]{9}$/)" },
+          "turn":   { ".validate": "newData.isString() && (newData.val() == 'X' || newData.val() == 'O')" },
+          "winner": { ".validate": "newData.isString() && newData.val().matches(/^(|X|O|draw|leftX|leftO)$/)" },
+          "x":      { ".validate": "newData.isString() && newData.val().length <= 16" },
+          "o":      { ".validate": "newData.isString() && newData.val().length <= 16" },
+          "ts":     { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+  }
+}

@@ -134,7 +134,7 @@ sel_count() { local i c=0; for i in "${!NAMES[@]}"; do (( SEL[i] )) && c=$((c+1)
 
 # term_size → "rows cols" of the real terminal (stty on /dev/tty works inside $(…), unlike tput)
 term_size() {
-  local sz r c; sz=$(stty size </dev/tty 2>/dev/null)
+  local sz r c; sz=$({ stty size </dev/tty; } 2>/dev/null)
   r=${sz% *}; c=${sz#* }
   [[ $r =~ ^[0-9]+$ && $r -gt 0 ]] || r=$(tput lines 2>/dev/null || echo 24)
   [[ $c =~ ^[0-9]+$ && $c -gt 0 ]] || c=$(tput cols 2>/dev/null || echo 40)

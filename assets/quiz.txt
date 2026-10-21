@@ -1,0 +1,44 @@
+Kenya|What is the capital city of Kenya?|Mombasa|Nairobi|Kisumu|Nakuru|B
+Kenya|Which is the highest mountain in Kenya?|Mount Kenya|Mount Elgon|Mount Longonot|Aberdares|A
+Kenya|In which year did Kenya gain independence?|1957|1960|1963|1969|C
+Kenya|Who was Kenya's first president?|Daniel arap Moi|Jomo Kenyatta|Mwai Kibaki|Uhuru Kenyatta|B
+Kenya|Which lake is the largest in Africa and shared by Kenya?|Lake Turkana|Lake Naivasha|Lake Victoria|Lake Baringo|C
+Kenya|How many counties does Kenya have?|37|42|47|52|C
+Kenya|Which port city is on Kenya's coast?|Eldoret|Mombasa|Kitale|Thika|B
+Kenya|Which Kenyan won the Nobel Peace Prize in 2004?|Wangari Maathai|Lupita Nyong'o|Eliud Kipchoge|Raila Odinga|A
+Kenya|Which animals cross the Maasai Mara each year in the Great Migration?|Zebras only|Elephants|Wildebeest|Giraffes|C
+Kenya|Which two languages are official in Kenya?|English and Swahili|Swahili and Kikuyu|English and Luo|Kikuyu and Luhya|A
+Kenya|Lake Turkana is often nicknamed what?|The Blue Lake|The Jade Sea|The Silver Lake|The Pink Lake|B
+Kenya|What is the currency of Kenya?|Kenyan Dollar|Kenyan Pound|Kenyan Shilling|Kenyan Rand|C
+Coding|What does HTML stand for?|HyperText Markup Language|High Tech Modern Language|Hyper Transfer Markup Link|Home Tool Markup Language|A
+Coding|Who created the Python language?|Linus Torvalds|Guido van Rossum|Brendan Eich|James Gosling|B
+Coding|Who created the Linux kernel?|Linus Torvalds|Bill Gates|Dennis Ritchie|Ken Thompson|A
+Coding|Which Git command saves your staged changes?|git push|git commit|git clone|git fetch|B
+Coding|What does an HTTP 404 status mean?|Server error|Forbidden|Not Found|Redirect|C
+Coding|How many bits are in a byte?|4|8|16|32|B
+Coding|Which language runs in web browsers?|JavaScript|Bash|Rust|COBOL|A
+Coding|What does npm stand for?|New Program Manager|Node Package Manager|Network Process Module|Native Plugin Maker|B
+Coding|Which Linux command lists files in a folder?|cd|ls|rm|cat|B
+Coding|What does CSS control?|Database queries|Styling of web pages|Network speed|File permissions|B
+Coding|Which symbol starts a comment in a bash script?|//|#|--|%|B
+Coding|What does JSON stand for?|JavaScript Object Notation|Java Standard Object Network|Joint Script Online Node|JavaScript Oriented Names|A
+Bible|Who built the ark?|Moses|Noah|Abraham|David|B
+Bible|Who defeated Goliath?|Samson|Saul|David|Joshua|C
+Bible|How many disciples did Jesus choose?|7|10|12|40|C
+Bible|In which town was Jesus born?|Nazareth|Jerusalem|Bethlehem|Capernaum|C
+Bible|What is the first book of the Bible?|Exodus|Genesis|Psalms|Matthew|B
+Bible|What is the last book of the Bible?|Revelation|Jude|Malachi|Acts|A
+Bible|Which prophet was swallowed by a great fish?|Elijah|Jonah|Daniel|Isaiah|B
+Bible|Who was Paul's name before his conversion?|Simon|Saul|Silas|Stephen|B
+Bible|Who led the Israelites out of Egypt?|Moses|Joseph|Aaron|Elijah|A
+Bible|Which is the shortest verse in many English Bibles?|John 11:35 (Jesus wept)|Genesis 1:1|Psalm 23:1|Luke 2:1|A
+General|How many continents are there?|5|6|7|8|C
+General|What is the largest planet in our solar system?|Saturn|Jupiter|Neptune|Earth|B
+General|What is the chemical symbol for water?|O2|CO2|H2O|HO|C
+General|Which ocean is the largest?|Atlantic|Indian|Arctic|Pacific|D
+General|How many days are in a leap year?|364|365|366|367|C
+General|What is the hardest natural substance?|Gold|Iron|Diamond|Quartz|C
+General|Which gas do plants absorb from the air?|Oxygen|Carbon dioxide|Nitrogen|Helium|B
+General|What is the longest river in Africa?|Congo|Niger|Zambezi|Nile|D
+General|How many sides does a hexagon have?|5|6|7|8|B
+General|Which planet is known as the Red Planet?|Venus|Mars|Mercury|Jupiter|B

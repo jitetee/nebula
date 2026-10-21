@@ -1,7 +1,19 @@
 # Changelog
 
-## 0.9.3
-- update 2026-10-20 13:15
+## 0.9.6
+
+- **New: `report`** sends a bug report or idea to the developer through Firebase. It shows exactly what will be sent (your message, Nebula and Android version, phone model) and asks first.
+- **New: `game versus`** is online tic-tac-toe: one player hosts and gets a room code, the friend joins with it.
+- The Firebase settings are not stored as readable text. They are split into scrambled chunks in `assets/cloud/` and rebuilt in memory (`tools/pack-cloud.py` re-packs them). This hides them from casual reading only; the real protection is the security rules in `docs/RTDB_RULES.json`.
+
+## 0.9.5
+
+- **New: `game`** adds 18 games (drawing uses no subprocesses, so Snake and Tetris stay smooth on phones; the game rules are covered by tests) with saved scores. Puzzle: 2048, Wordle, Hangman, Number guess, Mastermind, Memory, Minesweeper. Action: Snake, Tetris. Simulations: Game of Life, Ecosystem (grass, rabbits, foxes), Café Tycoon (run a cyber café for 30 days), plus Matrix rain and Fireplace screensavers. Extras: Quest (an AI text adventure that saves your progress), Quiz (Kenya, coding, Bible, general), Typing test, and a Daily puzzle with a streak. `game` opens a menu, `game <name>` starts one, `game scores` lists your bests. Boards adapt to the screen size.
+
+## 0.9.4
+
+- **New: `dev`** runs a bot or site in the background: `dev start [name] [--port N]` (finds `npm start`, `index.js`, `app.py`… or serves the folder), `dev stop|restart|ls`, `dev logs <name> [-f]`, and `dev errors <name>` which shows only the errors with a little stack context. `deploy` publishes a Firebase site after asking.
+- **Security: salted password hashing.** Logins now use PBKDF2-SHA256 with a random salt (120,000 rounds). Old SHA-256 logins keep working and are upgraded automatically the first time you log in. Going back to an older Nebula needs `nebula --reset-auth`.
 
 ## 0.9.1
 - **Updates no longer time out on mobile data** (download limit raised from 15 s to 4 min, with retries), and `nebula update` / `nebula` move to your home folder when started from a deleted one, instead of printing `chdir: error retrieving current directory` at every step.

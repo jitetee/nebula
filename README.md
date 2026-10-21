@@ -4,7 +4,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.3-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.6-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -63,7 +63,7 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 **Device-aware:** `settings` scans your phone, explains what's wrong with one-key fixes, and hides commands your device can't run. Compact startup turns on automatically on low-RAM / 32-bit phones.
 
-**Also:** `remind 10m call mom`, `todo` with priorities, `notes`, `serve` (share a folder with a QR code), `backup` / `restore`, `tour`, `doctor --fix`.
+**Also:** `remind 10m call mom`, `todo` with priorities, `notes`, `serve` (share a folder with a QR code), `dev` (background bots/sites, error-only logs), `deploy` (Firebase), `game` (19 games, one online), `report` (send a bug report), `backup` / `restore`, `tour`, `doctor --fix`.
 
 ## Commands
 
@@ -73,9 +73,10 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 | :-- | :-- |
 | **AI** | `ask` `chat` `tell` `english` `explain` `fix` `summarize` `translate` `joke` `fact` |
 | **Info** | `weather` `crypto` `news` `sports` `ip` `define` `bible` `meme` |
-| **Tools** | `status` `dash` `remind` `timer` `note` `notes` `todo` `calc` `qr` `serve` |
+| **Tools** | `status` `dash` `remind` `timer` `note` `notes` `todo` `calc` `qr` `serve` `dev` `deploy` |
 | **System** | `install` `uninstall` `deps` `update` `setup` `settings` `device` `scan` `doctor` `sysinfo` |
 | **Media** | `play` |
+| **Fun** | `game` |
 | **Security** | `passwd` `lock` `autolock` `fingerprint` `logins` `noauth` `reset-auth` `whoami` |
 | **Data** | `backup` `restore` |
 | **Look** | `theme` `prompt` `home` `profile` `layout` `keys` `banner` `voice` `sounds` |
@@ -94,7 +95,7 @@ In the picker: type to filter · **↑/↓** move · **Enter**/**Tab** select ·
 
 ## Security
 
-- App and data are `chmod 700`; the login is a SHA-256 hash in a `0600` file.
+- App and data are `chmod 700`; the login is a salted PBKDF2 hash in a `0600` file.
 - 3 wrong passwords at login, `lock`, `passwd` or any password confirmation **close the whole Termux session**. Failed attempts are logged (`logins`) and reported at your next login.
 - Idle auto-lock (default 10 min: `autolock 5` / `autolock off`), optional `fingerprint on` (needs Termux:API), encrypted backups (`backup --encrypt`).
 - Updates come from GitHub over HTTPS, are validated first, and keep your previous version for `nebula update --rollback`.

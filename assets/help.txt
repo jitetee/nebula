@@ -115,6 +115,31 @@
   Starts a web server (python) and shows the URL + QR code.
   Anyone on your network can read the folder, so it asks first.
   Example: serve ~/storage/downloads 8080
+@dev|Tools|<start/stop/restart/ls/logs/errors> [name]|Run bots and sites in the background
+  Keeps a server or WhatsApp bot running after you close the screen.
+  start finds what to run (npm start, index.js, app.py…) or serves the folder as a site.
+  errors shows only the problems from the log, so you can find a crash fast.
+  Example: dev start mybot
+  Example: dev start site --port 8080
+  Example: dev errors mybot
+  Example: dev logs mybot -f
+@deploy|Tools|[--only hosting]|Publish a Firebase site (asks first)
+  Runs firebase deploy in the current folder after you confirm.
+  Needs firebase.json and the Firebase CLI (nebula install firebase-tools).
+@report|Basics|[message]|Send a bug report or idea to the developer
+  Shows exactly what will be sent (your message, Nebula and Android version, phone model) and asks first.
+  Example: report the play command finds no songs
+@game|Fun|[name]|Games: 2048, Tetris, Snake, Wordle and more
+  Opens a menu of games, or starts one directly. Scores are saved.
+  Puzzle: 2048 wordle hangman guess mastermind memory minesweeper
+  Action: snake tetris
+  Online: versus (tic-tac-toe with a friend, via a room code)
+  Sim: life ecosystem tycoon (cyber café) rain fire
+  More: quest (AI adventure) quiz typing daily
+  Example: game
+  Example: game tetris
+  Example: game ls
+  Example: game scores
 @apps|Tools||Launcher listing Nebula apps
 @passwd|Security||Change your login password
   Asks for the current password first. 3 wrong tries closes the session.
