@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.7
+
+- **New: `ant`**, an AI coding agent for your terminal. It works in the folder you start it in, can read and edit files and run commands (asking first for risky ones), and talks to OpenAI-compatible providers. Needs Node.js 18+. It was repaired for this release and no longer needs any npm packages.
+- **New: `kslearn`** (alias `learn`), a learning system with study notes, quizzes, tracks and offline AI. Needs Python 3; installs `click` and `rich` on first run. Your kslearn settings are kept in Nebula's data folder, so updates do not reset them.
+
 ## 0.9.6
 
 - **New: `report`** sends a bug report or idea to the developer through Firebase. It shows exactly what will be sent (your message, Nebula and Android version, phone model) and asks first.

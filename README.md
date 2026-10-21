@@ -4,7 +4,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.6-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.7-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 

@@ -43,6 +43,7 @@ source "$NEBULA_HOME/lib/dev.sh"
 source "$NEBULA_HOME/lib/games.sh"
 source "$NEBULA_HOME/lib/arcade.sh"
 source "$NEBULA_HOME/lib/cloud.sh"
+source "$NEBULA_HOME/lib/apps.sh"
 source "$NEBULA_HOME/lib/menu.sh"
 source "$NEBULA_HOME/lib/settings.sh"
 source "$NEBULA_HOME/lib/prompt.sh"
@@ -281,7 +282,7 @@ main() {
       --no-voice)   export NEBULA_VOICE=0; shift ;;
       --no-sounds)  export NEBULA_SOUNDS=0; shift ;;
       --no-auth)    export NEBULA_NO_AUTH=1; shift ;;
-      *)            passthrough+=("$1"); shift ;;
+      *)            passthrough+=("$@"); break ;;
     esac
   done
   set -- "${passthrough[@]:-}"

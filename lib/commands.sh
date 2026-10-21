@@ -587,6 +587,8 @@ cmd::apps() {
     "time ⏰ Live clock"
     "theme 🎨 Switch prompt theme"
     "doctor 🩺 System health check"
+    "ant 🐜 AI coding agent for your terminal"
+    "kslearn 🎓 Study notes, quizzes and offline AI"
   )
   
   for app in "${apps[@]}"; do

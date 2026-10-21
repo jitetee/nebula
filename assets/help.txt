@@ -129,6 +129,12 @@
 @report|Basics|[message]|Send a bug report or idea to the developer
   Shows exactly what will be sent (your message, Nebula and Android version, phone model) and asks first.
   Example: report the play command finds no songs
+@ant|Fun|[args]|AI coding agent that reads, edits and runs in your project
+  Works in the folder you run it from. Needs Node.js 18+ (offered on first run). Type /help inside it; /setup picks a provider and key.
+  Example: ant
+@kslearn|Fun|[command]|Learn with notes, quizzes and offline AI
+  Alias: learn. Installs its two Python packages on first run. Try: kslearn study, kslearn quiz, kslearn daily.
+  Example: kslearn study
 @game|Fun|[name]|Games: 2048, Tetris, Snake, Wordle and more
   Opens a menu of games, or starts one directly. Scores are saved.
   Puzzle: 2048 wordle hangman guess mastermind memory minesweeper

@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kslearn"
+dynamic = ["version"]
+description = "JSON-Powered Educational Learning System — offline quizzes, notes, flashcards, tutorials, AI chat, and KSL-Verse multiplayer"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "KashSight Platform", email = "kashsight@gmail.com"}
+]
+keywords = ["education", "quiz", "learning", "terminal", "offline", "ai", "flashcard", "tutorial", "multiplayer", "ksverse"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Console :: Curses",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Operating System :: Android",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Education",
+    "Topic :: Education :: Computer Aided Instruction (CAI)",
+    "Topic :: Education :: Testing",
+    "Topic :: Games/Entertainment :: Educational",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+online = [
+    "requests>=2.28",
+    "python-dotenv>=1.0",
+]
+ai = [
+    "requests>=2.28",
+]
+all = [
+    "requests>=2.28",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kashsight/kslearn"
+Documentation = "https://github.com/kashsight/kslearn/blob/main/README.md"
+Repository = "https://github.com/kashsight/kslearn"
+"Bug Tracker" = "https://github.com/kashsight/kslearn/issues"
+
+[project.scripts]
+kslearn = "kslearn.cli:main"
+ksl = "kslearn.cli:main"
+
+[tool.setuptools]
+packages = ["kslearn", "kslearn.engines", "kslearn.main", "kslearn.online", "kslearn.config"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "kslearn.__version__"}
+
+[tool.setuptools.package-data]
+kslearn = ["data/**/*.json", "data/**/*.ksl"]

@@ -2,17 +2,46 @@
   "rules": {
     ".read": false,
     ".write": false,
+
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+
+    "site": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "content": {
+        "$key": { ".validate": "newData.isString() && newData.val().length <= 4000" }
+      },
+      "news": {
+        "$id": {
+          ".validate": "newData.hasChildren(['title', 'ts'])",
+          "title":  { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120" },
+          "body":   { ".validate": "newData.isString() && newData.val().length <= 1500" },
+          "ts":     { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+
     "nebula": {
       "reports": {
-        ".read": false,
+        ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
         "$id": {
-          ".write": "auth != null && !data.exists()",
+          ".write": "auth != null && (!data.exists() || root.child('admins').child(auth.uid).val() === true)",
           ".validate": "newData.hasChildren(['msg', 'ts'])",
           "msg":     { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 800" },
           "ver":     { ".validate": "newData.isString() && newData.val().length <= 20" },
           "android": { ".validate": "newData.isString() && newData.val().length <= 20" },
           "model":   { ".validate": "newData.isString() && newData.val().length <= 60" },
           "arch":    { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "name":    { ".validate": "newData.isString() && newData.val().length <= 60" },
+          "contact": { ".validate": "newData.isString() && newData.val().length <= 100" },
+          "src":     { ".validate": "newData.isString() && newData.val().length <= 12" },
+          "status":  { ".validate": "newData.isString() && newData.val().length <= 12" },
           "ts":      { ".validate": "newData.isNumber()" },
           "$other":  { ".validate": false }
         }
@@ -21,9 +50,9 @@
         "$code": {
           ".read": "auth != null",
           ".write": "auth != null",
-          "board":  { ".validate": "newData.isString() && newData.val().matches(/^[XO-]{9}$/)" },
-          "turn":   { ".validate": "newData.isString() && (newData.val() == 'X' || newData.val() == 'O')" },
-          "winner": { ".validate": "newData.isString() && newData.val().matches(/^(|X|O|draw|leftX|leftO)$/)" },
+          "board":  { ".validate": "newData.isString() && newData.val().length === 9" },
+          "turn":   { ".validate": "newData.isString() && (newData.val() === 'X' || newData.val() === 'O')" },
+          "winner": { ".validate": "newData.isString() && newData.val().length <= 6" },
           "x":      { ".validate": "newData.isString() && newData.val().length <= 16" },
           "o":      { ".validate": "newData.isString() && newData.val().length <= 16" },
           "ts":     { ".validate": "newData.isNumber()" },
