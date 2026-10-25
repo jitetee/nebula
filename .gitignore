@@ -1,5 +1,27 @@
+# local state and secrets
+data/
+auth
+.env
+.env.*
+
+# editor / OS noise
 *.log
 *.swp
+*.swo
+*~
 .DS_Store
-auth
-data/
+Thumbs.db
+.idea/
+.vscode/
+
+# build and cache output
+node_modules/
+__pycache__/
+*.pyc
+*.tmp
+dist/
+*.zip
+
+# per-user app state (kept in Nebula's data folder instead)
+apps/jtlearn/data/config/
+apps/ant/.ant/

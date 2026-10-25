@@ -87,7 +87,7 @@ device::cap() {  # device::cap <name> → 0 if this device can do it
     sound)       command -v play >/dev/null 2>&1 ;;
     serve)       command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1 ;;
     qr)          command -v qrencode >/dev/null 2>&1 ;;
-    json)        command -v jq >/dev/null 2>&1 ;;
+    json)        command -v python3 >/dev/null 2>&1 ;;
     net)         command -v curl >/dev/null 2>&1 ;;
     storage)     [[ -w /sdcard || -w $HOME/storage/shared ]] ;;
     fingerprint) device::_api_ok && command -v termux-fingerprint >/dev/null 2>&1 ;;
@@ -122,7 +122,7 @@ device::cap_help() {
     serve)       echo "needs python|python|pkg install -y python" ;;
     qr)          echo "needs qrencode|qrencode|pkg install -y qrencode" ;;
     net)         echo "needs curl|curl|pkg install -y curl" ;;
-    json)        echo "needs jq|jq|pkg install -y jq" ;;
+    json)        echo "needs python|python|pkg install -y python" ;;
     storage)     echo "needs storage permission||termux-setup-storage" ;;
     fingerprint) echo "needs Termux:API (package + Android app)|termux-api|@api" ;;
     notify)      echo "needs Termux:API (package + Android app)|termux-api|@api" ;;

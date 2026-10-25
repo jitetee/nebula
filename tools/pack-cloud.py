@@ -5,7 +5,7 @@
 
 Writes scrambled chunk files to assets/cloud/ and rewrites the key-fragment block in lib/cloud.sh.
 This hides the values from casual reading only. Real protection is your Firebase security rules
-(see docs/RTDB_RULES.json).
+(see docs/rtdb-additions.json (merge with tools/merge-rules.py)).
 """
 import sys, os, json, base64, random, secrets, re, glob
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

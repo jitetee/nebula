@@ -32,7 +32,7 @@ _np_defaults() {
     layout two  segments "time path git"  right "status duration"
     char "❯"  sep space  path_mode full  time_fmt "%H:%M:%S"  git_style dirty
     blank 0  bold 0  responsive 1
-    c_accent 51  c_path 120  c_git 120  c_time 51  c_user 213  c_error 203  c_dim 245  c_batt 221
+    c_accent 48  c_path 120  c_git 120  c_time 48  c_user 157  c_error 203  c_dim 245  c_batt 221
   )
 }
 

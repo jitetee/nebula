@@ -44,6 +44,7 @@ source "$NEBULA_HOME/lib/games.sh"
 source "$NEBULA_HOME/lib/arcade.sh"
 source "$NEBULA_HOME/lib/cloud.sh"
 source "$NEBULA_HOME/lib/apps.sh"
+source "$NEBULA_HOME/lib/mingle.sh"
 source "$NEBULA_HOME/lib/menu.sh"
 source "$NEBULA_HOME/lib/settings.sh"
 source "$NEBULA_HOME/lib/prompt.sh"
@@ -246,6 +247,11 @@ USAGE:
   nebula calc <expr>          Calculator
   nebula bible <ref>          Bible verse lookup
   nebula apps                 List available nebula apps
+  nebula game [name]           Games (19, one online)
+  nebula mingle                Dating in your terminal (18+)
+  nebula ant | kslearn         AI coding agent | study notes and quizzes
+  nebula report [message]      Send a bug report or idea to the developer
+  nebula dev | deploy          Run bots/sites in the background | publish to Firebase
   nebula doctor                Audit optional deps + nebula health
   nebula motd                  Print the motd banner
   nebula banner <text>         Build custom banner (letters/digits only)

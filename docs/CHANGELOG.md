@@ -1,9 +1,22 @@
 # Changelog
 
+## 0.9.8
+- ndrps rem9ve
+
 ## 0.9.7
 
-- **New: `ant`**, an AI coding agent for your terminal. It works in the folder you start it in, can read and edit files and run commands (asking first for risky ones), and talks to OpenAI-compatible providers. Needs Node.js 18+. It was repaired for this release and no longer needs any npm packages.
-- **New: `kslearn`** (alias `learn`), a learning system with study notes, quizzes, tracks and offline AI. Needs Python 3; installs `click` and `rich` on first run. Your kslearn settings are kept in Nebula's data folder, so updates do not reset them.
+- **New: `mingle`**, a dating app for the terminal (18+): sign in with email and password, or a username and a key; discover people with a match percentage, like, pass or super like; chat when you both like each other (live updates); see who liked you; block, report, unmatch; delete your account and all your data. Admins (role `admin` or `superadmin` in your database) can review reports and ban with `mingle admin`. Nothing extra to install.
+- **Rules now match your real database.** Admins are people whose `users/<uid>/role` is `admin` or `superadmin` (as in JITETEE Cyber), not a separate `/admins` list. `tools/merge-rules.py` adds the Nebula rules (site, nebula, mingle) to the rules you already have without touching the rest. The old `docs/RTDB_RULES.json`, which replaced everything, is gone.
+
+- **New: `ant`**, an AI coding agent for your terminal. It works in the folder you start it in, can read and edit files and run commands (asking first for risky ones), and talks to OpenAI-compatible providers. It is pure Python 3 (standard library only): no Node.js, no npm. Config and sessions stay in `~/.ant`.
+- **New: `jtlearn`** (aliases `learn` and the old `kslearn`), a learning system with study notes, quizzes, tracks and offline AI. Pure Python 3: no `click` or `rich` to install, and it uses Nebula's green look. Settings are kept in Nebula's data folder, so updates do not reset them; data from an old `~/.kslearn` is moved to `~/.jtlearn` the first time you run it.
+- **New: Rage Bait** in jtlearn (menu `R`, or `jtlearn rage`): trick questions that teach. Myth-or-fact rounds, a letter-counting trap, a patience test, a loading bar that restarts at 99%, and a computer that cheats at guessing. Keep your rage meter under 100%; your best score is saved.
+- **No more `jq`:** crypto, sports and the home dashboard use a small Python helper (`lib/jx.py`) instead. Nebula now needs only bash, awk, python3 and curl for everything in the box (zsh stays optional for the fancy prompt).
+
+- **Rebrand:** Nebula now uses the same phosphor-green look as the J.I.T.E.T.E.E. website (colours, prompt defaults, credits line). Set `NEBULA_BRAND=classic` to get the old cyan back. Saved prompt settings are not changed.
+- **Fixed:** `nebula sysinfo` crashed when `$USER` is not set (common on Termux). The startup screen no longer needs a Termux-only interpreter path. `nebula <command> --help` and `--version` now reach the command instead of Nebula's own help.
+- **Security:** the jtlearn Firebase key is no longer written in plain text in the source (GitHub flagged it). It now lives in a packed file, and environment variables override it. Restrict or rotate the key in Google Cloud (see the README).
+- Added a proper `.gitignore` (local data, caches, editor files; per-user jtlearn settings).
 
 ## 0.9.6
 

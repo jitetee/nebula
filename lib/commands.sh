@@ -74,7 +74,7 @@ cmd::sysinfo() {
   if command -v neofetch >/dev/null 2>&1; then
     neofetch
   else
-    printf "User     : %s\n" "${NEBULA_USER:-$USER}"
+    printf "User     : %s\n" "${NEBULA_USER:-${USER:-$(id -un 2>/dev/null)}}"
     printf "Shell    : %s\n" "$SHELL"
     printf "Host     : %s\n" "$(uname -n)"
     printf "Kernel   : %s\n" "$(uname -sr)"
@@ -345,7 +345,7 @@ cmd::doctor() {
   _nebula_doctor_check "lsd"       lsd
   _nebula_doctor_check "tgpt"      tgpt
   _nebula_doctor_check "gawk"      awk
-  _nebula_doctor_check "jq"        jq
+  _nebula_doctor_check "python3"   python3
   _nebula_doctor_check "mpv/mpg123" mpv,mpg123
   _nebula_doctor_check "fd"        fd
   _nebula_doctor_check "espeak"    espeak
@@ -588,7 +588,10 @@ cmd::apps() {
     "theme 🎨 Switch prompt theme"
     "doctor 🩺 System health check"
     "ant 🐜 AI coding agent for your terminal"
-    "kslearn 🎓 Study notes, quizzes and offline AI"
+    "jtlearn 🎓 Study notes, quizzes, rage-bait game and offline AI"
+    "mingle ❤ Dating in your terminal (18+)"
+    "game 🎮 19 games, one online"
+    "report 📨 Send a bug report or idea"
   )
   
   for app in "${apps[@]}"; do

@@ -52,15 +52,15 @@ home::gen_weather() {
   printf '  %s\n' "$line"
 }
 home::gen_crypto() {
-  command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || return 1
+  command -v curl >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1 || return 1
   local ids="" c i; for c in ${HC[crypto_coins]//,/ }; do i=$(crypto::id_fast "$c") && ids+="${ids:+,}$i"; done
   [[ -n $ids ]] || return 1
   local body; body=$(curl -fsSL --max-time 8 "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=$ids&sparkline=true&price_change_percentage=24h" 2>/dev/null) || return 1
-  [[ $(jq -r 'type' <<<"$body" 2>/dev/null) == array ]] || return 1
+  python3 "$NEBULA_HOME/lib/jx.py" is-array <<<"$body" 2>/dev/null || return 1
   local sy p ch sp
   while IFS=$'\037' read -r sy p ch sp; do
     printf '  %s%-5s%s %10s  %s  %s\n' "$C_BOLD" "${sy^^}" "$C_RESET" "\$$(viz::money "$p")" "$(viz::pct "$ch")" "$(tr ' ' '\n' <<<"$sp" | viz::spark 10)"
-  done < <(jq -r '.[] | [.symbol, .current_price, (.price_change_percentage_24h // ""), (.sparkline_in_7d.price | map(tostring) | join(" "))] | map(tostring) | join("\u001f")' <<<"$body")
+  done < <(python3 "$NEBULA_HOME/lib/jx.py" home-crypto <<<"$body")
 }
 crypto::id_fast() { case "${1,,}" in btc) echo bitcoin;; eth) echo ethereum;; sol) echo solana;; bnb) echo binancecoin;; xrp) echo ripple;; ada) echo cardano;; doge) echo dogecoin;; ton) echo the-open-network;; dot) echo polkadot;; ltc) echo litecoin;; avax) echo avalanche-2;; link) echo chainlink;; trx) echo tron;; bitcoin|ethereum|solana|cardano|dogecoin|litecoin|ripple|polkadot) echo "${1,,}";; *) return 1;; esac; }
 home::gen_news() {
@@ -75,12 +75,11 @@ home::gen_news() {
   done <<<"$rows"
 }
 home::gen_sports() {
-  command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || return 1
+  command -v curl >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1 || return 1
   [[ -n ${HC[sports_league]} ]] || return 1
   sports::resolve "${HC[sports_league]}" || return 1
   local body; body=$(curl -fsSL --max-time 8 "https://site.api.espn.com/apis/site/v2/sports/$S_PATH/scoreboard" 2>/dev/null) || return 1
-  local rows; rows=$(jq -r '.events[]? | (.competitions[0].competitors // []) as $c | ($c | map(select(.homeAway=="home"))[0] // $c[0]) as $h | ($c | map(select(.homeAway=="away"))[0] // $c[1]) as $a |
-    [.status.type.state, (.status.type.shortDetail // ""), ($h.team.abbreviation // $h.athlete.shortName // "?"), ($h.score // ""), ($a.team.abbreviation // $a.athlete.shortName // "?"), ($a.score // ""), .date] | map(tostring) | join("\u001f")' <<<"$body" 2>/dev/null | head -n 20)
+  local rows; rows=$(python3 "$NEBULA_HOME/lib/jx.py" home-sports <<<"$body" 2>/dev/null | head -n 20)
   [[ -n $rows ]] || { printf '  %s%s Nothing on today%s\n' "$C_DIM" "$(sports::icon "$S_SPORT")" "$C_RESET"; return 0; }
   local n=0 st det h hs a as dt col
   for want in in pre post; do
@@ -199,7 +198,7 @@ home::refresh() {  # home::refresh [widgets…]  (foreground)
     [[ " ${HC[widgets]} " == *" $w "* || $# -gt 0 ]] || continue
     f=$(home::cache "$w"); tmp="$f.tmp"; touch "$f.try"
     if "home::gen_$w" > "$tmp" 2>/dev/null && [[ -s $tmp ]]; then mv "$tmp" "$f"; [[ -t 1 ]] && ui::say_status OK "$w updated"
-    else rm -f "$tmp"; [[ -t 1 ]] && ui::say_status WARN "$w: no data (offline, or missing curl/jq)"; fi
+    else rm -f "$tmp"; [[ -t 1 ]] && ui::say_status WARN "$w: no data (offline, or missing curl/python3)"; fi
   done
 }
 

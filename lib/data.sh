@@ -14,7 +14,7 @@ crypto::id() {
     ltc|litecoin) echo litecoin;; shib) echo shiba-inu;; avax) echo avalanche-2;;
     link|chainlink) echo chainlink;; matic|pol) echo matic-network;; xlm|stellar) echo stellar;;
     *) viz::fetch "https://api.coingecko.com/api/v3/search?query=$(printf '%s' "$1" | sed 's/ /%20/g')" 2>/dev/null \
-         | jq -r '.coins[0].id // empty' 2>/dev/null ;;
+         | python3 "$NEBULA_HOME/lib/jx.py" coin-id 2>/dev/null ;;
   esac
 }
 
@@ -27,7 +27,7 @@ crypto::top() {
   local cur=$1 sym; sym=$(crypto::sym "$cur")
   local body; body=$(viz::fetch "https://api.coingecko.com/api/v3/coins/markets?vs_currency=$cur&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h,7d") \
     || { ui::say_status ERR "Couldn't reach CoinGecko (offline or rate-limited — try again in a minute)"; return 1; }
-  [[ $(jq 'type' <<<"$body" 2>/dev/null) == '"array"' ]] || { ui::say_status ERR "Unexpected reply from CoinGecko (rate limit?)"; return 1; }
+  python3 "$NEBULA_HOME/lib/jx.py" is-array <<<"$body" 2>/dev/null || { ui::say_status ERR "Unexpected reply from CoinGecko (rate limit?)"; return 1; }
 
   viz::title "📈 Crypto market" "${cur^^} · $(date +%H:%M)"
   local cols sw wide=0 nospark=0; cols=$(ui::cols); sw=$(( cols - 44 )); (( sw < 8 )) && sw=8; (( sw > 40 )) && sw=40
@@ -35,7 +35,7 @@ crypto::top() {
   if (( wide )); then printf "${C_DIM} #  %-5s %12s  %9s  %-9s %s${C_RESET}\n" "Coin" "Price" "24h" "Mkt cap" "7 days"
   elif (( nospark )); then printf "${C_DIM} #  %-5s %11s  %9s${C_RESET}\n" "Coin" "Price" "24h"
   else printf "${C_DIM} #  %-5s %12s  %9s  %s${C_RESET}\n" "Coin" "Price" "24h" "7 days"; fi
-  local total; total=$(jq '[.[].market_cap] | add' <<<"$body")
+  local total; total=$(python3 "$NEBULA_HOME/lib/jx.py" market-total <<<"$body")
   local i=0 sy price ch24 spark mc
   (( wide )) || sw=$(( cols - 36 )); (( sw < 8 )) && sw=8; (( sw > 14 )) && ! (( wide )) && sw=14
   while IFS=$'\037' read -r sy price ch24 mc spark; do
@@ -47,10 +47,10 @@ crypto::top() {
     else
       printf " %-2s %-5s %12s  %s  %s\n" "$i" "${sy^^}" "$sym$(viz::money "$price")" "$(viz::pct "$ch24")" "$(tr ' ' '\n' <<<"$spark" | viz::spark "$sw")"
     fi
-  done < <(jq -r '.[] | [.symbol, .current_price, (.price_change_percentage_24h // ""), .market_cap, (.sparkline_in_7d.price | map(tostring) | join(" "))] | map(tostring) | join("\u001f")' <<<"$body")
+  done < <(python3 "$NEBULA_HOME/lib/jx.py" market-rows <<<"$body")
 
   printf "\n${C_DIM}Market-cap share (top 10)${C_RESET}\n"
-  jq -r '.[:5][] | [.symbol, .market_cap] | map(tostring) | join("\u001f")' <<<"$body" | while IFS=$'\037' read -r sy mc; do
+  python3 "$NEBULA_HOME/lib/jx.py" market-top5 <<<"$body" | while IFS=$'\037' read -r sy mc; do
     printf "  %-5s %s %s\n" "${sy^^}" "$(viz::bar "$mc" "$total" "$(ui::bw)")" "$(awk -v a="$mc" -v t="$total" 'BEGIN{printf "%.0f%%", a/t*100}')"
   done
   ui::hint "Detail view: crypto <coin> [--days 90] [--kes]"
@@ -61,7 +61,7 @@ crypto::coin() {
   id=$(crypto::id "$q"); [[ -z $id ]] && { ui::say_status ERR "No coin found for '$q'"; return 1; }
   local m; m=$(viz::fetch "https://api.coingecko.com/api/v3/coins/markets?vs_currency=$cur&ids=$id&price_change_percentage=24h,7d,30d") \
     || { ui::say_status ERR "Couldn't reach CoinGecko"; return 1; }
-  local row; row=$(jq -r '.[0] | [.name, .symbol, .market_cap_rank, .current_price, (.price_change_percentage_24h_in_currency // ""), (.price_change_percentage_7d_in_currency // ""), (.price_change_percentage_30d_in_currency // ""), .high_24h, .low_24h, .market_cap, .total_volume, .ath] | map(tostring) | join("\u001f")' <<<"$m" 2>/dev/null)
+  local row; row=$(python3 "$NEBULA_HOME/lib/jx.py" coin-row <<<"$m" 2>/dev/null)
   [[ -z $row ]] && { ui::say_status ERR "No data for '$q'"; return 1; }
   local name s rank price c24 c7 c30 hi lo mc vol ath
   IFS=$'\037' read -r name s rank price c24 c7 c30 hi lo mc vol ath <<<"$row"
@@ -76,8 +76,8 @@ crypto::coin() {
   printf "  ${C_DIM}7d${C_RESET} %s  ${C_DIM}·${C_RESET}  ${C_DIM}30d${C_RESET} %s\n\n" "$(viz::pct "$c7")" "$(viz::pct "$c30")"
   if [[ -n $ch ]]; then
     local t0 t1
-    t0=$(jq -r '.prices[0][0]/1000|floor' <<<"$ch"); t1=$(jq -r '.prices[-1][0]/1000|floor' <<<"$ch")
-    jq -r '.prices[][1]' <<<"$ch" | viz::area "$cw" "$chh" "$(date -d "@$t0" '+%d %b')" "$(date -d "@$t1" '+%d %b')"
+    t0=$(python3 "$NEBULA_HOME/lib/jx.py" chart-t0 <<<"$ch"); t1=$(python3 "$NEBULA_HOME/lib/jx.py" chart-t1 <<<"$ch")
+    python3 "$NEBULA_HOME/lib/jx.py" chart-prices <<<"$ch" | viz::area "$cw" "$chh" "$(date -d "@$t0" '+%d %b')" "$(date -d "@$t1" '+%d %b')"
   fi
   local pc rb; pc=$(awk -v p="$price" -v l="$lo" -v h="$hi" 'BEGIN{print (h>l)?(p-l)/(h-l)*100:50}')
   printf "\n  ${C_DIM}24h range${C_RESET}\n"
@@ -92,7 +92,7 @@ crypto::coin() {
 }
 
 cmd::crypto() {
-  cmd::_need_curl || return 1; viz::need_jq || return 1
+  cmd::_need_curl || return 1; viz::need_py || return 1
   local cur=usd days=30 coin=() a
   while (( $# )); do
     case "$1" in
@@ -246,12 +246,7 @@ sports::scoreboard() {
   local url="https://site.api.espn.com/apis/site/v2/sports/$path/scoreboard"
   [[ -n $date ]] && url+="?dates=$date"
   local body; body=$(viz::fetch "$url") || { ui::say_status ERR "Couldn't reach the scores service (offline?)"; return 1; }
-  local rows; rows=$(jq -r '.events[]? | (.competitions[0].competitors // []) as $c |
-      ($c | map(select(.homeAway=="home"))[0] // $c[0]) as $h | ($c | map(select(.homeAway=="away"))[0] // $c[1]) as $a |
-      [.date, .status.type.state, (.status.type.shortDetail // ""), (.status.displayClock // ""),
-       ($h.team.displayName // $h.athlete.displayName // "?"), ($h.team.abbreviation // $h.athlete.shortName // ""), ($h.score // ""),
-       ($a.team.displayName // $a.athlete.displayName // "?"), ($a.team.abbreviation // $a.athlete.shortName // ""), ($a.score // ""),
-       (.name // "")] | map(tostring) | join("\u001f")' <<<"$body" 2>/dev/null)
+  local rows; rows=$(python3 "$NEBULA_HOME/lib/jx.py" sports-rows <<<"$body" 2>/dev/null)
   local dlabel; dlabel=$( [[ -n $date ]] && date -d "${date:0:8}" '+%a %d %b' || date '+%a %d %b' )
   viz::title "$(sports::icon "$S_SPORT") $name" "$dlabel"
   if [[ -z $rows ]]; then printf '\n  %sNo matches on this date.%s\n  %sTry: sports %s next  ·  sports %s table%s\n\n' "$C_DIM" "$C_RESET" "$C_DIM" "$S_KEY" "$S_KEY" "$C_RESET"; return 0; fi
@@ -295,10 +290,7 @@ sports::table() {
   local path=$1 name=$2
   local sp=${path%%/*} lg=${path#*/}
   local body; body=$(viz::fetch "https://site.api.espn.com/apis/v2/sports/$sp/$lg/standings") || { ui::say_status ERR "Couldn't reach the standings service"; return 1; }
-  local rows; rows=$(jq -r '(.children // [.])[] | (.name // "") as $g | (.standings.entries // [])[] |
-      (.stats | map({key: .name, value: (.value // 0)}) | from_entries) as $s |
-      [$g, .team.displayName, ($s.rank // 0), ($s.gamesPlayed // 0), ($s.wins // 0), ($s.ties // 0), ($s.losses // 0),
-       ($s.pointDifferential // 0), ($s.points // 0), ($s.winPercent // 0)] | map(tostring) | join("\u001f")' <<<"$body" 2>/dev/null)
+  local rows; rows=$(python3 "$NEBULA_HOME/lib/jx.py" standings <<<"$body" 2>/dev/null)
   viz::title "$(sports::icon "$S_SPORT") $name — table" "$(date '+%d %b')"
   [[ -z $rows ]] && { printf '\n  %sNo standings available for this competition.%s\n\n' "$C_DIM" "$C_RESET"; return 0; }
   local cols=$(ui::cols) soccer=0 g lastg="__" gi=0
@@ -337,7 +329,7 @@ sports::table() {
 }
 
 cmd::sports() {
-  cmd::_need_curl || return 1; viz::need_jq || return 1
+  cmd::_need_curl || return 1; viz::need_py || return 1
   local view=scores date="" toks=() sportword="" t
   for t in "$@"; do
     t=${t,,}

@@ -4,7 +4,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.7-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.8-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -16,7 +16,7 @@ Nebula turns Termux into a friendlier terminal: an AI that formats its answers p
 
 - [Termux](https://github.com/termux/termux-app/releases) from **F-Droid** or **GitHub**, Android 7+
 - `curl` and `tar` (already in Termux), about 15 MB of space
-- Optional: `zsh`, `git`, `gawk`, `jq`, `tgpt`, and the **Termux:API** app (the installer offers these)
+- Optional: `zsh`, `git`, `gawk`, `tgpt`, and the **Termux:API** app (the installer offers these)
 
 ## Install
 
@@ -53,7 +53,7 @@ nebula install python        nebula install list         nebula install info yt-
 nebula install yt-dlp -v     nebula install log          nebula uninstall cmatrix
 ```
 
-**Dashboards** (need `curl`, `jq`): `crypto [coin] [--days 90] [--kes]`, `news [topic]`, `sports [league] [table|next]`, `weather [city]`. `status` (or `status --live`, `dash`) draws CPU, memory, storage, battery, network, temperature and top processes, laid out in 1–4 columns to fit the screen.
+**Dashboards** (need `curl`, `python3`): `crypto [coin] [--days 90] [--kes]`, `news [topic]`, `sports [league] [table|next]`, `weather [city]`. `status` (or `status --live`, `dash`) draws CPU, memory, storage, battery, network, temperature and top processes, laid out in 1–4 columns to fit the screen.
 
 **`play`:** finds songs anywhere on the phone, tolerates typos (`play sumer vibs`, `--shuffle`, `--bg`, `--reindex`, `stop`). Needs `mpg123`, `sox` or `mpv`.
 
@@ -63,7 +63,7 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 **Device-aware:** `settings` scans your phone, explains what's wrong with one-key fixes, and hides commands your device can't run. Compact startup turns on automatically on low-RAM / 32-bit phones.
 
-**Also:** `remind 10m call mom`, `todo` with priorities, `notes`, `serve` (share a folder with a QR code), `dev` (background bots/sites, error-only logs), `deploy` (Firebase), `game` (19 games, one online), `report` (send a bug report), `backup` / `restore`, `tour`, `doctor --fix`.
+**Also:** `remind 10m call mom`, `todo` with priorities, `notes`, `serve` (share a folder with a QR code), `dev` (background bots/sites, error-only logs), `deploy` (Firebase), `game` (19 games, one online), `mingle` (dating, 18+), `ant` (AI coding agent), `jtlearn` (study notes, quizzes and the rage-bait game), `report` (send a bug report), `backup` / `restore`, `tour`, `doctor --fix`.
 
 ## Commands
 
@@ -76,7 +76,7 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 | **Tools** | `status` `dash` `remind` `timer` `note` `notes` `todo` `calc` `qr` `serve` `dev` `deploy` |
 | **System** | `install` `uninstall` `deps` `update` `setup` `settings` `device` `scan` `doctor` `sysinfo` |
 | **Media** | `play` |
-| **Fun** | `game` |
+| **Fun** | `game` `mingle` `ant` `jtlearn` |
 | **Security** | `passwd` `lock` `autolock` `fingerprint` `logins` `noauth` `reset-auth` `whoami` |
 | **Data** | `backup` `restore` |
 | **Look** | `theme` `prompt` `home` `profile` `layout` `keys` `banner` `voice` `sounds` |
@@ -146,7 +146,7 @@ Start with `nebula doctor` (add `--fix`), `nebula settings` or `nebula device`, 
 | Reminders don't fire in sleep | *Settings → Apps → Termux → Battery → Unrestricted*, and `termux-wake-lock` |
 | `backup` can't reach shared storage | `termux-setup-storage` |
 | `ask` / `chat` unavailable | `nebula install tgpt`, check your connection |
-| `crypto` / `sports` need `jq`, or rate-limit | `nebula install jq`; CoinGecko's free tier: wait a minute |
+| `crypto` / `sports` rate-limit | CoinGecko's free tier: wait a minute |
 | `play` finds nothing or has no player | `play --reindex`; `nebula install mpg123` (or `sox`, `mpv`) |
 | `install` fails | `nebula install <tool> -v`, `nebula install log`, try `pkg update` or free up storage |
 | Tab picker missing | `NSH_SKIP_PICK=1` is set, or you're not in zsh |

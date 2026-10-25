@@ -1,4 +1,4 @@
-# apps.sh — bundled apps: ant (coding agent) and kslearn (learning system)
+# apps.sh — bundled apps: ant (coding agent) and jtlearn (learning system)
 
 apps::have() { command -v "$1" >/dev/null 2>&1; }
 
@@ -11,30 +11,26 @@ apps::need() {   # apps::need <command> <nebula-package>
 
 cmd::ant() {
   local dir="$NEBULA_HOME/apps/ant"
-  [[ -f $dir/index.js ]] || { say_status err "ant is missing from this install. Run: nebula update"; return 1; }
-  apps::need node nodejs || { say_status err "ant needs Node.js 18 or newer"; return 1; }
-  local v; v=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null)
-  (( ${v:-0} >= 18 )) || { say_status err "ant needs Node.js 18+ (found ${v:-none})"; return 1; }
-  ANT_HOME_DIR="${ANT_HOME_DIR:-}" exec node "$dir/index.js" "$@"
+  [[ -f $dir/ant/__main__.py ]] || { ui::say_status ERR "ant is missing from this install. Run: nebula update"; return 1; }
+  apps::need python3 python || { ui::say_status ERR "ant needs Python 3"; return 1; }
+  PYTHONPATH="$dir" exec python3 -m ant "$@"
 }
 
-cmd::kslearn() {
-  local dir="$NEBULA_HOME/apps/kslearn" keep="$NEBULA_CFG/kslearn"
-  [[ -d $dir/kslearn ]] || { say_status err "kslearn is missing from this install. Run: nebula update"; return 1; }
-  apps::need python3 python || { say_status err "kslearn needs Python 3"; return 1; }
-  if ! python3 -c 'import click, rich' 2>/dev/null; then
-    say_status info "Installing click and rich (first run only)…"
-    python3 -m pip install -q click rich 2>/dev/null \
-      || python3 -m pip install -q --break-system-packages click rich 2>/dev/null \
-      || python3 -m pip install -q --user --break-system-packages click rich \
-      || { say_status err "Could not install click and rich. Try: pip install click rich"; return 1; }
-  fi
+cmd::jtlearn() {
+  local dir="$NEBULA_HOME/apps/jtlearn" keep="$NEBULA_CFG/jtlearn"
+  [[ -d $dir/jtlearn ]] || { ui::say_status ERR "jtlearn is missing from this install. Run: nebula update"; return 1; }
+  apps::need python3 python || { ui::say_status ERR "jtlearn needs Python 3"; return 1; }
+  # one-time move from the old name (kslearn) so nobody loses progress
+  [[ -d $NEBULA_CFG/kslearn && ! -e $keep ]] && mv "$NEBULA_CFG/kslearn" "$keep"
+  [[ -d $HOME/.kslearn && ! -e $HOME/.jtlearn ]] && mv "$HOME/.kslearn" "$HOME/.jtlearn"
+  [[ -f $HOME/.kslearnrc && ! -e $HOME/.jtlearnrc ]] && mv "$HOME/.kslearnrc" "$HOME/.jtlearnrc"
   # keep settings outside apps/ so updates never wipe them
   mkdir -p "$keep/config" "$dir/data"
   if [[ ! -L $dir/data/config ]]; then
     [[ -d $dir/data/config ]] && cp -an "$dir/data/config/." "$keep/config/" 2>/dev/null
     rm -rf "$dir/data/config"; ln -s "$keep/config" "$dir/data/config"
   fi
-  PYTHONPATH="$dir" exec python3 -m kslearn "$@"
+  PYTHONPATH="$dir" exec python3 -m jtlearn "$@"
 }
-cmd::learn() { cmd::kslearn "$@"; }
+cmd::learn()   { cmd::jtlearn "$@"; }
+cmd::kslearn() { cmd::jtlearn "$@"; }   # old name, still works

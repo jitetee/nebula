@@ -97,9 +97,9 @@ viz::trunc() { local s=$1 w=$2; (( ${#s} > w )) && s="${s:0:w-1}…"; printf '%s
 # viz::fetch <url> → body (honours NEBULA_TOKEN-free public APIs, 10s cap)
 viz::fetch() { curl -fsSL --max-time 12 -H 'accept: application/json' -A 'nebula-termux' "$@"; }
 
-viz::need_jq() {
-  command -v jq >/dev/null 2>&1 && return 0
-  ui::say_status ERR "jq is needed for this view. Run: nebula install jq"; return 1
+viz::need_py() {
+  command -v python3 >/dev/null 2>&1 && return 0
+  ui::say_status ERR "python3 is needed for this view. Run: nebula install python"; return 1
 }
 
 # viz::wrap <width> <first-prefix> <rest-prefix> <text...>   word-wrap, UTF-8 aware

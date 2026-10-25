@@ -9,13 +9,17 @@ export C_DIM=$'\033[2m'
 export C_RED=$'\033[38;5;203m'
 export C_GREEN=$'\033[38;5;120m'
 export C_YELLOW=$'\033[38;5;221m'
-export C_BLUE=$'\033[38;5;75m'
-export C_CYAN=$'\033[38;5;51m'
-export C_MAGENTA=$'\033[38;5;213m'
+export C_CYAN=$'\033[38;5;48m'      # J.I.T.E.T.E.E. phosphor green, same as the website
+export C_MAGENTA=$'\033[38;5;157m'   # soft mint accent
+export C_BLUE=$'\033[38;5;35m'
 export C_WHITE=$'\033[38;5;255m'
 export C_UNDER=$'\033[4m'
 export C_ORANGE=$'\033[38;5;215m'
 export C_GRAY=$'\033[38;5;245m'
+# NEBULA_BRAND=classic restores the old cyan/magenta look
+if [[ ${NEBULA_BRAND:-jitetee} == classic ]]; then
+  C_CYAN=$'\033[38;5;51m'; C_MAGENTA=$'\033[38;5;213m'; C_BLUE=$'\033[38;5;75m'
+fi
 
 # ui::rep <char> <count> → the character repeated (multibyte-safe; never use tr for this)
 ui::rep() { local s; printf -v s '%*s' "$2" ''; printf '%s' "${s// /$1}"; }
@@ -29,7 +33,7 @@ ui::banner() {
   # Full motd-style splash: big Nebula logo + sysinfo + disk panel
   local motd="${NEBULA_HOME}/motd/init.sh"
   if [[ -x $motd ]]; then
-    "$motd"
+    bash "$motd"
   else
     local file="${NEBULA_CFG:-$NEBULA_HOME/data}/banner.txt"; [[ -s $file ]] || file="${NEBULA_HOME}/assets/banner.txt"
     [[ -f $file ]] && printf "${C_CYAN}%s${C_RESET}\n" "$(cat "$file")"
@@ -47,9 +51,9 @@ ui::maker_intro() {
 
 ${C_CYAN}${C_BOLD}⚡ Nebula • AI UI ⚡${C_RESET}
 ${C_GRAY}────────────────────────${C_RESET}
-  A Nebula AI shell UI for Termux
-  ${C_GRAY}Based on cvui${C_RESET}
-  ${C_GRAY}by cybervaultke (MIT)${C_RESET}
+  An AI-powered terminal toolkit for Termux
+  ${C_GRAY}Made by J.I.T.E.T.E.E.${C_RESET}
+  ${C_GRAY}github.com/jitetee/nebula · MIT${C_RESET}
 ${C_GRAY}────────────────────────${C_RESET}
 EOF
 }

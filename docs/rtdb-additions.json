@@ -1,0 +1,330 @@
+{
+  "site": {
+    ".read": true,
+    ".write": "auth != null && ((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true)",
+    "content": {
+      "$key": {
+        ".validate": "newData.isString() && newData.val().length <= 4000"
+      }
+    },
+    "news": {
+      "$id": {
+        ".validate": "newData.hasChildren(['title', 'ts'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "body": {
+          ".validate": "newData.isString() && newData.val().length <= 1500"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  },
+  "nebula": {
+    "reports": {
+      ".read": "auth != null && ((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true)",
+      "$id": {
+        ".write": "auth != null && (!data.exists() || ((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true))",
+        ".validate": "newData.hasChildren(['msg', 'ts'])",
+        "msg": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 800"
+        },
+        "ver": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "android": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "model": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "arch": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "contact": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "src": {
+          ".validate": "newData.isString() && newData.val().length <= 12"
+        },
+        "status": {
+          ".validate": "newData.isString() && newData.val().length <= 12"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "board": {
+          ".validate": "newData.isString() && newData.val().length === 9"
+        },
+        "turn": {
+          ".validate": "newData.isString() && (newData.val() === 'X' || newData.val() === 'O')"
+        },
+        "winner": {
+          ".validate": "newData.isString() && newData.val().length <= 6"
+        },
+        "x": {
+          ".validate": "newData.isString() && newData.val().length <= 16"
+        },
+        "o": {
+          ".validate": "newData.isString() && newData.val().length <= 16"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  },
+  "mingle": {
+    "banned": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true)"
+      }
+    },
+    "usernames": {
+      "$name": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (!newData.exists() && data.val() === auth.uid))",
+        ".validate": "newData.isString() && newData.val().length <= 40"
+      }
+    },
+    "profiles": {
+      ".indexOn": [
+        "city",
+        "ts"
+      ],
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && !root.child('mingle/banned').child(auth.uid).exists() && (auth.uid === $uid || ((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true))",
+        ".validate": "newData.hasChildren(['name','username','age','gender','seeking','city'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 30"
+        },
+        "username": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 20"
+        },
+        "age": {
+          ".validate": "newData.isNumber() && newData.val() >= 18 && newData.val() <= 99"
+        },
+        "gender": {
+          ".validate": "newData.val() === 'man' || newData.val() === 'woman' || newData.val() === 'nonbinary' || newData.val() === 'other'"
+        },
+        "seeking": {
+          ".validate": "newData.val() === 'men' || newData.val() === 'women' || newData.val() === 'everyone'"
+        },
+        "city": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "bio": {
+          ".validate": "newData.isString() && newData.val().length <= 300"
+        },
+        "interests": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "vibe": {
+          ".validate": "newData.isString() && newData.val().length <= 8"
+        },
+        "visible": {
+          ".validate": "newData.isBoolean()"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "seen": {
+          ".validate": "newData.isNumber()"
+        },
+        "$o": {
+          ".validate": false
+        }
+      }
+    },
+    "likes": {
+      "$from": {
+        ".read": "auth != null && auth.uid === $from",
+        "$to": {
+          ".write": "auth != null && auth.uid === $from && $to !== auth.uid && (!newData.exists() || (!root.child('mingle/banned').child(auth.uid).exists() && !root.child('mingle/blocks').child($to).child(auth.uid).exists()))",
+          ".validate": "newData.hasChildren(['ts'])",
+          "ts": {
+            ".validate": "newData.isNumber()"
+          },
+          "star": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$o": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "likedBy": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".write": "auth != null && auth.uid === $from && $to !== auth.uid && (!newData.exists() || (!root.child('mingle/banned').child(auth.uid).exists() && !root.child('mingle/blocks').child($to).child(auth.uid).exists()))",
+          ".validate": "newData.hasChildren(['ts'])",
+          "ts": {
+            ".validate": "newData.isNumber()"
+          },
+          "star": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$o": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "passes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$o": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$o": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "blockedBy": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$o": {
+          ".write": "auth != null && auth.uid === $o",
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "matches": {
+      "$pair": {
+        ".read": "auth != null && (auth.uid === data.child('a').val() || auth.uid === data.child('b').val())",
+        ".write": "auth != null && !root.child('mingle/banned').child(auth.uid).exists() && ((!data.exists() && newData.child('a').val() < newData.child('b').val() && $pair === newData.child('a').val() + '_' + newData.child('b').val() && (auth.uid === newData.child('a').val() || auth.uid === newData.child('b').val()) && root.child('mingle/likes').child(newData.child('a').val()).child(newData.child('b').val()).exists() && root.child('mingle/likes').child(newData.child('b').val()).child(newData.child('a').val()).exists()) || (data.exists() && !newData.exists() && (auth.uid === data.child('a').val() || auth.uid === data.child('b').val())))",
+        ".validate": "newData.hasChildren(['a','b','ts'])",
+        "a": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "b": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "$o": {
+          ".validate": false
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        "matches": {
+          ".indexOn": [
+            "lastTs"
+          ],
+          ".read": "auth != null && auth.uid === $uid",
+          "$other": {
+            ".write": "auth != null && !root.child('mingle/banned').child(auth.uid).exists() && (auth.uid === $uid || (auth.uid === $other && (!newData.exists() || (root.child('mingle/likes').child($uid).child($other).exists() && root.child('mingle/likes').child($other).child($uid).exists()))))",
+            "pair": {
+              ".validate": "newData.isString() && newData.val().length <= 90"
+            },
+            "ts": {
+              ".validate": "newData.isNumber()"
+            },
+            "last": {
+              ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "lastTs": {
+              ".validate": "newData.isNumber()"
+            },
+            "lastFrom": {
+              ".validate": "newData.isString() && newData.val().length <= 40"
+            },
+            "seen": {
+              ".validate": "newData.isNumber()"
+            },
+            "$o": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "chats": {
+      "$pair": {
+        ".read": "auth != null && (auth.uid === root.child('mingle/matches').child($pair).child('a').val() || auth.uid === root.child('mingle/matches').child($pair).child('b').val())",
+        ".write": "auth != null && !newData.exists() && (auth.uid === root.child('mingle/matches').child($pair).child('a').val() || auth.uid === root.child('mingle/matches').child($pair).child('b').val())",
+        "messages": {
+          ".indexOn": [
+            "ts"
+          ],
+          "$id": {
+            ".write": "auth != null && !root.child('mingle/banned').child(auth.uid).exists() && !data.exists() && newData.child('from').val() === auth.uid && (auth.uid === root.child('mingle/matches').child($pair).child('a').val() || auth.uid === root.child('mingle/matches').child($pair).child('b').val())",
+            ".validate": "newData.hasChildren(['from','text','ts'])",
+            "from": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 500"
+            },
+            "ts": {
+              ".validate": "newData.isNumber()"
+            },
+            "$o": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "userReports": {
+      ".read": "((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true)",
+      "$id": {
+        ".write": "auth != null && ((!data.exists() && newData.child('by').val() === auth.uid) || ((root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'superadmin') && root.child('users').child(auth.uid).child('disabled').val() !== true))",
+        ".validate": "newData.hasChildren(['about','by','reason','ts'])",
+        "about": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "by": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 300"
+        },
+        "ts": {
+          ".validate": "newData.isNumber()"
+        },
+        "status": {
+          ".validate": "newData.isString() && newData.val().length <= 12"
+        },
+        "$o": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
