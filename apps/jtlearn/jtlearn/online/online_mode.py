@@ -7,7 +7,7 @@ Features:
 - Friend system
 - Global leaderboards
 - Content sharing (worlds as JSON text in RTDB)
-- Multiplayer KSL-Verse sessions
+- Multiplayer JT-Verse sessions
 """
 
 import json
@@ -70,10 +70,10 @@ def run_online_mode():
         tbl.add_row("🏆 3. Leaderboards", "Global XP and score rankings")
         tbl.add_row("🌍 4. Browse Worlds", "Online worlds (play virtually, no download)")
         tbl.add_row("🔍 5. Search World by ID", "Find a specific world")
-        tbl.add_row("📤 6. Upload World", "Share your KSL-Verse worlds")
+        tbl.add_row("📤 6. Upload World", "Share your JT-Verse worlds")
         tbl.add_row("📚 7. Sync Notes", "Upload/download notes to cloud")
         tbl.add_row("🎓 8. Sync Courses", "Upload/download courses to cloud")
-        tbl.add_row("🎮 9. Multiplayer Verse", "Play KSL-Verse with friends")
+        tbl.add_row("🎮 9. Multiplayer Verse", "Play JT-Verse with friends")
         tbl.add_row("🕹️ 10. Open Sessions", "See available game sessions")
         tbl.add_row("⚙️ S. Settings", "Sync preferences and config")
         tbl.add_row("❌ L. Logout", "Return to offline mode")
@@ -527,10 +527,10 @@ def _browse_worlds(firebase: FirebaseRTDB):
         online_worlds = firebase.list_worlds("all")
 
     # Also show local worlds
-    from jtlearn.loader import KSL_DIR
+    from jtlearn.loader import JIF_DIR
     local_worlds = []
-    if KSL_DIR.exists():
-        for wf in sorted(KSL_DIR.glob("*_verse.json")):
+    if JIF_DIR.exists():
+        for wf in sorted(JIF_DIR.glob("*_verse.json")):
             try:
                 with open(wf, "r") as f:
                     data = json.load(f)
@@ -922,7 +922,7 @@ def _download_world(firebase: FirebaseRTDB, world_info: dict):
         return
     
     # Save world to local data directory
-    data_dir = Path.home() / ".jtlearn" / "data" / "ksl"
+    data_dir = Path.home() / ".jtlearn" / "data" / "jif"
     data_dir.mkdir(parents=True, exist_ok=True)
     
     world_id = world_info["world_id"]
@@ -932,7 +932,7 @@ def _download_world(firebase: FirebaseRTDB, world_info: dict):
         json.dump(world_data, f, indent=2)
     
     show_success(f"World downloaded and saved to: {world_file}")
-    console.print(f"\n[dim]You can now play it in KSL-Verse![/dim]")
+    console.print(f"\n[dim]You can now play it in JT-Verse![/dim]")
     console.input("\n[dim]Press Enter to continue...[/dim]")
 
 
@@ -941,20 +941,20 @@ def _upload_world(firebase: FirebaseRTDB):
     clear_screen()
     console.print(get_small_banner())
     console.print()
-    show_panel("📤 Upload World", "Share your KSL-Verse world with the community", "cyan")
+    show_panel("📤 Upload World", "Share your JT-Verse world with the community", "cyan")
     console.print()
 
-    # List available worlds from KSL_DIR (same source as verse engine)
-    from jtlearn.loader import KSL_DIR
+    # List available worlds from JIF_DIR (same source as verse engine)
+    from jtlearn.loader import JIF_DIR
     
-    if not KSL_DIR.exists():
-        show_error("No worlds found. Create a world in KSL-Verse first!")
+    if not JIF_DIR.exists():
+        show_error("No worlds found. Create a world in JT-Verse first!")
         console.input("\n[dim]Press Enter to continue...[/dim]")
         return
 
-    world_files = list(KSL_DIR.glob("*_verse.json"))
+    world_files = list(JIF_DIR.glob("*_verse.json"))
     if not world_files:
-        show_error("No worlds found to upload. Create a world in KSL-Verse first!")
+        show_error("No worlds found to upload. Create a world in JT-Verse first!")
         console.input("\n[dim]Press Enter to continue...[/dim]")
         return
     
@@ -1002,11 +1002,11 @@ def _upload_world(firebase: FirebaseRTDB):
 
 
 def _multiplayer_verse(firebase: FirebaseRTDB):
-    """Multiplayer KSL-Verse mode"""
+    """Multiplayer JT-Verse mode"""
     clear_screen()
     console.print(get_small_banner())
     console.print()
-    show_panel("🎮 Multiplayer KSL-Verse", "Play with friends in real-time", "cyan")
+    show_panel("🎮 Multiplayer JT-Verse", "Play with friends in real-time", "cyan")
     console.print()
 
     console.print("[green][1][/green] [dim]Create game session[/dim]")

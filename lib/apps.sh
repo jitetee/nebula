@@ -20,10 +20,6 @@ cmd::jtlearn() {
   local dir="$NEBULA_HOME/apps/jtlearn" keep="$NEBULA_CFG/jtlearn"
   [[ -d $dir/jtlearn ]] || { ui::say_status ERR "jtlearn is missing from this install. Run: nebula update"; return 1; }
   apps::need python3 python || { ui::say_status ERR "jtlearn needs Python 3"; return 1; }
-  # one-time move from the old name (kslearn) so nobody loses progress
-  [[ -d $NEBULA_CFG/kslearn && ! -e $keep ]] && mv "$NEBULA_CFG/kslearn" "$keep"
-  [[ -d $HOME/.kslearn && ! -e $HOME/.jtlearn ]] && mv "$HOME/.kslearn" "$HOME/.jtlearn"
-  [[ -f $HOME/.kslearnrc && ! -e $HOME/.jtlearnrc ]] && mv "$HOME/.kslearnrc" "$HOME/.jtlearnrc"
   # keep settings outside apps/ so updates never wipe them
   mkdir -p "$keep/config" "$dir/data"
   if [[ ! -L $dir/data/config ]]; then
@@ -33,4 +29,3 @@ cmd::jtlearn() {
   PYTHONPATH="$dir" exec python3 -m jtlearn "$@"
 }
 cmd::learn()   { cmd::jtlearn "$@"; }
-cmd::kslearn() { cmd::jtlearn "$@"; }   # old name, still works

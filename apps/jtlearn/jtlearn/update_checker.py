@@ -13,11 +13,11 @@ from pathlib import Path
 
 import jtlearn
 
-GITHUB_REPO = "kashsight/kslearn"
-PYPI_URL = f"https://pypi.org/pypi/kslearn/json"
+GITHUB_REPO = "jitetee/nebula"
+PYPI_URL = f"https://pypi.org/pypi/jtlearn/json"
 GITHUB_RELEASES_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
 GITHUB_TAGS_URL = f"https://api.github.com/repos/{GITHUB_REPO}/tags"
-UPDATE_URL = "https://github.com/kashsight/kslearn"
+UPDATE_URL = "https://github.com/jitetee/nebula"
 
 
 def _get_latest_pypi_version():

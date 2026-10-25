@@ -223,7 +223,7 @@ def play():
         tbl.add_row("📂 1. Course Catalog", "Hierarchical courses with progression & AI tutor")
         tbl.add_row("📚 2. Study Notes", "Browse comprehensive learning materials")
         tbl.add_row("📝 3. Take Quiz", "Test your knowledge")
-        tbl.add_row("🌌 4. KSL-Verse", "Interactive multiverse learning game")
+        tbl.add_row("🌌 4. JT-Verse", "Interactive multiverse learning game")
         # AI & Progress
         tbl.add_row("🤖 5. AI Chat", "Chat with AI tutor (online & offline)")
         tbl.add_row("📊 6. My Progress", "Analytics, achievements, quiz scores & export")
@@ -411,7 +411,7 @@ def _run_learnquest():
         console.print()
         show_panel("🏆 LearnQuest", "No quizzes available yet", "yellow")
         console.print()
-        console.print("[dim]Check back later or request a KSL file.[/dim]")
+        console.print("[dim]Check back later or request a JIF file.[/dim]")
         console.print()
         console.input("[bold green]╰─► Press Enter to continue...[/bold green]")
         return
@@ -721,7 +721,7 @@ def quiz(system, random_quiz):
     quizzes = engine.get_available_quizzes()
     
     if not quizzes:
-        show_error("No quiz files found in data/ksl/")
+        show_error("No quiz files found in data/jif/")
         show_info("Add JSON quiz files to start learning!")
         return
     
@@ -788,7 +788,7 @@ def study(topic, list_topics):
 
         if not categories:
             show_warning("No learning materials found!")
-            show_info("Make sure .ksl files are in jtlearn/data/ksl/")
+            show_info("Make sure .jif files are in jtlearn/data/jif/")
             return
 
         table = Table(box=box.ROUNDED, border_style="cyan")
@@ -946,8 +946,8 @@ def show_brain_stats():
 
     elif choice == "C":
         if Confirm.ask("Clear entire brain? This cannot be undone!", default=False):
-            from jtlearn.loader import KSL_DIR
-            brain_file = KSL_DIR / "brain.ksl"
+            from jtlearn.loader import JIF_DIR
+            brain_file = JIF_DIR / "brain.jif"
             default_brain = {
                 "metadata": {"created": time.time(), "version": "1.0"},
                 "categories": {},
@@ -1228,14 +1228,14 @@ def show_analytics():
     console.print(stats_table)
     console.print()
 
-    # ─── SECTION 1b: KSL-Verse Stats ──────────────────────────────
+    # ─── SECTION 1b: JT-Verse Stats ──────────────────────────────
     if verse_xp > 0:
         from jtlearn.engines.verse_engine import get_rank
         rank_title, _, next_xp = get_rank(verse_xp)
         total_worlds = sum(1 for w in verse_worlds.values() if w.get("world_completed"))
         total_bosses = sum(1 for w in verse_worlds.values() if w.get("boss_defeated"))
 
-        console.print("[bold magenta]🌌  KSL-Verse Progress:[/bold magenta]\n")
+        console.print("[bold magenta]🌌  JT-Verse Progress:[/bold magenta]\n")
         verse_table = Table(box=box.ROUNDED, border_style="magenta")
         verse_table.add_column("Metric", style="bold white", ratio=2)
         verse_table.add_column("Value", style="cyan", ratio=1, justify="right")
@@ -1528,7 +1528,7 @@ def show_analytics():
     if bookmarks:
         insights.append(f"🔖 {len(bookmarks)} bookmarked topics ready for review.")
     if verse_xp > 0:
-        insights.append(f"🌌 You have {verse_xp} XP in the KSL-Verse!")
+        insights.append(f"🌌 You have {verse_xp} XP in the JT-Verse!")
     if timed_quiz_best >= 10:
         insights.append(f"⚡ Timed quiz best: {timed_quiz_best} — quick thinker!")
     if tutorials_completed > 0:
@@ -1771,7 +1771,7 @@ def _run_learnquest():
         if not courses:
             console.print(Panel(
                 "[yellow]No hierarchical courses found.[/yellow]\n"
-                "[dim]Add hierarchical .ksl files to data/ksl/ to use LearnQuest.[/dim]",
+                "[dim]Add hierarchical .jif files to data/jif/ to use LearnQuest.[/dim]",
                 box=box.ROUNDED,
                 border_style="yellow",
             ))
@@ -2645,7 +2645,7 @@ def run_system(system_key: str):
                 return
 
     show_error(f"Quiz not found or has no questions: {system_key}")
-    show_info("Make sure .ksl files exist in jtlearn/data/ksl/")
+    show_info("Make sure .jif files exist in jtlearn/data/jif/")
 
 
 def run_learning_notes():
@@ -2745,7 +2745,7 @@ def run_datastore():
         console.print()
         
         # Open the official store URL
-        store_url = "https://kashsight-4cbb8.web.app/kslearn.html"
+        store_url = "https://jitetee-ke.web.app/jtlearn"
         webbrowser.open(store_url)
         
         console.print("[dim]Opening in your default browser...[/dim]\n")
@@ -3142,7 +3142,7 @@ def verify_cmd():
 
 @main.command(name="verse")
 def verse_cmd():
-    """Launch the KSL-Verse interactive learning game"""
+    """Launch the JT-Verse interactive learning game"""
     from jtlearn.engines.verse_engine import run_verse_interactive
     run_verse_interactive()
 
@@ -3214,7 +3214,7 @@ def share_world_cmd(world):
     if world:
         # Upload specific world
         from pathlib import Path
-        data_dir = Path.home() / ".jtlearn" / "data" / "ksl"
+        data_dir = Path.home() / ".jtlearn" / "data" / "jif"
         world_file = data_dir / f"{world}_verse.json"
         
         if not world_file.exists():

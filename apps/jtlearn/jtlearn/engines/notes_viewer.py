@@ -14,8 +14,8 @@ from jtlearn._rich.table import Table
 from jtlearn._rich.rule import Rule
 from jtlearn._rich import box
 
-from jtlearn.loader import content_loader, KSL_DIR, CONFIG_DIR
-from jtlearn.ksl_loader import get_ksl_content_type, get_ksl_metadata, extract_notes, extract_combined_content, TYPE_COMBINED
+from jtlearn.loader import content_loader, JIF_DIR, CONFIG_DIR
+from jtlearn.jif_loader import get_jif_content_type, get_jif_metadata, extract_notes, extract_combined_content, TYPE_COMBINED
 from jtlearn.ui import console, show_panel, show_success, show_error, show_info, show_warning, print_divider, clear_screen
 from jtlearn.config import load_config, set_config_value, save_config
 from datetime import datetime
@@ -32,7 +32,7 @@ class NotesViewer:
         self.total_read_time: int = 0
 
     def get_available_notes(self) -> List[Dict[str, str]]:
-        """Get list of all available note categories from .ksl files"""
+        """Get list of all available note categories from .jif files"""
         return self.loader.get_all_notes_categories()
 
     def load_notes(self, category: str) -> Optional[Dict]:
@@ -911,7 +911,7 @@ def run_notes_interactive():
 
         if not notes:
             console.print(Panel(
-                "[yellow]No notes files found in data/ksl/[/yellow]\n[dim]Pack your JSON files into .ksl using ksl_tool.py![/dim]",
+                "[yellow]No notes files found in data/jif/[/yellow]\n[dim]Pack your JSON files into .jif using jif_tool.py![/dim]",
                 box=box.ROUNDED,
                 border_style="yellow",
             ))
@@ -1351,7 +1351,7 @@ class HierarchicalNotesViewer:
         courses = get_all_hierarchical_courses()
         if not courses:
             show_warning("No hierarchical courses found!")
-            show_info("Add .ksl files with 'courses' key to data/ksl/")
+            show_info("Add .jif files with 'courses' key to data/jif/")
             return None
 
         # Apply filters
@@ -2524,11 +2524,11 @@ class HierarchicalNotesViewer:
     def _get_all_courses(self):
         """Get all available hierarchical courses."""
         all_courses = []
-        for ksl_file in self.loader._discover_ksl_files():
-            data = self.loader._load_ksl_data(ksl_file)
+        for jif_file in self.loader._discover_jif_files():
+            data = self.loader._load_jif_data(jif_file)
             if data and "courses" in data:
                 for c in data["courses"]:
-                    c["_source"] = str(ksl_file)
+                    c["_source"] = str(jif_file)
                     all_courses.append(c)
         return all_courses
 
@@ -2573,12 +2573,12 @@ class HierarchicalNotesViewer:
                                     "breadcrumb": [course.get("title", ""), cat_title, unit_title, outcome_title, sub_title],
                                     "type": sub.get("type", "content"),
                                 })
-        # Also search flat notes (from combined/notes ksl files)
-        for notes_file in self.loader._discover_ksl_files():
-            data = self.loader._load_ksl_data(notes_file)
+        # Also search flat notes (from combined/notes jif files)
+        for notes_file in self.loader._discover_jif_files():
+            data = self.loader._load_jif_data(notes_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 topics = combined.get("notes", [])
@@ -2586,7 +2586,7 @@ class HierarchicalNotesViewer:
                 topics = extract_notes(data)
             if not topics:
                 continue
-            cat_meta = get_ksl_metadata(data)
+            cat_meta = get_jif_metadata(data)
             cat_name = cat_meta.get("category", cat_meta.get("title", str(notes_file.stem)))
             for topic in topics:
                 t_title = topic.get("title", "")

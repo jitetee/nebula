@@ -33,7 +33,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 
 # Install in editable mode
@@ -57,7 +57,7 @@ pip install -e .
 jtlearn
 ```
 
-> 💡 **Tip:** v2.0.0 includes 13+ features, AI-powered suggestions, hierarchical courses, and KSL-Verse game.
+> 💡 **Tip:** v2.0.0 includes 13+ features, AI-powered suggestions, hierarchical courses, and JT-Verse game.
 
 ---
 
@@ -98,7 +98,7 @@ pkg install build-essential -y
 **Option A: Git Clone (Recommended)**
 
 ```bash
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip install -e .
 ```
@@ -110,7 +110,7 @@ pip install -e .
 pkg install wget unzip -y
 
 # Download ZIP
-wget https://github.com/kashsight/kslearn/archive/refs/heads/main.zip
+wget https://github.com/jitetee/nebula/archive/refs/heads/main.zip
 
 # Extract and install
 unzip main.zip
@@ -143,7 +143,7 @@ jtlearn
 ### 🏃 Termux Quick Install (One-Liner)
 
 ```bash
-pkg update && pkg upgrade -y && pkg install python git -y && git clone https://github.com/kashsight/kslearn.git && cd jtlearn && pip install -e . && jtlearn
+pkg update && pkg upgrade -y && pkg install python git -y && git clone https://github.com/jitetee/nebula.git && cd jtlearn && pip install -e . && jtlearn
 ```
 
 ### Termux Troubleshooting
@@ -196,7 +196,7 @@ source jtlearn-env/bin/activate
 
 ```bash
 # Clone repository
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 
 # Install
@@ -207,7 +207,7 @@ pip install -e .
 
 ```bash
 # Add to your shell config
-echo 'alias ksl="jtlearn"' >> ~/.bashrc
+echo 'alias jif="jtlearn"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -225,7 +225,7 @@ jtlearn
 
 ```bash
 sudo dnf install python3 python3-pip git -y
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip3 install -e .
 ```
@@ -237,7 +237,7 @@ pip3 install -e .
 
 ```bash
 sudo pacman -S python python-pip git
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip install -e .
 ```
@@ -249,7 +249,7 @@ pip install -e .
 
 ```bash
 sudo zypper install python3 python3-pip git
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip3 install -e .
 ```
@@ -291,7 +291,7 @@ brew install git
 
 ```bash
 # Clone repository
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 
 # Install
@@ -341,7 +341,7 @@ jtlearn
 
 ```cmd
 # Open Command Prompt or PowerShell
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip install -e .
 ```
@@ -368,7 +368,7 @@ Restart when prompted, then:
 # Open Ubuntu (WSL) from Start Menu
 sudo apt update
 sudo apt install python3 python3-pip git -y
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip3 install -e .
 jtlearn
@@ -397,14 +397,14 @@ jtlearn
 ### Method 1: Git Clone (Recommended)
 
 ```bash
-git clone https://github.com/kashsight/kslearn.git
+git clone https://github.com/jitetee/nebula.git
 cd jtlearn
 pip install -e .
 ```
 
 ### Method 2: ZIP Download
 
-1. Go to https://github.com/kashsight/kslearn
+1. Go to https://github.com/jitetee/nebula
 2. Click **"Code"** → **"Download ZIP"**
 3. Extract ZIP file
 4. Open terminal in extracted folder
@@ -498,7 +498,7 @@ rmdir /s jtlearn-env  # Windows
 
 **Linux/macOS:** Edit `~/.bashrc` or `~/.zshrc` and remove:
 ```bash
-alias ksl="jtlearn"
+alias jif="jtlearn"
 ```
 
 **Windows:** Search "Environment Variables" → Edit PATH → Remove jtlearn entries
@@ -555,13 +555,13 @@ alias ksl="jtlearn"
 | Resource | Link |
 |:---|:---|
 | 📖 **Documentation** | See [ADDING_CONTENT.md](ADDING_CONTENT.md) for adding content |
-| 🐛 **Bug Reports** | https://github.com/kashsight/kslearn/issues |
-| 💬 **Discussions** | https://github.com/kashsight/kslearn/discussions |
+| 🐛 **Bug Reports** | https://github.com/jitetee/nebula/issues |
+| 💬 **Discussions** | https://github.com/jitetee/nebula/discussions |
 | 📧 **Email** | kashsight@gmail.com |
 | 🌐 **Website** | https://kash-sight.web.app |
 
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

@@ -31,7 +31,7 @@ MAIN_MENU = [
     ("1", "📂 Course Catalog", "Hierarchical courses with progression & AI tutor"),
     ("2", "📚 Study Notes", "Browse comprehensive learning materials"),
     ("3", "📝 Take Quiz", "Test your knowledge"),
-    ("4", "🌌 KSL-Verse", "Interactive multiverse learning game"),
+    ("4", "🌌 JT-Verse", "Interactive multiverse learning game"),
     ("5", "🤖 AI Chat", "Chat with AI tutor (online & offline)"),
     ("6", "📊 My Progress", "Analytics, achievements, quiz scores & export"),
     ("7", "🔖 Study Tools", "Bookmarks, global search & spaced review"),

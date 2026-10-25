@@ -21,11 +21,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Callable, List
 from datetime import datetime
 
-try:
-    import requests
-    HAS_REQUESTS = True
-except ImportError:
-    HAS_REQUESTS = False
+from jtlearn import _requests as requests  # stdlib-only replacement, nothing to install
+HAS_REQUESTS = True
 
 from jtlearn.ui import console, show_panel, show_error, show_info, show_success, show_warning
 from jtlearn.config import load_config, save_config
@@ -263,6 +260,7 @@ class FirebaseRTDB:
             }
 
             self._put(f"users/{self.user_id}", profile)
+            self._sync_learner(profile)
             self.user_data = profile
 
             # Save auth locally
@@ -456,7 +454,19 @@ class FirebaseRTDB:
         success = self._patch(f"users/{self.user_id}", updates)
         if success:
             self.user_data.update(updates)
+            if any(k in updates for k in ("xp", "level", "username")):
+                self._sync_learner(self.user_data)
         return success
+
+    def _sync_learner(self, data: Dict) -> None:
+        """Publish only the public bits (name, xp, level) for the XP leaderboard."""
+        if not self.user_id or data.get("is_anonymous"):
+            return
+        self._patch(f"learners/{self.user_id}", {
+            "username": str(data.get("username", "Unknown"))[:40],
+            "xp": int(data.get("xp", 0) or 0),
+            "level": int(data.get("level", 1) or 1),
+        })
     
     def get_profile(self, user_id: str = None) -> Optional[Dict]:
         """Get user profile"""
@@ -738,10 +748,10 @@ class FirebaseRTDB:
             if not cloud_course:
                 return False
             content = json.loads(cloud_course.get("content", "{}"))
-            # Save as a .ksl file would — store in KSL_DIR as JSON for now
-            from jtlearn.loader import KSL_DIR
-            KSL_DIR.mkdir(parents=True, exist_ok=True)
-            out_path = KSL_DIR / f"{course_id}_cloud.json"
+            # Save as a .jif file would — store in JIF_DIR as JSON for now
+            from jtlearn.loader import JIF_DIR
+            JIF_DIR.mkdir(parents=True, exist_ok=True)
+            out_path = JIF_DIR / f"{course_id}_cloud.json"
             out_path.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
             return True
         except Exception:
@@ -965,7 +975,7 @@ class FirebaseRTDB:
     
     def get_xp_leaderboard(self, limit: int = 20) -> List[Dict]:
         """Get XP-based leaderboard (all-time)"""
-        users = self._get("users")
+        users = self._get("learners")
         if not users:
             return []
         
@@ -986,7 +996,7 @@ class FirebaseRTDB:
     # ─── Content Sharing (JSON as Text) ──────────────────────────
     
     def upload_world(self, world_id: str, world_data: Dict, title: str, description: str) -> bool:
-        """Upload KSL-Verse world to RTDB (stored as JSON text)"""
+        """Upload JT-Verse world to RTDB (stored as JSON text)"""
         if not self.user_id:
             show_error("Must be logged in to upload content")
             return False
@@ -1013,7 +1023,7 @@ class FirebaseRTDB:
         return success
     
     def download_world(self, world_id: str) -> Optional[Dict]:
-        """Download KSL-Verse world from RTDB (text back to JSON)"""
+        """Download JT-Verse world from RTDB (text back to JSON)"""
         world_data = self._get(f"worlds/{world_id}")
         if not world_data:
             show_error("World not found")

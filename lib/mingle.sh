@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 # nebula — Mingle: a dating app for the terminal, on the same Firebase project as bug reports and online games.
 # Sign in with email + password, or with a username + key (a generated password; no email needed).
-# Everything lives under mingle/ in the Realtime Database; the rules are in docs/rtdb-additions.json.
+# Everything lives under mingle/ in the Realtime Database; the rules are in docs/database.rules.json.
 # Needs: curl and python3.  Optional: tgpt (the "wingman" that suggests opening lines).
 
 m::j() { python3 "$NEBULA_HOME/lib/mj.py" "$@"; }   # JSON helper (standard library only)
@@ -118,7 +118,7 @@ m::post() { m::req POST "mingle/$1" "$2"; }
 m::fail() {   # explain the last database failure
   case $M_CODE in
     0) m::say ERR "Can't reach the server. Check your internet connection." ;;
-    401|403) m::say ERR "The server refused that. If this keeps happening, the owner needs to publish the Mingle rules (docs/rtdb-additions.json)." ;;
+    401|403) m::say ERR "The server refused that. If this keeps happening, the owner needs to publish the rules in docs/database.rules.json." ;;
     *) m::say ERR "Server error ($M_CODE)." ;;
   esac
 }

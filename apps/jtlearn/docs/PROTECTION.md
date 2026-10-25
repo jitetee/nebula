@@ -66,7 +66,7 @@ find data/ -name '*.bak' -delete
 
 ```bash
 # 1. Clone and install the app (free)
-git clone https://github.com/kashsight/kslearn
+git clone https://github.com/jitetee/nebula
 cd jtlearn
 pip install .
 
@@ -302,5 +302,5 @@ Content unlocks ✅
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

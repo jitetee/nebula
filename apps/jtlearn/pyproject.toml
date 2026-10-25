@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "jtlearn"
 dynamic = ["version"]
-description = "JSON-Powered Educational Learning System — offline quizzes, notes, flashcards, tutorials, AI chat, and KSL-Verse multiplayer"
+description = "JSON-Powered Educational Learning System — offline quizzes, notes, flashcards, tutorials, AI chat, and JT-Verse multiplayer"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -55,14 +55,14 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kashsight/kslearn"
-Documentation = "https://github.com/kashsight/kslearn/blob/main/README.md"
-Repository = "https://github.com/kashsight/kslearn"
-"Bug Tracker" = "https://github.com/kashsight/kslearn/issues"
+Homepage = "https://github.com/jitetee/nebula"
+Documentation = "https://github.com/jitetee/nebula/blob/main/README.md"
+Repository = "https://github.com/jitetee/nebula"
+"Bug Tracker" = "https://github.com/jitetee/nebula/issues"
 
 [project.scripts]
 jtlearn = "jtlearn.cli:main"
-ksl = "jtlearn.cli:main"
+jif = "jtlearn.cli:main"
 
 [tool.setuptools]
 packages = ["jtlearn", "jtlearn.engines", "jtlearn.main", "jtlearn.online", "jtlearn.config"]
@@ -72,4 +72,4 @@ include-package-data = true
 version = {attr = "jtlearn.__version__"}
 
 [tool.setuptools.package-data]
-jtlearn = ["data/**/*.json", "data/**/*.ksl"]
+jtlearn = ["data/**/*.json", "data/**/*.jif"]

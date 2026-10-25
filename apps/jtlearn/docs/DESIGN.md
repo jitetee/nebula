@@ -426,5 +426,5 @@ The file `data/config/theme.json` defines color schemes for future use:
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

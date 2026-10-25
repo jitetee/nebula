@@ -28,7 +28,7 @@ Lock indicators: 🔒 = Locked, 🔓 = Available
 
 ## Complete JSON Structure
 
-See `data/ksl/hierarchical_sample.json` for a working example with all fields.
+See `data/jif/hierarchical_sample.json` for a working example with all fields.
 
 ### Key Fields at Each Level
 
@@ -144,10 +144,10 @@ See [AI_SUGGESTIONS.md](AI_SUGGESTIONS.md) for full documentation.
 
 ```bash
 # Interactive
-python ksl_tool.py
+python jif_tool.py
 
 # CLI
-python ksl_tool.py pack my_course.json -t "Course Title"
+python jif_tool.py pack my_course.json -t "Course Title"
 ```
 
 ## How to Access
@@ -160,7 +160,7 @@ python ksl_tool.py pack my_course.json -t "Course Title"
 
 ## Backward Compatibility
 
-Existing flat-format `.ksl` files continue to work. Hierarchical is an additional content type.
+Existing flat-format `.jif` files continue to work. Hierarchical is an additional content type.
 
 ## Progress Tracking Keys
 

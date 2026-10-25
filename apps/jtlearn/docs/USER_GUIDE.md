@@ -30,7 +30,7 @@
 jtlearn
 ```
 
-> 💡 **Tip:** Run `jtlearn verse` to launch KSL-Verse directly.
+> 💡 **Tip:** Run `jtlearn verse` to launch JT-Verse directly.
 
 ---
 
@@ -250,7 +250,7 @@ Great effort! Here's what to focus on next:
 
 | Source | URL |
 |:---|:---|
-| **Website** | https://kashsight-4cbb8.web.app/kslearn.html |
+| **Website** | https://jitetee-ke.web.app/jtlearn |
 | **In-App** | Option 8 → Data Store |
 
 ### Available Content
@@ -276,5 +276,5 @@ Great effort! Here's what to focus on next:
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

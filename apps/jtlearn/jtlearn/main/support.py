@@ -104,7 +104,7 @@ SOCIAL_MEDIA = {
     },
     "github": {
         "name": "GitHub Repository",
-        "url": "https://github.com/kashsight/kslearn",
+        "url": "https://github.com/jitetee/nebula",
         "icon": "💻",
         "handle": "@kashsight",
         "color": "white"

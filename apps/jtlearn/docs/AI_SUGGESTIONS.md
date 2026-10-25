@@ -228,7 +228,7 @@ Suggestions are driven by:
 
 | Factor | How to Improve |
 |:---|:---|
-| **Course tags** | Add more tags to your `.ksl` courses for better matching |
+| **Course tags** | Add more tags to your `.jif` courses for better matching |
 | **Quiz performance** | The more you quiz, the better the weak-area detection |
 | **Study patterns** | Streaks and spaced review timing are personalized |
 
@@ -241,5 +241,5 @@ Add new entries to the `topic_keywords` dict in:
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

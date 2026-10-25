@@ -14,7 +14,7 @@ setup(
     description="JSON-Powered Educational Learning System — offline quizzes, notes, flashcards, tutorials, and AI chat",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/kashsight/kslearn",
+    url="https://github.com/jitetee/nebula",
     license="Proprietary — KashSight Platform",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -44,12 +44,12 @@ setup(
     entry_points={
         "console_scripts": [
             "jtlearn=jtlearn.cli:main",
-            "ksl=jtlearn.cli:main",
+            "jif=jtlearn.cli:main",
         ],
     },
     project_urls={
-        "Bug Reports": "https://github.com/kashsight/kslearn/issues",
-        "Source": "https://github.com/kashsight/kslearn",
-        "Documentation": "https://github.com/kashsight/kslearn/blob/main/README.md",
+        "Bug Reports": "https://github.com/jitetee/nebula/issues",
+        "Source": "https://github.com/jitetee/nebula",
+        "Documentation": "https://github.com/jitetee/nebula/blob/main/README.md",
     },
 )

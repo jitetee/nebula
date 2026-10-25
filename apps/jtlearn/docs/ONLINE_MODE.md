@@ -36,7 +36,7 @@
 jtlearn Online Mode connects your local learning experience to the cloud via Firebase Realtime Database. It enables:
 
 - **Cloud sync** — Stats, notes, courses auto-sync on login
-- **Multiplayer** — Play KSL-Verse with friends in real-time
+- **Multiplayer** — Play JT-Verse with friends in real-time
 - **Content sharing** — Upload worlds for others to play
 - **Social features** — Friends, leaderboards, game sessions
 
@@ -114,12 +114,9 @@ click        # CLI framework
 
 ### Default: Works Out of the Box
 
-jtlearn ships with a pre-configured Firebase project (`kashsight-4cbb8`). After `git clone` and `pip install -e .`, the app connects immediately — no setup required.
+jtlearn shares the community's Firebase project with the rest of Nebula. Its settings come from Nebula's packed config (`assets/cloud/`), so after installing Nebula, online mode works with no setup.
 
-The API key is hardcoded in `firebase_rtdb.py` as a **default** because:
-- Firebase API keys are **public project identifiers** (visible in every web app's source)
-- Real security comes from **Firebase Security Rules** (`auth != null`), not hiding the key
-- This allows instant `git clone → run` without manual configuration
+Real security comes from the **Firebase Security Rules** (`database.rules.json` in the website folder), not from hiding the key. Public data jtlearn writes: `learners/<uid>` (name, XP, level), `leaderboard`, `worlds`, `game_sessions`. Your account details stay in `users/<uid>`, readable only by you and the admins.
 
 ### Using Your Own Firebase Project (Optional)
 
@@ -524,8 +521,8 @@ engine = VerseEngine(
 - User not authenticated — verify `firebase.is_logged_in()`
 
 ### "No worlds found"
-- Create a world in KSL-Verse first
-- Check `~/.jtlearn/data/ksl/*_verse.json` exists
+- Create a world in JT-Verse first
+- Check `~/.jtlearn/data/jif/*_verse.json` exists
 
 ### Sync fails silently
 - Check internet connection

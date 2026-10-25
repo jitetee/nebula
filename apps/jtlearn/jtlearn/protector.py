@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-from jtlearn.loader import DATA_DIR, KSL_DIR, CONFIG_DIR
+from jtlearn.loader import DATA_DIR, JIF_DIR, CONFIG_DIR
 
 
 # ─── Access Key Storage ────────────────────────────────────────────
@@ -89,7 +89,7 @@ def _compute_file_hash(file_path: Path) -> str:
 
 def generate_content_manifest() -> Dict:
     """
-    Scan all content .ksl files and generate a signed manifest.
+    Scan all content .jif files and generate a signed manifest.
     This should be run after adding/editing content, with the master key.
     """
     manifest = {
@@ -101,10 +101,10 @@ def generate_content_manifest() -> Dict:
     from datetime import datetime
     manifest["generated_at"] = datetime.now().isoformat()
 
-    # Scan all .ksl files in data/ksl/
-    for ksl_file in KSL_DIR.glob("*.ksl"):
-        rel_path = str(ksl_file.relative_to(KSL_DIR))
-        manifest["files"][rel_path] = _compute_file_hash(ksl_file)
+    # Scan all .jif files in data/jif/
+    for jif_file in JIF_DIR.glob("*.jif"):
+        rel_path = str(jif_file.relative_to(JIF_DIR))
+        manifest["files"][rel_path] = _compute_file_hash(jif_file)
 
     # Also scan any legacy JSON files that might still exist in data/
     for json_file in DATA_DIR.glob("*.json"):

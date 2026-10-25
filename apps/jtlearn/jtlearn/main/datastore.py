@@ -20,7 +20,7 @@ from jtlearn._rich import box
 from jtlearn._rich.prompt import Prompt, Confirm
 
 from jtlearn.ui import console, clear_screen, show_panel, show_success, show_error, show_info, show_warning, print_divider
-from jtlearn.loader import KSL_DIR, CONFIG_DIR, DATA_DIR
+from jtlearn.loader import JIF_DIR, CONFIG_DIR, DATA_DIR
 
 
 class DataStore:
@@ -107,15 +107,15 @@ class DataStore:
             if not content_type or content_type == "auto":
                 content_type = self.detect_content_type(filepath)
 
-            # Determine destination (all .ksl content goes to KSL_DIR)
+            # Determine destination (all .jif content goes to JIF_DIR)
             if content_type == "notes":
-                dest_dir = KSL_DIR
+                dest_dir = JIF_DIR
                 category = data.get("metadata", {}).get("category", filepath.stem)
             elif content_type == "quiz":
-                dest_dir = KSL_DIR
+                dest_dir = JIF_DIR
                 category = data.get("metadata", {}).get("category", filepath.stem)
             elif content_type == "snippets":
-                dest_dir = KSL_DIR
+                dest_dir = JIF_DIR
                 category = data.get("metadata", {}).get("category", filepath.stem)
             else:
                 show_warning("Unknown content type. Please specify manually.")
@@ -435,9 +435,9 @@ def download_interactive():
         info_table.add_column("File Location", style="dim")
         info_table.add_column("Format", style="cyan")
 
-        info_table.add_row("📦 .ksl Packages", "data/ksl/", ".ksl files")
-        info_table.add_row("📝 Quizzes", "data/ksl/", ".ksl files")
-        info_table.add_row("🧠 Brain", "data/ksl/", ".ksl files")
+        info_table.add_row("📦 .jif Packages", "data/jif/", ".jif files")
+        info_table.add_row("📝 Quizzes", "data/jif/", ".jif files")
+        info_table.add_row("🧠 Brain", "data/jif/", ".jif files")
 
         console.print(info_table)
         console.print()
@@ -450,7 +450,7 @@ def download_interactive():
         console.print()
 
         console.print("[bold cyan]Examples:[/bold cyan]")
-        console.print("  https://raw.githubusercontent.com/user/repo/main/data/ksl/content.ksl")
+        console.print("  https://raw.githubusercontent.com/user/repo/main/data/jif/content.jif")
         console.print("  https://example.com/content/quiz-pack.zip")
         console.print()
 

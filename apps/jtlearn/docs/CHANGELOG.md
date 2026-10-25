@@ -24,7 +24,7 @@
 
 | # | Change | Before | After |
 |:---|:---|:---|:---|
-| 6 | KSL-Verse moved from 9 to 4 | "9. KSL-Verse" | "4. KSL-Verse" |
+| 6 | JT-Verse moved from 9 to 4 | "9. JT-Verse" | "4. JT-Verse" |
 | 7 | Profile merged into option 10 | "D. Profiles" separate | "10. Profile & Account" |
 | 8 | Settings moved from C to S | "C. Settings" | "S. Settings" |
 | 9 | Help + Support merged into H | Separate S + H | "H. Support & Help" |
@@ -52,7 +52,7 @@
 | 21 | **Removed `firebase-admin` dep** | `pyproject.toml` | Never used; REST API only |
 | 22 | **Added `python-dotenv` optional dep** | `pyproject.toml` | For `.env` file support |
 | 23 | **Package list updated** | `pyproject.toml` | Added `jtlearn.config`, `jtlearn.online` |
-| 24 | **Protector scans `.ksl` files** | `protector.py` | Was scanning `.json` (no content there) |
+| 24 | **Protector scans `.jif` files** | `protector.py` | Was scanning `.json` (no content there) |
 
 ### 📁 New Files
 
@@ -86,7 +86,7 @@
 
 | # | Change | File(s) | Impact |
 |:---|:---|:---|:---|
-| 4 | **Removed redundant glob** — replaced 3× glob calls with single `directory.glob("*.ksl")` | `ksl_loader.py` | Faster `.ksl` file discovery, less memory usage |
+| 4 | **Removed redundant glob** — replaced 3× glob calls with single `directory.glob("*.jif")` | `jif_loader.py` | Faster `.jif` file discovery, less memory usage |
 | 5 | **Added `total_questions` to `QuizEngine.__init__()`** | `engines/quiz_engine.py` | Fixes uninitialized attribute error in timed/review quiz modes |
 | 6 | **`subprocess.run` timeout** already present on `tgpt` calls (60s) | `main/ai_chat.py` | No change needed — already protected against hangs |
 
@@ -154,17 +154,17 @@ def _file_lock(filepath: Path):
 
 **Before (3× glob, redundant):**
 ```python
-for f in glob_mod.glob(str(directory / "*.ksl")):   # glob module
+for f in glob_mod.glob(str(directory / "*.jif")):   # glob module
     all_files.add(Path(f).resolve())
-for f in directory.glob("*.ksl"):                    # pathlib glob
+for f in directory.glob("*.jif"):                    # pathlib glob
     all_files.add(f.resolve())
-for f in directory.glob("*.ksl.ksl"):                # typo pattern
+for f in directory.glob("*.jif.jif"):                # typo pattern
     all_files.add(f.resolve())
 ```
 
 **After (single glob, correct):**
 ```python
-return sorted(f.resolve() for f in directory.glob("*.ksl"))
+return sorted(f.resolve() for f in directory.glob("*.jif"))
 ```
 
 ---
@@ -174,10 +174,10 @@ return sorted(f.resolve() for f in directory.glob("*.ksl"))
 | Version | Date | Highlights |
 |:---|:---|:---|
 | **2.0.0** | 2026-04-10 | Atomic config writes, file locking, deprecated `main.py`, version sync, SSL fix |
-| **1.0.0** | — | Initial release with quiz engine, notes, AI chat, KSL-Verse, `.ksl` packages |
+| **1.0.0** | — | Initial release with quiz engine, notes, AI chat, JT-Verse, `.jif` packages |
 
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

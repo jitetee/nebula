@@ -1,24 +1,23 @@
 """
 Firebase configuration for jtlearn.
 
-The project's identifiers are kept in the packed file `_fb.dat` instead of
-plain text in the source. This only keeps the values out of casual reading and
-secret scanners; it is not encryption. The real protection is the Firebase
-Security Rules and the key restrictions set in Google Cloud.
+jtlearn shares ONE Firebase project with the rest of Nebula and the J.I.T.E.T.E.E.
+website. The project's settings are read from Nebula's own packed config
+(assets/cloud/*.dat, see tools/pack-cloud.py), so they are not written in plain text
+in the source. This only keeps the values from casual reading and secret scanners; it
+is not encryption. The real protection is the Firebase Security Rules
+(database.rules.json) and the key restrictions set in Google Cloud.
 
-To use your own project, set these environment variables (they win over the
-packed file): FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_DATABASE_URL,
-FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET, FIREBASE_MESSAGING_SENDER_ID,
-FIREBASE_APP_ID, FIREBASE_MEASUREMENT_ID.
+To use another project, set these environment variables (they win over the pack):
+FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_DATABASE_URL, FIREBASE_PROJECT_ID.
 """
 
 import base64
-import json
 import os
+import re
 from pathlib import Path
 from typing import Dict
 
-_K = b"ks-learn::fb::v1"
 _ENV = {
     "apiKey": "FIREBASE_API_KEY",
     "authDomain": "FIREBASE_AUTH_DOMAIN",
@@ -31,14 +30,27 @@ _ENV = {
 }
 
 
+def _nebula_home() -> Path:
+    env = os.getenv("NEBULA_HOME")
+    return Path(env) if env else Path(__file__).resolve().parents[3]
+
+
 def _packed() -> Dict[str, str]:
+    """Rebuild the settings from Nebula's scrambled chunks (same recipe as lib/cloud.sh)."""
     try:
-        d = json.loads((Path(__file__).with_name("_fb.dat")).read_text())
-        parts = [None] * len(d["p"])
-        for pos, idx in enumerate(d["o"]):
-            parts[idx] = d["p"][pos]
-        raw = base64.b64decode("".join(parts))
-        return json.loads(bytes(b ^ _K[i % len(_K)] for i, b in enumerate(raw)))
+        home = _nebula_home()
+        sh = (home / "lib" / "cloud.sh").read_text()
+        arr = lambda n: re.search(n + r"=\(([^)]*)\)", sh).group(1).split()
+        seq, kf, ko = arr("CLOUD_SEQ"), arr("CLOUD_KF"), [int(x) for x in arr("CLOUD_KO")]
+        blob = "".join((home / "assets" / "cloud" / (f + ".dat")).read_text().strip() for f in seq)
+        key = bytes.fromhex("".join(kf[i] for i in ko))
+        raw = base64.b64decode(blob)
+        lines = bytes(b ^ key[i % len(key)] for i, b in enumerate(raw)).decode().split("\n")
+        if lines[0] != "NCFG1":
+            return {}
+        db, api, proj = lines[1].rstrip("/"), lines[2], (lines[3] if len(lines) > 3 else "")
+        return {"apiKey": api, "databaseURL": db, "projectId": proj,
+                "authDomain": f"{proj}.firebaseapp.com" if proj else ""}
     except Exception:
         return {}
 

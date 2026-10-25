@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verse Engine v2.0 — KSL-Verse Interactive Multiverse Learning Game
+Verse Engine v2.0 — JT-Verse Interactive Multiverse Learning Game
 
 Complete feature set:
 - Lifelines (50/50, Skip, Hint)
@@ -51,7 +51,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from collections import defaultdict
 
-from jtlearn.loader import content_loader, KSL_DIR
+from jtlearn.loader import content_loader, JIF_DIR
 from jtlearn.ui import console, show_panel, show_error, show_info, show_warning, show_success, print_divider
 from jtlearn.config import load_config, save_config
 
@@ -359,7 +359,7 @@ def decode_difficulty_config(diff: str) -> Dict:
 
 
 class VerseEngine:
-    """Core engine for the KSL-Verse interactive learning game — v2.0 with all features."""
+    """Core engine for the JT-Verse interactive learning game — v2.0 with all features."""
 
     def __init__(self, multiplayer=False, session_id=None, firebase=None):
         self.config = load_config()
@@ -381,9 +381,9 @@ class VerseEngine:
 
     def discover_worlds(self) -> List[Dict]:
         worlds = []
-        if not KSL_DIR.exists():
+        if not JIF_DIR.exists():
             return worlds
-        for json_file in sorted(KSL_DIR.glob("*_verse.json")):
+        for json_file in sorted(JIF_DIR.glob("*_verse.json")):
             try:
                 with open(json_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -2364,7 +2364,7 @@ class VerseEngine:
 
         card_lines = [
             "╔══════════════════════════════════════════════╗",
-            "║          🌌 KSL-VERSE Profile Card           ║",
+            "║          🌌 JIF-VERSE Profile Card           ║",
             "╠══════════════════════════════════════════════╣",
             f"║  Level: {str(player_level).ljust(6)} Rank: {rank_title.ljust(20)}║",
         ]
@@ -3361,7 +3361,7 @@ class VerseEngine:
             console.print()
             console.print("  [dim]A basic world template has been created.[/dim]")
             console.print("  [dim]Add levels by editing the JSON at:[/dim]")
-            console.print(f"  [cyan]data/ksl/{world_id}_verse.json[/cyan]")
+            console.print(f"  [cyan]data/jif/{world_id}_verse.json[/cyan]")
             console.print()
 
             # Create basic world JSON
@@ -3377,7 +3377,7 @@ class VerseEngine:
                 }
             }
 
-            world_path = KSL_DIR / f"{world_id}_verse.json"
+            world_path = JIF_DIR / f"{world_id}_verse.json"
             with open(world_path, "w", encoding="utf-8") as f:
                 json.dump(world_data, f, indent=2, ensure_ascii=False)
 
@@ -3479,7 +3479,7 @@ class VerseEngine:
                                      course_context: str, num_scenarios: int = 5) -> Optional[Dict]:
         """Generate a level using AI, inspired by course catalog content."""
         system_prompt = (
-            "You are a creative educational content writer for KSL-Verse, a text-based learning game. "
+            "You are a creative educational content writer for JT-Verse, a text-based learning game. "
             "Generate immersive, story-driven game scenarios from course material. "
             "Return ONLY valid JSON. No markdown, no explanation. "
             "Each scenario needs: id, concept, narrative (story text), question, "
@@ -3556,7 +3556,7 @@ class VerseEngine:
                                      course_context: str) -> Optional[Dict]:
         """Generate boss battle covering all course concepts."""
         system_prompt = (
-            "You are a creative boss battle designer for KSL-Verse. "
+            "You are a creative boss battle designer for JT-Verse. "
             "Generate 5 challenging questions covering ALL concepts of a world. "
             "Return ONLY valid JSON with: name, narrative, xp_reward (150), "
             f"questions (array of 5 with question, options[4 with letter/text/correct], explanation)."
@@ -3643,7 +3643,7 @@ class VerseEngine:
             courses = content_loader.load_hierarchical_courses()
 
             if not courses:
-                show_info("No courses found in catalog! Add hierarchical .ksl files to data/ksl/ first.")
+                show_info("No courses found in catalog! Add hierarchical .jif files to data/jif/ first.")
                 console.print("\n  [dim]Tip: Run 'jtlearn' → Course Catalog to see available courses.[/dim]")
                 console.input("\n[bold green]╰─► Press Enter...[/bold green]")
                 return
@@ -3825,7 +3825,7 @@ class VerseEngine:
             }
 
             # Save
-            world_path = KSL_DIR / f"{world_id}_verse.json"
+            world_path = JIF_DIR / f"{world_id}_verse.json"
             with open(world_path, "w", encoding="utf-8") as f:
                 json.dump(world_data, f, indent=2, ensure_ascii=False)
 
@@ -3935,7 +3935,7 @@ class VerseEngine:
                 }
             }
 
-            world_path = KSL_DIR / f"{world_id}_verse.json"
+            world_path = JIF_DIR / f"{world_id}_verse.json"
             with open(world_path, "w", encoding="utf-8") as f:
                 json.dump(world_data, f, indent=2, ensure_ascii=False)
 
@@ -3988,6 +3988,6 @@ class VerseEngine:
 
 
 def run_verse_interactive(multiplayer=False, session_id=None, firebase=None):
-    """Main entry point for the KSL-Verse game."""
+    """Main entry point for the JT-Verse game."""
     engine = VerseEngine(multiplayer=multiplayer, session_id=session_id, firebase=firebase)
     engine.show_verse_menu()

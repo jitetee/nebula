@@ -133,7 +133,7 @@
   Works in the folder you run it from. Pure Python, nothing extra to install. Type /help inside it; /setup picks a provider and key. Ctrl-C cancels a running turn.
   Example: ant
 @jtlearn|Fun|[command]|Learn with notes, quizzes, a rage-bait game and offline AI
-  Aliases: learn, kslearn (old name). Pure Python, nothing extra to install. Try: jtlearn study, jtlearn quiz, jtlearn daily, jtlearn rage.
+  Alias: learn. Pure Python, nothing extra to install. Try: jtlearn study, jtlearn quiz, jtlearn daily, jtlearn rage.
   Example: jtlearn rage
 @mingle|Fun|[logout|admin]|Dating in your terminal: discover, match and chat (18+)
   Sign in with email and password, or a username and key (no email needed). Discover people, like or pass, chat when you both like each other, block and report. Nothing extra to install.

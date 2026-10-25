@@ -112,17 +112,17 @@ ACHIEVEMENTS = {
         "rarity": "common",
         "condition": "profiles >= 2",
     },
-    # KSL-Verse achievements
+    # JT-Verse achievements
     "verse_first_scenario": {
         "name": "First Steps in the Verse",
-        "description": "Complete your first scenario in the KSL-Verse",
+        "description": "Complete your first scenario in the JT-Verse",
         "icon": "🌟",
         "rarity": "common",
         "condition": "verse_scenarios >= 1",
     },
     "verse_first_level": {
         "name": "Level Cleared",
-        "description": "Complete any level in the KSL-Verse",
+        "description": "Complete any level in the JT-Verse",
         "icon": "✅",
         "rarity": "common",
         "condition": "verse_levels >= 1",
@@ -164,14 +164,14 @@ ACHIEVEMENTS = {
     },
     "verse_transcendent": {
         "name": "Verse Transcendent",
-        "description": "Reach player level 10 in the KSL-Verse",
+        "description": "Reach player level 10 in the JT-Verse",
         "icon": "👑",
         "rarity": "legendary",
         "condition": "verse_level >= 10",
     },
     "verse_secret_hunter": {
         "name": "Secret Hunter",
-        "description": "Discover 3 hidden secrets in the KSL-Verse",
+        "description": "Discover 3 hidden secrets in the JT-Verse",
         "icon": "🕵️",
         "rarity": "rare",
         "condition": "verse_secrets >= 3",

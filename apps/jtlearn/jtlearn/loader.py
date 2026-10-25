@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Content Loader Module — Load learning materials from .ksl package files
+Content Loader Module — Load learning materials from .jif package files
 
-All content is packaged into .ksl (KSLearn Package) files.
+All content is packaged into .jif (JITETEE Import File) files.
 These are encrypted, signed packages that only the creator can build.
 Users can load and study but cannot edit or forge packages.
 """
@@ -15,20 +15,20 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 
 # ─── Data Directory ──────────────────────────────────────────────────
-# ALL .ksl content packages live in one flat folder: data/ksl/
-# .ksl files are self-describing (header tells their type).
+# ALL .jif content packages live in one flat folder: data/jif/
+# .jif files are self-describing (header tells their type).
 # Config stays in data/config/ (user prefs, not content).
 #
 # Platform-specific resolution:
-#   - If running from cloned repo (editable install): uses repo/data/ksl/
-#   - On Windows user install: uses %APPDATA%/jtlearn/data/ksl/
-#   - On Linux/macOS user install: uses ~/.local/share/jtlearn/data/ksl/
+#   - If running from cloned repo (editable install): uses repo/data/jif/
+#   - On Windows user install: uses %APPDATA%/jtlearn/data/jif/
+#   - On Linux/macOS user install: uses ~/.local/share/jtlearn/data/jif/
 
 def _get_platform_data_dir():
     """Resolve user-specific data directory per platform."""
     import sys
     if sys.platform == "win32":
-        # Windows: %APPDATA%\jtlearn\data\ksl
+        # Windows: %APPDATA%\jtlearn\data\jif
         appdata = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
         return appdata / "jtlearn" / "data"
     elif sys.platform == "darwin":
@@ -48,27 +48,27 @@ def _resolve_data_dir():
     """
     repo_data = Path(__file__).parent.parent / "data"
     # If repo has a data/ folder, prefer it (editable install)
-    if (repo_data / "ksl").exists() or repo_data.exists():
+    if (repo_data / "jif").exists() or repo_data.exists():
         return repo_data
     # Otherwise fall back to platform-specific user data dir
     return _get_platform_data_dir()
 
 DATA_DIR = _resolve_data_dir()
-KSL_DIR = DATA_DIR / "ksl"
+JIF_DIR = DATA_DIR / "jif"
 CONFIG_DIR = DATA_DIR / "config"
 
-# Backwards-compat aliases (point to KSL_DIR)
-NOTES_DIR = KSL_DIR
-QUIZZES_DIR = KSL_DIR
-SNIPPETS_DIR = KSL_DIR
-BRAIN_DIR = KSL_DIR
+# Backwards-compat aliases (point to JIF_DIR)
+NOTES_DIR = JIF_DIR
+QUIZZES_DIR = JIF_DIR
+SNIPPETS_DIR = JIF_DIR
+BRAIN_DIR = JIF_DIR
 
-# ─── Import KSL loader ──────────────────────────────────────────────
-from jtlearn.ksl_loader import KSLLoader, load_ksl_file, get_ksl_info
-from jtlearn.ksl_loader import (
+# ─── Import JIF loader ──────────────────────────────────────────────
+from jtlearn.jif_loader import JIFLoader, load_jif_file, get_jif_info
+from jtlearn.jif_loader import (
     extract_notes, extract_quiz_topics, extract_quiz_metadata,
     extract_flashcards, extract_tutorials, extract_brain_qa,
-    extract_combined_content, get_ksl_metadata, get_ksl_content_type,
+    extract_combined_content, get_jif_metadata, get_jif_content_type,
     has_notes, has_quiz, has_flashcards, has_tutorials, has_brain,
     extract_hierarchical_courses, extract_hierarchical_data, has_hierarchical,
     extract_course_metadata, extract_unit_metadata, extract_outcome_metadata,
@@ -86,26 +86,26 @@ TYPE_HIERARCHICAL = "hierarchical"
 
 
 class ContentLoader:
-    """Load and manage learning content from .ksl package files"""
+    """Load and manage learning content from .jif package files"""
 
     def __init__(self):
         self._cache = {}
         self._pending_activation = None
-        self._ksl_loader = KSLLoader()
+        self._jif_loader = JIFLoader()
         self._dir_mtime = {}
         self._ensure_directories()
 
     def _ensure_directories(self):
         """Create data directories if they don't exist"""
-        KSL_DIR.mkdir(parents=True, exist_ok=True)
+        JIF_DIR.mkdir(parents=True, exist_ok=True)
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
     # ─── Discovery Methods ───────────────────────────────────────
 
-    def _discover_ksl_files(self, directory: Path = None) -> List[Path]:
-        """Find all .ksl files in data/ksl/. Auto-detects new files and clears cache."""
-        target = directory or KSL_DIR
-        # Check if directory contents changed (new/removed .ksl files)
+    def _discover_jif_files(self, directory: Path = None) -> List[Path]:
+        """Find all .jif files in data/jif/. Auto-detects new files and clears cache."""
+        target = directory or JIF_DIR
+        # Check if directory contents changed (new/removed .jif files)
         if target.exists():
             import os
             try:
@@ -115,48 +115,48 @@ class ContentLoader:
                 if prev_mtime is not None and current_mtime != prev_mtime:
                     # Directory changed — clear file-level caches
                     self._cache.clear()
-                    self._ksl_loader.clear_cache()
+                    self._jif_loader.clear_cache()
                 self._dir_mtime[str(target)] = current_mtime
             except OSError:
                 pass
-        return self._ksl_loader.discover(target)
+        return self._jif_loader.discover(target)
 
-    def _load_ksl_data(self, ksl_path: Path) -> Optional[Dict]:
-        """Load a .ksl file. Returns data or None if invalid."""
+    def _load_jif_data(self, jif_path: Path) -> Optional[Dict]:
+        """Load a .jif file. Returns data or None if invalid."""
         try:
-            result = self._ksl_loader.load(ksl_path)
+            result = self._jif_loader.load(jif_path)
             return result
         except Exception:
             return None
 
-    def _validate_ksl_file(self, ksl_path: Path) -> Dict:
-        """Check if a .ksl file is valid. Returns status dict."""
-        from jtlearn.ksl_loader import get_ksl_info, parse_ksl_header, HEADER_SIZE
-        info = get_ksl_info(ksl_path)
+    def _validate_jif_file(self, jif_path: Path) -> Dict:
+        """Check if a .jif file is valid. Returns status dict."""
+        from jtlearn.jif_loader import get_jif_info, parse_jif_header, HEADER_SIZE
+        info = get_jif_info(jif_path)
         if info:
             # Verify header magic + JSON payload
             try:
-                with open(ksl_path, "rb") as f:
+                with open(jif_path, "rb") as f:
                     file_data = f.read()
                 hdr = file_data[:HEADER_SIZE]
-                h = parse_ksl_header(hdr)
+                h = parse_jif_header(hdr)
                 if h is None:
-                    return {"file": str(ksl_path), "valid": False, "error": "Invalid .ksl header"}
+                    return {"file": str(jif_path), "valid": False, "error": "Invalid .jif header"}
                 payload_len = h["payload_length"]
                 payload = file_data[HEADER_SIZE:HEADER_SIZE + payload_len]
                 json.loads(payload.decode("utf-8"))
-                return {"file": str(ksl_path), "valid": True, "type": h["type"], "title": h["title"]}
+                return {"file": str(jif_path), "valid": True, "type": h["type"], "title": h["title"]}
             except Exception as e:
-                return {"file": str(ksl_path), "valid": False, "error": f"Invalid file format: {e}"}
-        return {"file": str(ksl_path), "valid": False, "error": "Cannot read file"}
+                return {"file": str(jif_path), "valid": False, "error": f"Invalid file format: {e}"}
+        return {"file": str(jif_path), "valid": False, "error": "Cannot read file"}
 
     # ─── Notes Methods ───────────────────────────────────────────
 
     def load_notes(self, category: str) -> Optional[Dict]:
         """
-        Load learning notes for a category from .ksl files.
+        Load learning notes for a category from .jif files.
 
-        Searches content.ksl (combined) and individual .ksl in NOTES_DIR.
+        Searches content.jif (combined) and individual .jif in NOTES_DIR.
         """
         cache_key = f"notes:{category}"
         if cache_key in self._cache:
@@ -166,13 +166,13 @@ class ContentLoader:
         merged_metadata = {}
         category_lower = category.lower()
 
-        # Load from .ksl files in data/
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        # Load from .jif files in data/
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            meta = get_ksl_metadata(data)
-            ctype = get_ksl_content_type(data)
+            meta = get_jif_metadata(data)
+            ctype = get_jif_content_type(data)
 
             # If combined package, extract notes
             if ctype == TYPE_COMBINED:
@@ -183,7 +183,7 @@ class ContentLoader:
 
             pkg_cat = meta.get("category", "").lower()
             pkg_title = meta.get("title", "").lower()
-            file_stem = ksl_file.stem.lower()
+            file_stem = jif_file.stem.lower()
 
             if pkg_cat == category_lower or file_stem == category_lower or category_lower in pkg_title:
                 if not merged_metadata:
@@ -194,13 +194,13 @@ class ContentLoader:
                         "icon": meta.get("icon", "📖"),
                         "difficulty": meta.get("difficulty", "beginner"),
                         "version": meta.get("version", "1.0"),
-                        "source_ksl": str(ksl_file),
+                        "source_jif": str(jif_file),
                     }
                 base_id = len(all_topics)
                 for i, topic in enumerate(topics):
                     topic_copy = dict(topic)
                     topic_copy["id"] = base_id + i + 1
-                    topic_copy["_source"] = str(ksl_file)
+                    topic_copy["_source"] = str(jif_file)
                     all_topics.append(topic_copy)
 
         if not all_topics:
@@ -211,18 +211,18 @@ class ContentLoader:
         return result
 
     def save_notes(self, category: str, notes: Dict) -> bool:
-        """Saving is not supported for .ksl files — use ksl_tool.py to create packages."""
+        """Saving is not supported for .jif files — use jif_tool.py to create packages."""
         return False
 
     def get_all_notes_categories(self) -> List[Dict[str, str]]:
-        """Get all available notes categories from .ksl files in data/."""
+        """Get all available notes categories from .jif files in data/."""
         categories = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            meta = get_ksl_metadata(data)
-            ctype = get_ksl_content_type(data)
+            meta = get_jif_metadata(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 topics = combined.get("notes", [])
@@ -230,19 +230,19 @@ class ContentLoader:
                 topics = extract_notes(data)
             if topics:
                 categories.append({
-                    "key": ksl_file.stem,
-                    "title": meta.get("title", ksl_file.stem.replace("_", " ").title()),
+                    "key": jif_file.stem,
+                    "title": meta.get("title", jif_file.stem.replace("_", " ").title()),
                     "description": meta.get("description", "Study materials"),
                     "icon": meta.get("icon", "📖"),
                     "topic_count": len(topics),
-                    "source": str(ksl_file),
+                    "source": str(jif_file),
                 })
         return sorted(categories, key=lambda x: x["title"])
 
     # ─── Quiz Methods ────────────────────────────────────────────
 
     def load_quiz(self, category: str) -> Optional[Dict]:
-        """Load quiz for a category from .ksl files (combined or separate)."""
+        """Load quiz for a category from .jif files (combined or separate)."""
         cache_key = f"quiz:{category}"
         if cache_key in self._cache:
             return self._cache[cache_key]
@@ -251,12 +251,12 @@ class ContentLoader:
         merged_metadata = {}
         category_lower = category.lower()
 
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            meta = get_ksl_metadata(data)
-            ctype = get_ksl_content_type(data)
+            meta = get_jif_metadata(data)
+            ctype = get_jif_content_type(data)
 
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
@@ -268,7 +268,7 @@ class ContentLoader:
 
             pkg_cat = meta.get("category", "").lower()
             pkg_title = meta.get("title", "").lower()
-            file_stem = ksl_file.stem.lower()
+            file_stem = jif_file.stem.lower()
 
             if pkg_cat == category_lower or file_stem == category_lower or category_lower in pkg_title:
                 if not merged_metadata:
@@ -279,13 +279,13 @@ class ContentLoader:
                         "icon": quiz_meta.get("icon", meta.get("icon", "📝")),
                         "difficulty": quiz_meta.get("difficulty", meta.get("difficulty", "beginner")),
                         "version": quiz_meta.get("version", meta.get("version", "1.0")),
-                        "source_ksl": str(ksl_file),
+                        "source_jif": str(jif_file),
                     }
                 base_id = len(all_quiz_topics)
                 for i, qt in enumerate(quiz_topics):
                     qt_copy = dict(qt)
                     qt_copy["id"] = base_id + i + 1
-                    qt_copy["_source"] = str(ksl_file)
+                    qt_copy["_source"] = str(jif_file)
                     all_quiz_topics.append(qt_copy)
 
         if not all_quiz_topics:
@@ -301,23 +301,23 @@ class ContentLoader:
         if data is None:
             raise FileNotFoundError(
                 f"Quiz data not found for '{category}'. "
-                f"Please add a .ksl quiz file to {QUIZZES_DIR}."
+                f"Please add a .jif quiz file to {QUIZZES_DIR}."
             )
         return data
 
     def save_quiz(self, category: str, quiz: Dict) -> bool:
-        """Saving is not supported for .ksl files — use ksl_tool.py to create packages."""
+        """Saving is not supported for .jif files — use jif_tool.py to create packages."""
         return False
 
     def get_all_quiz_categories(self) -> List[Dict[str, str]]:
-        """Get all available quiz categories from .ksl files in data/."""
+        """Get all available quiz categories from .jif files in data/."""
         categories = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            meta = get_ksl_metadata(data)
-            ctype = get_ksl_content_type(data)
+            meta = get_jif_metadata(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 quiz_topics = combined.get("quiz_topics", [])
@@ -325,71 +325,71 @@ class ContentLoader:
                 quiz_topics = extract_quiz_topics(data)
             if quiz_topics:
                 categories.append({
-                    "key": ksl_file.stem,
-                    "title": meta.get("title", ksl_file.stem.replace("_", " ").title()),
+                    "key": jif_file.stem,
+                    "title": meta.get("title", jif_file.stem.replace("_", " ").title()),
                     "description": meta.get("description", "Quiz materials"),
                     "icon": meta.get("icon", "📝"),
                     "topic_count": len(quiz_topics),
-                    "source": str(ksl_file),
+                    "source": str(jif_file),
                 })
         return sorted(categories, key=lambda x: x["title"])
 
     # ─── Flashcard Methods ───────────────────────────────────────
 
     def get_all_flashcard_categories(self) -> List[Dict[str, str]]:
-        """Get all flashcard categories from .ksl files in data/."""
+        """Get all flashcard categories from .jif files in data/."""
         categories = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 cards = combined.get("flashcards", [])
             else:
                 cards = extract_flashcards(data)
             if cards:
-                meta = get_ksl_metadata(data)
+                meta = get_jif_metadata(data)
                 categories.append({
-                    "key": ksl_file.stem,
-                    "title": meta.get("title", ksl_file.stem.replace("_", " ").title()),
+                    "key": jif_file.stem,
+                    "title": meta.get("title", jif_file.stem.replace("_", " ").title()),
                     "description": meta.get("description", "Flashcards"),
                     "icon": meta.get("icon", "🃏"),
                     "card_count": len(cards),
-                    "source": str(ksl_file),
+                    "source": str(jif_file),
                 })
         return sorted(categories, key=lambda x: x["title"])
 
     # ─── Tutorial Methods ────────────────────────────────────────
 
     def get_all_tutorial_categories(self) -> List[Dict[str, str]]:
-        """Get all tutorial categories from .ksl files in data/."""
+        """Get all tutorial categories from .jif files in data/."""
         categories = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 tutorials = combined.get("tutorials", [])
             else:
                 tutorials = extract_tutorials(data)
             if tutorials:
-                meta = get_ksl_metadata(data)
+                meta = get_jif_metadata(data)
                 categories.append({
-                    "key": ksl_file.stem,
-                    "title": meta.get("title", ksl_file.stem.replace("_", " ").title()),
+                    "key": jif_file.stem,
+                    "title": meta.get("title", jif_file.stem.replace("_", " ").title()),
                     "description": meta.get("description", "Tutorials"),
                     "icon": meta.get("icon", "🎓"),
                     "tutorial_count": len(tutorials),
-                    "source": str(ksl_file),
+                    "source": str(jif_file),
                 })
         return sorted(categories, key=lambda x: x["title"])
 
     def load_tutorials(self, category: str) -> Optional[List[Dict]]:
-        """Load tutorials for a category from .ksl files."""
+        """Load tutorials for a category from .jif files."""
         cache_key = f"tutorials:{category}"
         if cache_key in self._cache:
             return self._cache[cache_key]
@@ -397,12 +397,12 @@ class ContentLoader:
         all_tutorials = []
         category_lower = category.lower()
 
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            meta = get_ksl_metadata(data)
-            ctype = get_ksl_content_type(data)
+            meta = get_jif_metadata(data)
+            ctype = get_jif_content_type(data)
 
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
@@ -411,7 +411,7 @@ class ContentLoader:
                 tutorials = extract_tutorials(data)
 
             pkg_cat = meta.get("category", "").lower()
-            file_stem = ksl_file.stem.lower()
+            file_stem = jif_file.stem.lower()
             if pkg_cat == category_lower or file_stem == category_lower or category_lower in meta.get("title", "").lower():
                 all_tutorials.extend(tutorials)
 
@@ -422,7 +422,7 @@ class ContentLoader:
         return all_tutorials
 
     def load_flashcards(self, category: str) -> Optional[List[Dict]]:
-        """Load flashcards for a category from .ksl files."""
+        """Load flashcards for a category from .jif files."""
         cache_key = f"flashcards:{category}"
         if cache_key in self._cache:
             return self._cache[cache_key]
@@ -430,11 +430,11 @@ class ContentLoader:
         all_cards = []
         category_lower = category.lower()
 
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
 
             if ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
@@ -442,9 +442,9 @@ class ContentLoader:
             else:
                 cards = extract_flashcards(data)
 
-            meta = get_ksl_metadata(data)
+            meta = get_jif_metadata(data)
             pkg_cat = meta.get("category", "").lower()
-            file_stem = ksl_file.stem.lower()
+            file_stem = jif_file.stem.lower()
             if pkg_cat == category_lower or file_stem == category_lower or category_lower in meta.get("title", "").lower():
                 all_cards.extend(cards)
 
@@ -457,17 +457,17 @@ class ContentLoader:
     # ─── Brain Methods ───────────────────────────────────────────
 
     def load_brain_qa(self) -> List[Dict]:
-        """Load brain Q&A pairs from brain.ksl file(s) in data/."""
+        """Load brain Q&A pairs from brain.jif file(s) in data/."""
         cache_key = "brain:qa"
         if cache_key in self._cache:
             return self._cache[cache_key]
 
         all_qa = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_BRAIN:
                 all_qa.extend(extract_brain_qa(data))
 
@@ -505,8 +505,8 @@ class ContentLoader:
 
     def add_qa_to_brain(self, question: str, answer: str, category: str = "general",
                         tags: List[str] = None) -> bool:
-        """Add a Q&A pair (for runtime learning — stored in brain.ksl if it exists)."""
-        # Since brain.ksl is read-only, we store runtime additions separately
+        """Add a Q&A pair (for runtime learning — stored in brain.jif if it exists)."""
+        # Since brain.jif is read-only, we store runtime additions separately
         # and merge them when searching
         qa_entry = {
             "question": question,
@@ -565,60 +565,60 @@ class ContentLoader:
         progress["last_updated"] = datetime.now().isoformat()
         return self.save_config(f"progress_{user_id}", progress)
 
-    # ─── KSL Package Management ──────────────────────────────────
+    # ─── JIF Package Management ──────────────────────────────────
 
-    def list_ksl_packages(self) -> List[Dict]:
-        """List all .ksl packages in the data directory with validation status."""
+    def list_jif_packages(self) -> List[Dict]:
+        """List all .jif packages in the data directory with validation status."""
         packages = []
-        for ksl_file in self._discover_ksl_files():
-            status = self._validate_ksl_file(ksl_file)
+        for jif_file in self._discover_jif_files():
+            status = self._validate_jif_file(jif_file)
             if status["valid"]:
-                info = get_ksl_info(ksl_file)
+                info = get_jif_info(jif_file)
                 if info:
                     packages.append(info)
             else:
                 packages.append({
-                    "file": str(ksl_file),
-                    "title": ksl_file.stem,
+                    "file": str(jif_file),
+                    "title": jif_file.stem,
                     "type": "invalid",
                     "error": status.get("error", "Unknown error"),
                     "author": "unknown",
                 })
         return packages
 
-    def is_ksl_activated(self) -> bool:
-        """All .ksl files are open — no activation required."""
+    def is_jif_activated(self) -> bool:
+        """All .jif files are open — no activation required."""
         return True
 
     def clear_cache(self):
         """Clear all caches."""
         self._cache.clear()
-        self._ksl_loader.clear_cache()
+        self._jif_loader.clear_cache()
 
     # ─── Hierarchical Content Methods ────────────────────────────
 
     def load_hierarchical_courses(self) -> List[Dict]:
-        """Load all courses from hierarchical .ksl files."""
+        """Load all courses from hierarchical .jif files."""
         cache_key = "hierarchical:courses"
         if cache_key in self._cache:
             return self._cache[cache_key]
 
         all_courses = []
-        for ksl_file in self._discover_ksl_files():
-            data = self._load_ksl_data(ksl_file)
+        for jif_file in self._discover_jif_files():
+            data = self._load_jif_data(jif_file)
             if not data:
                 continue
-            ctype = get_ksl_content_type(data)
+            ctype = get_jif_content_type(data)
             if ctype == TYPE_HIERARCHICAL:
                 courses = extract_hierarchical_courses(data)
                 for course in courses:
-                    course["_source"] = str(ksl_file)
+                    course["_source"] = str(jif_file)
                     all_courses.append(course)
             elif ctype == TYPE_COMBINED:
                 combined = extract_combined_content(data)
                 courses = combined.get("courses", [])
                 for course in courses:
-                    course["_source"] = str(ksl_file)
+                    course["_source"] = str(jif_file)
                     all_courses.append(course)
 
         self._cache[cache_key] = all_courses

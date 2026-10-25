@@ -32,7 +32,7 @@ jtlearn uses **JSON files** to store all learning content, making it easy to add
 | 📚 **Learning Notes** | `data/notes/` | Study materials with explanations |
 | 📝 **Quizzes** | `data/quizzes/` | Multiple-choice questions with answers |
 | 💻 **Code Snippets** | `data/snippets/` | Reusable code examples |
-| 🏫 **Hierarchical Courses** | `data/ksl/` | 6-level course structures with progression gating |
+| 🏫 **Hierarchical Courses** | `data/jif/` | 6-level course structures with progression gating |
 
 ---
 
@@ -213,7 +213,7 @@ Course → Category → Unit → Learning Outcome → Sub-topic → Content
 
 ### Create Course JSON
 
-Save as `data/ksl/my_course.json`:
+Save as `data/jif/my_course.json`:
 
 ```json
 {
@@ -296,13 +296,13 @@ Save as `data/ksl/my_course.json`:
 | `assessment` | 📝 | Quizzes (runs automatically) | ✅ |
 | `reference` | 📎 | Additional resources | ❌ |
 
-### Pack Into .ksl File
+### Pack Into .jif File
 
 ```bash
-python ksl_tool.py pack data/ksl/my_course.json -t "My Course Title"
+python jif_tool.py pack data/jif/my_course.json -t "My Course Title"
 ```
 
-> 📦 Creates `data/ksl/my_course.ksl` — the packaged format jtlearn loads.
+> 📦 Creates `data/jif/my_course.jif` — the packaged format jtlearn loads.
 
 ---
 
@@ -406,5 +406,5 @@ python -c "import json; json.load(open('data/notes/your_topic.json'))"
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>

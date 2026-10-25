@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from jtlearn.loader import content_loader, KSL_DIR, CONFIG_DIR
+from jtlearn.loader import content_loader, JIF_DIR, CONFIG_DIR
 from jtlearn.ui import console, show_panel, show_success, show_error, show_info, show_warning, print_divider
 from jtlearn.config import load_config, save_config
 
@@ -49,7 +49,7 @@ class QuizEngine:
         self.session_questions = []
 
     def get_available_quizzes(self) -> List[Dict[str, str]]:
-        """Get list of all available quiz categories from .ksl files"""
+        """Get list of all available quiz categories from .jif files"""
         return self.loader.get_all_quiz_categories()
     
     def load_quiz(self, category: str) -> Optional[Dict]:
@@ -336,8 +336,8 @@ def run_quiz_interactive():
         quizzes = engine.get_available_quizzes()
         
         if not quizzes:
-            show_error("No quiz files found in data/ksl/")
-            show_info("Pack your JSON files into .ksl using ksl_tool.py!")
+            show_error("No quiz files found in data/jif/")
+            show_info("Pack your JSON files into .jif using jif_tool.py!")
             console.input("\nPress Enter to continue...")
             return
         

@@ -1,15 +1,16 @@
 # Changelog
 
-## 0.9.8
-- ndrps rem9ve
+## 0.9.9
+- update 2026-10-25 21:12
 
 ## 0.9.7
 
 - **New: `mingle`**, a dating app for the terminal (18+): sign in with email and password, or a username and a key; discover people with a match percentage, like, pass or super like; chat when you both like each other (live updates); see who liked you; block, report, unmatch; delete your account and all your data. Admins (role `admin` or `superadmin` in your database) can review reports and ban with `mingle admin`. Nothing extra to install.
-- **Rules now match your real database.** Admins are people whose `users/<uid>/role` is `admin` or `superadmin` (as in JITETEE Cyber), not a separate `/admins` list. `tools/merge-rules.py` adds the Nebula rules (site, nebula, mingle) to the rules you already have without touching the rest. The old `docs/RTDB_RULES.json`, which replaced everything, is gone.
+- **New complete database rules and seed.** `docs/database.rules.json` is the full rule set (default-deny; admins are accounts whose `users/<uid>/role` is `admin` or `superadmin`), and the website repo ships a matching `seed.json`. The old merge script and partial rules file are gone.
 
 - **New: `ant`**, an AI coding agent for your terminal. It works in the folder you start it in, can read and edit files and run commands (asking first for risky ones), and talks to OpenAI-compatible providers. It is pure Python 3 (standard library only): no Node.js, no npm. Config and sessions stay in `~/.ant`.
-- **New: `jtlearn`** (aliases `learn` and the old `kslearn`), a learning system with study notes, quizzes, tracks and offline AI. Pure Python 3: no `click` or `rich` to install, and it uses Nebula's green look. Settings are kept in Nebula's data folder, so updates do not reset them; data from an old `~/.kslearn` is moved to `~/.jtlearn` the first time you run it.
+- **New file type: `.jif` (JITETEE Import File)** replaces the old lesson-package format. Same simple layout (128-byte header + JSON) with a `JIF` header. All bundled courses were converted; make your own with `python3 apps/jtlearn/jif_tool.py pack notes.json -o my_course.jif`. The "Verse" game is now called JT-Verse. Online store paths use `jif` names too.
+- **New: `jtlearn`** (alias `learn`), a learning system with study notes, quizzes, tracks and offline AI. Pure Python 3: no `click` or `rich` to install, and it uses Nebula's green look. Settings are kept in Nebula's data folder, so updates do not reset them; data from an old `~/.jtlearn` is moved to `~/.jtlearn` the first time you run it.
 - **New: Rage Bait** in jtlearn (menu `R`, or `jtlearn rage`): trick questions that teach. Myth-or-fact rounds, a letter-counting trap, a patience test, a loading bar that restarts at 99%, and a computer that cheats at guessing. Keep your rage meter under 100%; your best score is saved.
 - **No more `jq`:** crypto, sports and the home dashboard use a small Python helper (`lib/jx.py`) instead. Nebula now needs only bash, awk, python3 and curl for everything in the box (zsh stays optional for the fancy prompt).
 

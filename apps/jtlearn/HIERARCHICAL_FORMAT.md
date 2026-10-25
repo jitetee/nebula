@@ -72,7 +72,7 @@ Level 1: Course 📘
 
 ## 📦 Complete JSON Structure
 
-> 📁 **Reference:** See `data/ksl/hierarchical_sample.json` for a working example with all fields.
+> 📁 **Reference:** See `data/jif/hierarchical_sample.json` for a working example with all fields.
 
 ### Key Fields at Each Level
 
@@ -182,16 +182,16 @@ Every sub-topic content view includes an **✅ Mark as Complete** `[X]` option.
 ### Interactive Mode
 
 ```bash
-python ksl_tool.py
+python jif_tool.py
 ```
 
 ### CLI Mode
 
 ```bash
-python ksl_tool.py pack my_course.json -t "Course Title"
+python jif_tool.py pack my_course.json -t "Course Title"
 ```
 
-> 📦 Creates a `.ksl` file in `data/ksl/` ready for distribution.
+> 📦 Creates a `.jif` file in `data/jif/` ready for distribution.
 
 ---
 
@@ -209,7 +209,7 @@ python ksl_tool.py pack my_course.json -t "Course Title"
 
 | Format | Status | Notes |
 |:---|:---:|:---|
-| **Flat `.ksl` files** | ✅ Supported | Continue to work as before |
+| **Flat `.jif` files** | ✅ Supported | Continue to work as before |
 | **Hierarchical format** | ✅ Supported | Additional content type |
 
 > **No breaking changes.** Existing content loads automatically.
@@ -227,5 +227,5 @@ python ksl_tool.py pack my_course.json -t "Course Title"
 ---
 
 <p align="center">
-  <sub>📚 jtlearn Documentation • <a href="https://github.com/kashsight/kslearn">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
+  <sub>📚 jtlearn Documentation • <a href="https://github.com/jitetee/nebula">GitHub</a> • <a href="https://kash-sight.web.app">Website</a></sub>
 </p>
