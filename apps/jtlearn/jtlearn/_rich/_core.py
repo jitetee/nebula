@@ -193,13 +193,15 @@ def wrap_spans(spans, width, no_wrap=False):
     segs.append(line)
     for seg in segs:
         cur, curw = [], 0
+        first = True                              # keep indentation at the very start of a source line (like rich)
         for tok, st in _split_words(seg):
             w = cell_len(tok)
+            lead, first = first, False
             if no_wrap:
                 cur.append(Span(tok, st)); curw += w
                 continue
             if tok.isspace():
-                if curw == 0:
+                if curw == 0 and not lead:
                     continue
                 if curw + w > width:
                     push(); continue

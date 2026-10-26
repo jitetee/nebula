@@ -119,7 +119,7 @@ def main():
         likes, passes, blocks, bb = (x or {} for x in (likes, passes, blocks, bb))
         out = []
         for k, p in (d or {}).items():
-            if k == uid or not isinstance(p, dict) or p.get("visible", True) is False:
+            if k == uid or k.startswith("_") or not isinstance(p, dict) or p.get("visible", True) is False:
                 continue
             if k in likes or k in passes or k in blocks or k in bb:
                 continue
@@ -158,7 +158,7 @@ def main():
     if op == "reports":      # reports open | line KEY WIDTH | field KEY FIELD
         d = d or {}
         if rest[0] == "open":
-            ks = [k for k, v in d.items() if v.get("status") != "done"]
+            ks = [k for k, v in d.items() if not k.startswith("_") and isinstance(v, dict) and v.get("status") != "done"]
             ks.sort(key=lambda k: -(d[k].get("ts") or 0))
             print("\n".join(ks))
         elif rest[0] == "line":

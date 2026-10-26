@@ -39,7 +39,39 @@ class DataStore:
                     return json.load(f)
             except:
                 pass
-        return {"categories": {"free": {"items": []}, "premium": {"items": []}}}
+        return self._online_catalog()
+
+    def _online_catalog(self) -> Dict:
+        """The JIF Store from the community database (public read, no login). Empty catalog if offline."""
+        empty = {"categories": {"free": {"items": []}, "premium": {"items": []}}}
+        try:
+            import urllib.request
+            from jtlearn.firebase_config import FIREBASE_RTDB_URL
+            if not FIREBASE_RTDB_URL:
+                return empty
+            def get(path):
+                with urllib.request.urlopen(f"{FIREBASE_RTDB_URL.rstrip('/')}/{path}.json", timeout=8) as r:
+                    return json.loads(r.read().decode("utf-8") or "null")
+            store = get("jifStore") or {}
+            try:
+                ratings = get("jifRatings") or {}
+            except Exception:
+                ratings = {}
+        except Exception:
+            return empty
+        rows = []
+        for key, it in store.items():
+            if key.startswith("_") or not isinstance(it, dict) or not it.get("title") or not it.get("link"):
+                continue
+            votes = [v.get("rating") for v in (ratings.get(key) or {}).values() if isinstance(v, dict) and isinstance(v.get("rating"), (int, float))]
+            rows.append({
+                "id": key, "title": it.get("title", ""), "description": it.get("description", ""), "url": it.get("link", ""),
+                "topics": [t.strip() for t in str(it.get("tags", "")).split(",") if t.strip()], "estimated_time": it.get("size") or "-",
+                "rating": round(sum(votes) / len(votes), 1) if votes else 0, "price": it.get("price", ""), "features": [it.get("category", "")] if it.get("category") else [],
+                "paid": it.get("type") == "paid", "ts": it.get("ts", 0),
+            })
+        rows.sort(key=lambda r: r["ts"], reverse=True)
+        return {"categories": {"free": {"items": [r for r in rows if not r["paid"]]}, "premium": {"items": [r for r in rows if r["paid"]]}}}
 
     def download_file(self, url: str, filename: str = None) -> Optional[Path]:
         """Download file from URL"""
@@ -99,6 +131,23 @@ class DataStore:
     def install_file(self, filepath: Path, content_type: str = None) -> bool:
         """Install downloaded file to correct directory"""
         try:
+            # A .jif package (binary header + JSON): check it and copy it into data/jif as it is
+            with open(filepath, 'rb') as f:
+                head = f.read(4)
+            if head == b"JIF\x01" or str(filepath).lower().endswith(".jif"):
+                from jtlearn.jif_loader import load_jif_file, get_jif_info
+                info, payload = get_jif_info(filepath), load_jif_file(filepath)
+                if not info or payload is None:
+                    show_error("That file is not a valid .jif package.")
+                    return False
+                JIF_DIR.mkdir(parents=True, exist_ok=True)
+                dest_file = JIF_DIR / (Path(filepath).stem + ".jif")
+                if dest_file.exists():
+                    shutil.copy2(dest_file, str(dest_file) + ".bak")
+                shutil.copy2(filepath, dest_file)
+                show_success(f"Installed {info.get('title') or dest_file.stem} ({info.get('type')}) → {dest_file.name}")
+                return True
+
             # Validate JSON
             with open(filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -251,8 +300,8 @@ def show_datastore_catalog():
 
         # Header
         console.print(Panel(
-            "[bold cyan]🏪 jtlearn Official Data Store[/bold cyan]\n"
-            "[dim]Free & Premium Learning Content[/dim]\n"
+            "[bold cyan]🏪 JIF Store[/bold cyan]\n"
+            "[dim]Lesson packages (.jif) from the community[/dim]\n"
             "[green]💝 Support jtlearn while learning![/green]",
             box=box.ROUNDED,
             border_style="cyan",
@@ -339,11 +388,15 @@ def show_datastore_catalog():
                 ))
                 console.print()
 
+        if not free_items and not premium_items:
+            console.print("[yellow]The store is empty or you are offline. You can still paste a link with [U].[/yellow]\n")
+
         # Actions
         console.print("  [green][1-9][/green] [dim]Download free content[/dim]")
         console.print("  [magenta][P1-9][/magenta] [dim]Get premium content[/dim]")
-        console.print("  [cyan][B][/cyan] [dim]View bundles[/dim]")
-        console.print("  [yellow][U][/yellow] [dim]Paste custom URL[/dim]")
+        console.print("  [cyan]\\[B][/cyan] [dim]View bundles[/dim]")
+        console.print("  [yellow]\\[U][/yellow] [dim]Paste custom URL[/dim]")
+        console.print("  [blue]\\[W][/blue] [dim]Open the JIF Store website (submit your own)[/dim]")
         console.print("  [green][0][/green] [dim]Back to Main Menu[/dim]")
         console.print()
 
@@ -351,6 +404,15 @@ def show_datastore_catalog():
 
         if choice == "0":
             return
+        elif choice == "w":
+            site = "https://jitetee-ke.web.app/jif"
+            try:
+                import webbrowser
+                webbrowser.open(site)
+            except Exception:
+                pass
+            console.print(f"[dim]{site}[/dim]")
+            time.sleep(1.5)
         elif choice == "u":
             # Custom URL download
             url = console.input("[bold green]╰─► Paste URL:[/bold green] ").strip()

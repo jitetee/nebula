@@ -1,10 +1,11 @@
 # Changelog
 
-## 0.9.9
-- update 2026-10-25 21:12
+## 0.9.10
+- update 2026-10-26 17:18
 
 ## 0.9.7
 
+- **New: JIF Store.** Browse, rate, download and submit `.jif` packages on the website; jtlearn's Data Store (menu 9) now reads the same online store (`jifStore`), installs binary `.jif` files, and shows ratings. The rules and seed cover the store and every other node used by Nebula, Mingle, games and jtlearn (empty collections hold a `_schema` placeholder that all clients skip). Screenshots of the CLI and website are in `docs/screenshots/`.
 - **New: `mingle`**, a dating app for the terminal (18+): sign in with email and password, or a username and a key; discover people with a match percentage, like, pass or super like; chat when you both like each other (live updates); see who liked you; block, report, unmatch; delete your account and all your data. Admins (role `admin` or `superadmin` in your database) can review reports and ban with `mingle admin`. Nothing extra to install.
 - **New complete database rules and seed.** `docs/database.rules.json` is the full rule set (default-deny; admins are accounts whose `users/<uid>/role` is `admin` or `superadmin`), and the website repo ships a matching `seed.json`. The old merge script and partial rules file are gone.
 

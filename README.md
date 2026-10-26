@@ -1,16 +1,32 @@
 <div align="center">
 
+<img src="docs/brand/logo.svg" alt="Nebula by J.I.T.E.T.E.E." width="120">
+
 # ⚡ Nebula
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.9-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.10-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 </div>
 
 Nebula turns Termux into a friendlier terminal: an AI that formats its answers properly, one-command installs, live dashboards, a built-in fuzzy picker, a customizable home screen, and a local login lock. It adapts to your screen size and your phone's capabilities.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Nebula help](docs/screenshots/cli-nebula-help.png) | ![Nebula doctor](docs/screenshots/cli-nebula-doctor.png) |
+| ![Games](docs/screenshots/cli-nebula-games.png) | ![jtlearn](docs/screenshots/cli-jtlearn-menu.png) |
+| ![Mingle](docs/screenshots/cli-mingle-menu.png) | ![ant](docs/screenshots/cli-ant-help.png) |
+
+The website (JIF Store, community, admin) is shown in [`docs/screenshots/`](docs/screenshots) too. Tests regenerate these every run (`tests/screenshots/`).
+
+## JIF Store
+
+`.jif` (JITETEE Import File) lessons are listed on the website's **JIF Store** and inside jtlearn (Data Store, menu 9). Browse, rate, download, or submit your own for admin approval. Database setup: [`docs/database.rules.json`](docs/database.rules.json) + the seed in the website project (`tools/make-seed.py`).
 
 ## Requirements
 

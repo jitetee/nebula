@@ -852,6 +852,8 @@ class FirebaseRTDB:
         
         open_sessions = {}
         for session_id, session_data in sessions.items():
+            if session_id.startswith("_") or not isinstance(session_data, dict):
+                continue            # skip schema placeholders
             if session_data.get("status") == "waiting":
                 open_sessions[session_id] = {
                     "name": session_data.get("session_name", session_id),
@@ -965,6 +967,8 @@ class FirebaseRTDB:
         # Convert to list and sort
         score_list = []
         for key, entry in scores.items():
+            if key.startswith("_") or not isinstance(entry, dict):
+                continue            # skip schema placeholders
             if game_mode == "all" or entry.get("game_mode") == game_mode:
                 score_list.append(entry)
         
@@ -981,6 +985,8 @@ class FirebaseRTDB:
         
         user_list = []
         for uid, data in users.items():
+            if uid.startswith("_") or not isinstance(data, dict):
+                continue            # skip schema placeholders
             if not data.get("is_anonymous"):
                 user_list.append({
                     "user_id": uid,
@@ -1052,6 +1058,8 @@ class FirebaseRTDB:
         
         world_list = []
         for wid, data in worlds.items():
+            if wid.startswith("_") or not isinstance(data, dict):
+                continue            # skip schema placeholders
             if category == "all" or data.get("category") == category:
                 world_list.append({
                     "world_id": wid,

@@ -2729,30 +2729,12 @@ def run_ai_config():
 
 
 def run_datastore():
-    """Open jtlearn Data Store in browser"""
+    """The JIF Store: browse and install .jif lesson packages from the community catalogue"""
     try:
-        import webbrowser
-        
-        console.print()
-        console.print(Panel(
-            "[bold cyan]🏪 Opening jtlearn Data Store...[/bold cyan]\n\n"
-            "[dim]Browse free & premium learning content[/dim]\n"
-            "[green]💝 Support jtlearn while learning![/green]",
-            box=box.ROUNDED,
-            border_style="cyan",
-            title="📦",
-        ))
-        console.print()
-        
-        # Open the official store URL
-        store_url = "https://jitetee-ke.web.app/jtlearn"
-        webbrowser.open(store_url)
-        
-        console.print("[dim]Opening in your default browser...[/dim]\n")
-        console.input("[bold green]╰─► Press Enter to continue...[/bold green]")
-        
+        from jtlearn.main.datastore import show_datastore_catalog
+        show_datastore_catalog()
     except Exception as e:
-        show_error(f"Failed to open data store: {e}")
+        show_error(f"Could not open the JIF Store: {e}")
         console.input("\n[bold yellow]Press Enter to continue...[/bold yellow]")
 
 
