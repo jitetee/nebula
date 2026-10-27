@@ -6,7 +6,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.10-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.11-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -20,7 +20,8 @@ Nebula turns Termux into a friendlier terminal: an AI that formats its answers p
 |---|---|
 | ![Nebula help](docs/screenshots/cli-nebula-help.png) | ![Nebula doctor](docs/screenshots/cli-nebula-doctor.png) |
 | ![Games](docs/screenshots/cli-nebula-games.png) | ![jtlearn](docs/screenshots/cli-jtlearn-menu.png) |
-| ![Mingle](docs/screenshots/cli-mingle-menu.png) | ![ant](docs/screenshots/cli-ant-help.png) |
+| ![Mingle](docs/screenshots/cli-mingle-menu.png) | ![Mingle profile and chat](docs/screenshots/cli-mingle-card.png) |
+| ![ant](docs/screenshots/cli-ant-help.png) | ![Game over card](docs/screenshots/cli-nebula-game-over.png) |
 
 The website (JIF Store, community, admin) is shown in [`docs/screenshots/`](docs/screenshots) too. Tests regenerate these every run (`tests/screenshots/`).
 

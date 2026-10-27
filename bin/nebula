@@ -225,6 +225,17 @@ nebula::repl() {
 }
 
 nebula::usage() {
+  if declare -F skin::menu >/dev/null 2>&1 && [[ ${NEBULA_PLAIN:-0} != 1 ]]; then nebula::usage_skin; return; fi
+  nebula::usage_plain
+}
+
+nebula::usage_skin() {
+  skin::banner NEBULA "Nebula AI UI shell  ·  v$(update::local_version 2>/dev/null)" "Usage: nebula <command> [options]"
+  nebula::usage_plain | awk '/^USAGE:/{u=1;next} /^FLAGS:/{u=0;f=1;next} u&&/^  nebula  +[A-Z]/{ d=$0; sub(/^  nebula +/,"",d); printf "\t\tnebula\t%s\n", d; next } u&&/^  nebula/{ line=$0; sub(/^  nebula */,"",line); n=match(line,/  +/); if(n==1){ sub(/^ +/,"",line); printf "\t\tnebula\t%s\n", line; next } if(n){cmd=substr(line,1,n-1); d=substr(line,n); sub(/^ +/,"",d)} else {cmd=line; d=""}; printf "%s\t\t%s\t%s\n","","nebula " cmd, d }' | skin::menu "Commands" --nodot
+  nebula::usage_plain | awk '/^FLAGS:/{f=1;next} f&&/^  --/{ line=$0; sub(/^  /,"",line); n=match(line,/  +/); printf "\t\t%s\t%s\n", substr(line,1,n-1), substr(line,n+2) }' | sed 's/\t\t\([^\t]*\)\t \+/\t\t\1\t/' | skin::menu "Flags" --nodot
+}
+
+nebula::usage_plain() {
   cat <<EOF
 nebula — Nebula AI UI shell
 
@@ -263,7 +274,7 @@ USAGE:
   nebula help [command]        Command list / detailed help
   nebula chat | explain | fix | summarize | translate   AI helpers
   nebula status | remind | serve | backup | restore     Tools
-  nebula passwd | lock | autolock | logins | fingerprint Security
+  nebula passwd | lock | autolock | logins | fingerprint  Security
   nebula theme [name]          List / switch prompt themes
   nebula noauth [on|off]       Toggle session lock (auth)
 

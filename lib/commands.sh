@@ -3,8 +3,7 @@
 
 
 cmd::about() {
-  ui::banner
-  ui::maker_intro
+  skin::banner NEBULA "An AI-powered terminal toolkit for Termux" "Made by J.I.T.E.T.E.E.  ·  github.com/jitetee/nebula  ·  MIT"
 }
 
 cmd::_need_tgpt() {
@@ -66,8 +65,8 @@ cmd::meme() {
 cmd::weather() {
   local city="${*:-}"
   cmd::_need_curl || return 1
-  curl -fsSL --max-time 10 "https://wttr.in/${city// /+}?format=v2&m" 2>/dev/null || \
-    ui::say_status ERR "Weather service unreachable"
+  skin::spin "Fetching weather" bash -c 'curl -fsSL --max-time 10 "$1" > "$2"' _ "https://wttr.in/${city// /+}?format=v2&m" "${TMPDIR:-/tmp}/nebula-weather.$$" \
+    && cat "${TMPDIR:-/tmp}/nebula-weather.$$"; rm -f "${TMPDIR:-/tmp}/nebula-weather.$$"
 }
 
 cmd::sysinfo() {
@@ -319,8 +318,8 @@ cmd::timer() {
 cmd::doctor() {
   local fix=0 miss_req=0 miss_opt=0
   [[ ${1:-} == --fix || ${1:-} == fix ]] && fix=1
-  printf "${C_CYAN}${C_BOLD}🩺 nebula Doctor${C_RESET}\n"
-  printf "${C_GRAY}%s${C_RESET}\n" "$(ui::rep ─ $(( $(ui::cols) > 33 ? 32 : $(ui::cols) - 2 )))"
+  skin::banner DOCTOR "Health check for your Nebula install" "✔ ok   ○ optional / not installed   ✖ needs attention"
+  local _dt; _dt=$(mktemp); exec 3>&1 >"$_dt"
   _nebula_doctor_check() {
     local label=$1 bin=$2 required=${3:-optional} b found="" cols lw=22 pw
     cols=$(ui::cols); (( cols < 56 )) && lw=12; pw=$(( cols - lw - 8 )); (( pw < 8 )) && pw=8
@@ -354,7 +353,7 @@ cmd::doctor() {
   _nebula_doctor_check "neofetch"  neofetch
   _nebula_doctor_check "python"    python3
   _nebula_doctor_check "termux-api" termux-notification
-  printf "${C_GRAY}%s${C_RESET}\n" "$(ui::rep ─ $(( $(ui::cols) > 33 ? 32 : $(ui::cols) - 2 )))"
+  printf '\n'
   local ok=1 f
   for f in "$NEBULA_HOME/bin/nebula" "$NEBULA_HOME/motd/init.sh" "$NEBULA_HOME/lib/auth.sh" "$NEBULA_HOME/assets/help.txt"; do
     if [[ -e $f ]]; then
@@ -381,6 +380,7 @@ cmd::doctor() {
   fi
   local de dw di; read -r de dw di < <(device::issue_counts 2>/dev/null)
   (( ${de:-0} + ${dw:-0} > 0 )) && ui::say_status WARN "Device checks: ${de:-0} error(s), ${dw:-0} warning(s) — run: settings"
+  exec >&3 3>&-; skin::box "🩺 Checks" <"$_dt"; rm -f "$_dt"
   if (( ok )); then
     ui::say_status OK "nebula install looks healthy."
   else
@@ -394,6 +394,32 @@ cmd::doctor() {
       ui::say_status INFO "$miss_req required / $miss_opt optional package(s) missing. Run: doctor --fix"
     fi
   fi
+}
+
+cmd::voice_scan() {
+  local -a found=(); local f
+  local _st; _st=$(mktemp)
+  voice::_scan_to() { voice::scan > "$1"; }
+  skin::spin "Searching this device for ONNX voices" voice::_scan_to "$_st"
+  while IFS= read -r f; do [[ -n $f ]] && found+=("$f"); done < "$_st"; rm -f "$_st"
+  if (( ! ${#found[@]} )); then
+    ui::say_status WARN "No Piper voices found (a .onnx with its .onnx.json). Download one, then run: voice scan"
+    ui::hint "Voices: huggingface.co/rhasspy/piper-voices · or: voice model /path/voice.onnx"; return 1
+  fi
+  local pick=""
+  if [[ -t 0 && -t 1 ]] && declare -F menu::pick >/dev/null; then
+    local -a items=(); for f in "${found[@]}"; do items+=("$(basename "$f")"$'\t'"$(du -h "$f" 2>/dev/null | cut -f1)  ${f%/*}"$'\td'); done
+    MENU_INFO=""; MENU_CUR=0
+    menu::pick "ONNX voices on this device (${#found[@]})" "↑/↓ choose · Enter copy & use · q cancel" items || { ui::say_status INFO "Cancelled."; return 1; }
+    pick=${found[MENU_IDX]}
+  else
+    local i=0; for f in "${found[@]}"; do i=$((i+1)); printf '  %d) %s\n' "$i" "$f"; done
+    local n; read -r -p "  Number: " n; [[ $n =~ ^[0-9]+$ && n -ge 1 && n -le ${#found[@]} ]] || return 1; pick=${found[n-1]}
+  fi
+  if voice::install "$pick"; then
+    ui::say_status OK "Copied $(basename "$pick") (and its .json) to $(voice::dir) and selected it."
+    ui::say_status INFO "Try it: voice test"
+  else ui::say_status ERR "Could not copy the voice into $(voice::dir)"; return 1; fi
 }
 
 cmd::voice_toggle() {
@@ -412,8 +438,32 @@ cmd::voice_toggle() {
       printf '0\n' > "$cfg"
       ui::say_status OK "Voice muted (saved)"
       ;;
+    scan|find|detect)
+      cmd::voice_scan ;;
+    model)
+      shift
+      case "${1:-}" in
+        ""|show) local m; m=$(voice::model)
+                 if [[ -n $m ]]; then ui::say_status OK "ONNX voice: $m"; else ui::say_status INFO "No ONNX voice set. Use: voice model /path/to/voice.onnx"; fi
+                 [[ -z $(voice::_piper_cmd) ]] && ui::say_status WARN "Piper not found. Install it (pip install piper-tts) or put the piper program in PATH."
+                 [[ -z $(voice::_player) ]] && ui::say_status WARN "No audio player found (pkg install sox  or  mpv)." ;;
+        clear|off) rm -f "$NEBULA_CFG/voice.model"; ui::say_status OK "ONNX voice cleared; using the built-in voice." ;;
+        *) local f=${1/#\~/$HOME}
+           [[ -r $f && $f == *.onnx ]] || { ui::say_status ERR "Need a readable .onnx file: $1"; return 1; }
+           [[ -r $f.json || -r ${f%.onnx}.json ]] || ui::say_status WARN "No $(basename "$f").json next to the model; Piper needs it."
+           mkdir -p "$NEBULA_CFG"; printf '%s\n' "$(cd "$(dirname "$f")" && pwd)/$(basename "$f")" > "$NEBULA_CFG/voice.model"
+           ui::say_status OK "ONNX voice saved. Try: voice test" ;;
+      esac
+      ;;
+    test)
+      NEBULA_VOICE=1; export NEBULA_VOICE
+      if voice::onnx_ready; then
+        skin::spin "Speaking with your ONNX voice" voice::_onnx_say "Hello, this is your Nebula voice." || ui::say_status ERR "The ONNX voice failed. Check: voice model"
+      else voice::say "Hello, this is your Nebula voice."; ui::say_status INFO "Using the built-in voice (no usable ONNX voice yet: voice model)"; fi
+      ;;
     *)
-      ui::say_status INFO "Voice is currently: $([[ ${NEBULA_VOICE:-1} -eq 1 ]] && echo on || echo off)"
+      ui::say_status INFO "Voice is currently: $([[ ${NEBULA_VOICE:-1} -eq 1 ]] && echo on || echo off)$(voice::onnx_ready && echo ' · ONNX voice')"
+      if [[ -z $(voice::model) && -t 0 && -t 1 ]] && ui::confirm "No ONNX voice yet. Look for voice files on this device?" Y; then cmd::voice_scan; fi
       ;;
   esac
 }

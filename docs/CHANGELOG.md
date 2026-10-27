@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.9.10
-- update 2026-10-26 17:18
+## 0.9.11
+- voice engine update and ui improvements
 
 ## 0.9.7
 
+- **Your own voice (ONNX).** `voice scan` (or plain `voice` when none is set) searches the whole device for Piper voices (a `.onnx` with its `.onnx.json`), lists them, and copies the one you pick into Nebula's data folder (`data/voices`, kept across updates). `voice model /path/voice.onnx` also makes Nebula speak with a Piper voice (`.onnx` plus its `.onnx.json`); `voice test` tries it, `voice model clear` goes back. It needs the `piper` program (or `pip install piper-tts`) and any audio player (sox, mpv, paplay…). Spoken phrases are cached, and if the ONNX voice fails it falls back to espeak, festival or Termux TTS.
+- Game headers use a `◆ Title` bar, slow network fetches and Mingle discover show a spinner, and `.github/workflows/ci.yml` checks syntax, rules, `.jif` files and the shared look on every push.
+- **One look everywhere.** Nebula, the games, Mingle and ant now share jtlearn's style: green rounded panels with titles, big block-letter banners in a double frame, two-column menus, framed tables, chat bubbles in Mingle, a `└─➤ Your choice:` prompt and framed game-over cards. It comes from one small helper (`lib/skin.py` + `lib/skin.sh`); under 40 columns, with `NO_COLOR` or `NEBULA_PLAIN=1` it falls back to simple lines. See `docs/UI_STYLE.md`.
+- **Extra keys:** the bottom-right `lock` button is now a real **ENTER** key (swipe up for `lock`). `^D` is still CTRL then `d`.
 - **New: JIF Store.** Browse, rate, download and submit `.jif` packages on the website; jtlearn's Data Store (menu 9) now reads the same online store (`jifStore`), installs binary `.jif` files, and shows ratings. The rules and seed cover the store and every other node used by Nebula, Mingle, games and jtlearn (empty collections hold a `_schema` placeholder that all clients skip). Screenshots of the CLI and website are in `docs/screenshots/`.
 - **New: `mingle`**, a dating app for the terminal (18+): sign in with email and password, or a username and a key; discover people with a match percentage, like, pass or super like; chat when you both like each other (live updates); see who liked you; block, report, unmatch; delete your account and all your data. Admins (role `admin` or `superadmin` in your database) can review reports and ban with `mingle admin`. Nothing extra to install.
 - **New complete database rules and seed.** `docs/database.rules.json` is the full rule set (default-deny; admins are accounts whose `users/<uid>/role` is `admin` or `superadmin`), and the website repo ships a matching `seed.json`. The old merge script and partial rules file are gone.

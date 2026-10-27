@@ -69,7 +69,7 @@ g::words() { mapfile -t GW < "$NEBULA_HOME/assets/words.txt"; }
 g::rand_word() { (( ${#GW[@]} )) || g::words; printf '%s' "${GW[RANDOM % ${#GW[@]}]}"; }
 
 g::over() {   # g::over "title" "detail"   (centered-ish end screen line)
-  printf '\n  %s%s%s  %s\n' "$C_BOLD" "$1" "$C_RESET" "${2:-}"
+  printf '\n'; printf '%s\n' "${2:-}" | skin::box "$1"
 }
 
 # ── 2048 ─────────────────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ _2048_stuck() {
 _2048_draw() {
   local r c v lg p tall=1 s
   (( $(g::rows) < 17 )) && tall=0
-  g::ln "${C_BOLD}2048${C_RESET}  score $score  best $best"
+  g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}2048${C_RESET} ${C_BLUE}─${C_RESET} score $score  best $best"
   g::ln "${C_DIM}arrows/wasd move · r restart · q quit${C_RESET}"
   for r in 0 1 2 3; do
     for p in 0 1 2; do
@@ -316,7 +316,7 @@ game::memory() {
   for ((i=n-1;i>0;i--)); do j=$((RANDOM % (i+1))); t=${card[i]}; card[i]=${card[j]}; card[j]=$t; done
   local draw=1 k r c line cell mbest; mbest=$(g::best memory); [[ -n $mbest ]] && mbest="best: $mbest moves"
   while :; do
-    g::ln "${C_BOLD}Memory${C_RESET}  moves $moves  pairs $found/8  ${C_DIM}$mbest${C_RESET}"
+    g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Memory${C_RESET} ${C_BLUE}─${C_RESET} moves $moves  pairs $found/8  ${C_DIM}$mbest${C_RESET}"
     g::ln "${C_DIM}arrows move · enter flips · q quits${C_RESET}"
     g::ln ""
     for r in 0 1 2 3; do
@@ -351,7 +351,7 @@ game::memory() {
             # draw the mismatch for a moment, then hide again
             for r in 0; do :; done
             F=""; local rr cc kk ll cl
-            g::ln "${C_BOLD}Memory${C_RESET}  moves $moves  pairs $found/8"; g::ln ""; g::ln ""
+            g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Memory${C_RESET} ${C_BLUE}─${C_RESET} moves $moves  pairs $found/8"; g::ln ""; g::ln ""
             for rr in 0 1 2 3; do ll="  "; for cc in 0 1 2 3; do kk=$((rr*4+cc)); cl=" ? "; [[ ${st[kk]} != 0 ]] && cl=" ${card[kk]} "
               local b2=238; [[ ${st[kk]} == 1 ]] && b2=160; [[ ${st[kk]} == 2 ]] && b2=34; ll+="${BGC[b2]}${FGC[231]}$cl"$'\033[0m  '; done; g::ln "$ll"; g::ln ""; done
             g::paint; sleep 0.9; st[cur]=0; st[first]=0
@@ -391,7 +391,7 @@ game::minesweeper() {
   local t0=$SECONDS
   local numc=(0 75 76 203 99 124 37 241 250) line
   while :; do
-    g::ln "${C_BOLD}Minesweeper${C_RESET}  mines $((M-flags))  time $((SECONDS-t0))s"
+    g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Minesweeper${C_RESET} ${C_BLUE}─${C_RESET} mines $((M-flags))  time $((SECONDS-t0))s"
     g::ln "${C_DIM}arrows move · space/enter open · f flag · q quit${C_RESET}"
     for ((y=0;y<H;y++)); do
       line=" "
@@ -592,8 +592,8 @@ cmd::game() {
   if [[ -n $want ]]; then
     shift
     case ${want,,} in
-      ls|list) local e; for e in "${GAME_LIST[@]}"; do IFS='|' read -r k t d <<<"$e"; printf '  %b%-12s%b %s\n' "$C_GREEN" "$k" "$C_RESET" "$d"; done; return 0 ;;
-      scores)  if [[ -s $GAME_DIR/scores ]]; then awk -F'|' '{printf "  %-16s %s\n",$1,$2}' "$GAME_DIR/scores"; else ui::say_status INFO "No scores yet. Play something!"; fi; return 0 ;;
+      ls|list) local e n=0; for e in "${GAME_LIST[@]}"; do IFS='|' read -r k t d <<<"$e"; n=$((n+1)); printf '%s\t🎮\t%s\t%s\n' "$k" "$t" "$d"; done | skin::menu "Nebula games" --nodot; return 0 ;;
+      scores)  if [[ -s $GAME_DIR/scores ]]; then { printf 'Game\tBest\n'; awk -F'|' '{printf "%s\t%s\n",$1,$2}' "$GAME_DIR/scores"; } | skin::table "High scores"; else ui::say_status INFO "No scores yet. Play something!"; fi; return 0 ;;
       2048|wordle|hangman|guess|mastermind|memory|minesweeper|quiz|typing|daily|quest|versus|snake|tetris|life|ecosystem|tycoon|rain|fire)
         g::run "game::${want,,}" "$@"; return ;;
       *) ui::say_status ERR "No game called '$want'. Try: game ls"; return 1 ;;

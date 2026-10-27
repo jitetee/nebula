@@ -95,7 +95,18 @@ viz::title() {
 viz::trunc() { local s=$1 w=$2; (( ${#s} > w )) && s="${s:0:w-1}…"; printf '%s' "$s"; }
 
 # viz::fetch <url> → body (honours NEBULA_TOKEN-free public APIs, 10s cap)
-viz::fetch() { curl -fsSL --max-time 12 -H 'accept: application/json' -A 'nebula-termux' "$@"; }
+viz::fetch() {   # curl with a small spinner on stderr (only on a real terminal; stdout stays clean for $(…))
+  if [[ ! -t 2 || ${NEBULA_PLAIN:-0} == 1 || -n ${NO_COLOR:-} || ${NEBULA_NOSPIN:-0} == 1 ]]; then
+    curl -fsSL --max-time 12 -H 'accept: application/json' -A 'nebula-termux' "$@"; return
+  fi
+  local tmp pid rc i=0 f=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); tmp=$(mktemp)
+  curl -fsSL --max-time 12 -H 'accept: application/json' -A 'nebula-termux' "$@" >"$tmp" 2>/dev/null & pid=$!
+  printf '\033[?25l' >&2
+  while kill -0 "$pid" 2>/dev/null; do printf '\r  %s%s%s %sLoading…%s' "${C_CYAN:-}" "${f[i++ % 10]}" "${C_RESET:-}" "${C_DIM:-}" "${C_RESET:-}" >&2; sleep 0.08; done
+  wait "$pid"; rc=$?
+  printf '\r\033[K\033[?25h' >&2
+  cat "$tmp"; rm -f "$tmp"; return $rc
+}
 
 viz::need_py() {
   command -v python3 >/dev/null 2>&1 && return 0

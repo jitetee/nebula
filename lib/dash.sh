@@ -9,7 +9,7 @@ dash::w()     { printf '%s' "${UI_W:-$(ui::cols)}"; }
 dash::cores() { nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo 2>/dev/null || echo 1; }
 
 # section heading
-dash::h() { printf '\n  %s%s%s%s\n' "$C_BOLD" "$1" "$C_RESET" "${2:+  $C_DIM$2$C_RESET}"; }
+dash::h() { printf '\n%s╭─%s %s%s%s%s %s\n' "$C_BLUE" "$C_RESET" "$C_BOLD$C_CYAN" "$1" "$C_RESET" "${2:+  $C_DIM$2$C_RESET}" ""; }
 # bar row:  dash::row <pct> [invert]
 dash::row() { printf '     '; ui::bar "$1" "$(ui::bw "$(dash::w)")" "${2:-}"; printf ' %s%3d%%%s\n' "$C_DIM" "$1" "$C_RESET"; }
 
@@ -190,8 +190,7 @@ DASH_ALL="cpu mem disk battery net temp top trend"
 dash::header() {
   local cols; cols=$(ui::cols)
   local fmt='%a %d %b · %H:%M'; (( cols < 44 )) && fmt='%d %b %H:%M'
-  printf '\n%s%s⚡ Nebula status%s  %s%s%s\n' "$C_CYAN" "$C_BOLD" "$C_RESET" "$C_DIM" "$(date "+$fmt")" "$C_RESET"
-  printf '%s%s%s\n' "$C_DIM" "$(ui::rep ─ "$cols")" "$C_RESET"
+  printf '\n'; printf '%s\n' "$(date "+$fmt")" | skin::box "⚡ Nebula status"
   printf '  %s%s@%s%s · up %s\n' "$C_DIM" "${NEBULA_USER:-$(id -un 2>/dev/null)}" "$(uname -n 2>/dev/null | cut -c1-14)" "$C_RESET" "$(dash::uptime)"
 }
 

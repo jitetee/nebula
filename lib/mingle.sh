@@ -14,6 +14,8 @@ m::ms()  { local t=${EPOCHREALTIME:-}; if [[ -n $t ]]; then t=${t/[.,]/}; printf
 m::say() { ui::say_status "$@"; }
 m::cols() { local c; c=$(ui::cols 2>/dev/null || echo 60); (( c > 70 )) && c=70; (( c < 30 )) && c=30; M_W=$c; }
 m::hr()  { local s; printf -v s '%*s' "$M_W" ''; printf '%s%s%s\n' "$C_DIM" "${s// /─}" "$C_RESET"; }
+m::head()   { skin::_py rule --title "❤ $1"; }     # titled plate, same look as jtlearn panels
+m::banner() { skin::banner MINGLE "${1:-Meet people. Chat. Be kind.}" "18+  ·  J.I.T.E.T.E.E."; }
 m::clear() { printf '\033[H\033[2J\033[3J'; }
 m::wrap() {   # wrap to the screen; lines starting with "• " get a hanging indent
   if [[ $1 == "• "* ]]; then fold -s -w "$(( M_W - 6 ))" <<<"$1" | sed '1s/^/  /; 2,$s/^/    /'
@@ -132,7 +134,7 @@ m::profile_form() {   # create or edit; returns 1 if cancelled
   m::clear; m::cols
   local name age gender seeking city bio interests vibe vis first=0
   [[ $M_ME == "{}" ]] && first=1
-  printf '%s%s%s\n' "$C_BOLD$C_MAGENTA" "  ❤  Your Mingle profile" "$C_RESET"; m::hr
+  m::head "Your Mingle profile"
   (( first )) && printf '%s  Mingle is for adults only (18+). Keep it kind and honest.%s\n\n' "$C_DIM" "$C_RESET"
   m::ask "First name or nickname" "$(m::me name)" || return 1; name=${REPLY:0:30}; [[ -n ${name// } ]] || { m::say WARN "A name is needed."; return 1; }
   while :; do
@@ -177,7 +179,7 @@ m::pick_username() {   # for email accounts: choose a unique public username
 
 m::terms() {
   m::clear; m::cols
-  printf '%s%s%s\n' "$C_BOLD$C_MAGENTA" "  ❤  Welcome to Mingle" "$C_RESET"; m::hr
+  m::head "Welcome to Mingle"
   m::wrap "Mingle helps people meet and chat. Before you start:"
   printf '\n'
   m::wrap "• You must be 18 or older."
@@ -192,9 +194,9 @@ m::terms() {
 m::auth_screen() {   # returns 0 when signed in
   while :; do
     m::clear; m::cols
-    printf '%s%s%s\n' "$C_BOLD$C_MAGENTA" "  ❤  Mingle" "$C_RESET"; m::hr
-    printf '  1) Sign in with email\n  2) Sign in with username + key\n  3) Create account with email\n  4) Create account with username + key (no email needed)\n  5) Forgot password (email accounts)\n  0) Back\n\n'
-    printf '  Choose: '; m::key; printf '%s\n' "$K"
+    m::banner
+    printf '%s\n' $'1\t🔑\tSign in with email\tUse your email and password' $'2\t👤\tSign in with username + key\tNo email needed' $'3\t📧\tCreate account with email\tNew here? Start here' $'4\t🆕\tCreate account with username + key\tNo email needed' $'5\t❓\tForgot password\tEmail accounts only' $'0\t⬅\tBack\t' | skin::menu "Welcome"
+    skin::prompt "Your choice"; m::key; printf '%s\n' "$K"
     case $K in
       1) m::ask "Email" || continue; local e=$REPLY; m::secret "Password" || continue
          if m::signin "$e" "$REPLY"; then M_USER=""; return 0; fi; m::say ERR "$(m::authmsg)"; m::wait ;;
@@ -253,21 +255,18 @@ m::card() {   # m::card profileJSON [mine]
   IFS=$'\x1f' read -r name age city vibe score shared < <(m::j fields name age city vibe score=0 shared=0 <<<"$p")
   bio=$(m::j get bio <<<"$p"); int=$(m::j get interests <<<"$p")
   m::clear; m::cols
-  printf '%s%s%s' "$C_BOLD$C_MAGENTA" "  ❤  Mingle" "$C_RESET"
-  if (( own )); then printf '   %sthis is how others see you%s\n' "$C_DIM" "$C_RESET"; else printf '   %s%s%% match%s\n' "$C_GREEN" "$score" "$C_RESET"; fi; m::hr
-  printf '\n  %s%s, %s%s %s\n' "$C_BOLD" "$name" "$age" "$C_RESET" "$vibe"
-  printf '  %s📍 %s%s\n\n' "$C_DIM" "$city" "$C_RESET"
-  [[ -n $bio ]] && { m::wrap "$bio"; printf '\n'; }
+  local sub="${score}% match"; (( own )) && sub="this is how others see you"
+  local chips=""
   if [[ -n $int ]]; then
-    local mine; mine=$(m::j get interests <<<"$M_ME" | tr 'A-Z' 'a-z'); local chips="" t
+    local mine; mine=$(m::j get interests <<<"$M_ME" | tr 'A-Z' 'a-z'); local t
     IFS=',' read -ra arr <<<"$int"
     for t in "${arr[@]}"; do t=${t#"${t%%[![:space:]]*}"}; t=${t%"${t##*[![:space:]]}"}; [[ -z $t ]] && continue
       if [[ ",${mine// /}," == *",${t// /},"* ]]; then chips+="${C_GREEN}#${t}${C_RESET} "; else chips+="${C_DIM}#${t}${C_RESET} "; fi; done
-    m::wrap "$chips"; printf '\n'
   fi
-  m::hr
+  { printf '%s%s, %s%s %s\n' "$C_BOLD" "$name" "$age" "$C_RESET" "$vibe"; printf '%s📍 %s%s\n' "$C_DIM" "$city" "$C_RESET"
+    [[ -n $bio ]] && printf '\n%s\n' "$bio"; [[ -n $chips ]] && printf '\n%s\n' "$chips"; } | skin::box "❤ Mingle · $sub"
   (( own )) && return 0
-  printf '  %s→ like%s  %s← pass%s  %s↑ super%s\n  %sb block  r report  q back%s\n' "$C_GREEN" "$C_RESET" "$C_DIM" "$C_RESET" "$C_YELLOW" "$C_RESET" "$C_DIM" "$C_RESET"
+  printf '%s\n' $'→\t💚\tlike\tsay hello' $'←\t✖\tpass\tnext person' $'↑\t⭐\tsuper like\tstand out' $'b/r/q\t\tblock · report · back\t' | skin::menu "Your move" --nodot
 }
 
 m::like() {   # m::like uid [star] → sets M_MATCH=1 if it became a match
@@ -306,11 +305,11 @@ m::report() {   # m::report uid
 }
 
 m::discover() {
-  m::say INFO "Finding people…"
+  skin::load "Finding people" 0.6
   local -a list=(); local l
   while IFS= read -r l; do [[ -n $l ]] && list+=("$l"); done < <(m::candidates)
   if (( ! ${#list[@]} )); then
-    m::clear; m::cols; printf '%s  ❤  Mingle%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr
+    m::clear; m::cols; m::head "Mingle"
     printf '\n'; m::wrap "No new people right now. Check back later, widen your search in Settings, or invite a friend."
     [[ -n ${M_ONLYCITY:-} ]] && m::wrap "(Showing only people in your city. Turn that off in Settings.)"
     m::wait; return 0
@@ -336,9 +335,7 @@ m::discover() {
 m::itsmatch() {
   local nm; nm=$(m::j get name <<<"$1")
   m::clear; m::cols; printf '\n\n'
-  printf '%s%s' "$C_BOLD$C_MAGENTA" "    ❤  It's a match!"; printf '%s\n\n' "$C_RESET"
-  printf '    You and %s%s%s like each other.\n' "$C_BOLD" "$nm" "$C_RESET"
-  printf '    %sOpen Matches to say hi.%s\n' "$C_DIM" "$C_RESET"; m::wait
+  skin::banner MATCH "You and ${nm} like each other." "Open Matches to say hi."; m::wait
 }
 
 # ── likes me ───────────────────────────────────────────────────────────────
@@ -354,7 +351,7 @@ m::likesme() {
     p=$(m::get "profiles/$u") || continue; [[ -n $p && $p != null ]] || continue
     list+=("$(m::rescore "$(m::j set uid="$u" star:="$(m::j get -d false "$u.star" <<<"$lb")" <<<"$p")")")
   done
-  if (( ! ${#list[@]} )); then m::clear; m::cols; printf '%s  ❤  Likes you%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr; printf '\n'; m::wrap "Nobody new yet. Keep your profile fresh and check back soon."; m::wait; return; fi
+  if (( ! ${#list[@]} )); then m::clear; m::cols; m::head "Likes you"; printf '\n'; m::wrap "Nobody new yet. Keep your profile fresh and check back soon."; m::wait; return; fi
   local i=0 uid nm
   while (( i < ${#list[@]} )); do
     p=${list[i]}; uid=$(m::j get uid <<<"$p"); nm=$(m::j get name <<<"$p")
@@ -377,17 +374,17 @@ m::matches() {
     [[ -z $ms || $ms == null ]] && ms="{}"
     local -a ids=(); local u line sel=0
     while IFS= read -r u; do [[ -n $u ]] && ids+=("$u"); done < <(m::j matches sort <<<"$ms")
-    m::clear; m::cols; printf '%s  ❤  Matches%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr
+    m::clear; m::cols; m::head "Matches"
     if (( ! ${#ids[@]} )); then printf '\n'; m::wrap "No matches yet. Like someone in Discover. When they like you back, they appear here."; m::wait; return; fi
-    local -a names=() pairs=(); local n i=0 last lf lts seen unread
+    local -a names=() pairs=(); local n i=0 last lf lts seen unread mrows=""
     for u in "${ids[@]}"; do
       n=$(m::get "profiles/$u" | m::j get -d "(gone)" name 2>/dev/null); names+=("${n:-?}"); pairs+=("$(m::j get "$u.pair" <<<"$ms")")
       IFS=$'\x1f' read -r last lf lts seen _ < <(m::j matches row "$u" <<<"$ms")
       unread=""; [[ -n $lf && $lf != "$M_UID" ]] && (( lts > seen )) && unread="${C_GREEN}●${C_RESET}"
-      printf '  %s%2d%s %s%-14.14s%s %s %s%s%s\n' "$C_DIM" $((i+1)) "$C_RESET" "$C_BOLD" "${names[i]}" "$C_RESET" "$unread" "$C_DIM" "${last:0:$((M_W-26))}" "$C_RESET"
+      mrows+="$((i+1))"$'\t💬\t'"${names[i]} $unread"$'\t'"${last:0:$((M_W-30))}"$'\n'
       i=$((i+1)); (( i >= 9 )) && break
     done
-    m::hr; printf '  %sPress 1-%d to chat · q back%s ' "$C_DIM" "$i" "$C_RESET"
+    printf '%s' "$mrows" | skin::menu "Your matches"; skin::prompt "1-$i to chat, q = back"
     m::key || return
     case $K in q|esc) return ;; [1-9]) (( K <= i )) && m::chat "${ids[K-1]}" "${pairs[K-1]}" "${names[K-1]}" ;; esac
   done
@@ -406,16 +403,16 @@ m::chat() {   # m::chat otherUid pair name
     if [[ $n != "$sig" || ${redraw:-1} == 1 ]]; then
       sig=$n; redraw=0
       m::patch "users/$M_UID/matches/$o" '{"seen":{".sv":"timestamp"}}' >/dev/null 2>&1
-      m::clear; m::cols; printf '%s  ❤  %s%s\n' "$C_BOLD$C_MAGENTA" "$name" "$C_RESET"; m::hr
+      m::clear; m::cols; m::head "$name"
       local rows; rows=$(ui::rows 2>/dev/null || echo 24); local keep=$(( rows - 8 )); (( keep < 4 )) && keep=4
       local f t ts; while IFS=$'\x1f' read -r f t ts; do
-        if [[ $f == "$M_UID" ]]; then printf '%s%s%s\n' "$C_GREEN" "$(fold -s -w "$((M_W-6))" <<<"you: $t" | sed '2,$s/^/     /')" "$C_RESET"
-        else fold -s -w "$((M_W-4))" <<<"$name: $t" | sed '2,$s/^/  /'; fi
-      done < <(m::j messages rows "$keep" <<<"$msgs")
+        if [[ $f == "$M_UID" ]]; then printf '%s\n' "$t" | skin::bubble --right "you"
+        else printf '%s\n' "$t" | skin::bubble "$name"; fi
+      done < <(m::j messages rows "$(( keep / 4 > 2 ? keep / 4 : 2 ))" <<<"$msgs")
       (( ${#wing[@]} )) && { local w; i=1; for w in "${wing[@]}"; do printf '%s  /%d  %s%s\n' "$C_YELLOW" "$i" "$w" "$C_RESET"; i=$((i+1)); done; }
-      printf '\n'; m::hr; printf '%s  /q back  /wing  /unmatch  /block  /report%s\n' "$C_DIM" "$C_RESET"
+      printf '%s  /q back · /wing · /unmatch · /block · /report%s\n' "$C_DIM" "$C_RESET"
     fi
-    printf '\r\033[K  > %s' "$buf"; printf '\033[?25h'
+    printf '\r\033[K%s└─➤%s %s' "$C_CYAN" "$C_RESET" "$buf"; printf '\033[?25h'
     if m::key 3; then
       case $K in
         enter)
@@ -478,9 +475,9 @@ m::myprofile() {
 
 m::settings() {
   while :; do
-    m::clear; m::cols; printf '%s  ❤  Settings & safety%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr
-    printf '  Signed in as %s%s%s\n\n' "$C_BOLD" "$([[ -n $M_USER ]] && echo "@$M_USER" || echo "$M_EMAIL")" "$C_RESET"
-    printf '  1) Only show people in my city: %s\n  2) Blocked people\n  3) Change %s\n  4) Safety tips\n  5) Sign out\n  6) Delete my account and data\n  0) Back\n\n  Choose: ' "$([[ -n ${M_ONLYCITY:-} ]] && echo ON || echo off)" "$([[ $M_EMAIL == *@$M_DOMAIN ]] && echo 'key' || echo 'password')"
+    m::clear; m::cols; m::head "Settings & safety"
+    printf '%s\n' $'1\t🌆\tOnly show people in my city\t'"$([[ -n ${M_ONLYCITY:-} ]] && echo ON || echo off)" $'2\t🚫\tBlocked people\tUnblock someone' $'3\t🔐\tChange '"$([[ $M_EMAIL == *@$M_DOMAIN ]] && echo key || echo password)"$'\tUpdate your sign-in' $'4\t🔒\tSafety tips\tMeet safely' $'5\t🚪\tSign out\t' $'6\t🧹\tDelete my account and data\tPermanent' $'0\t⬅\tBack\t' | skin::menu "Signed in as $([[ -n $M_USER ]] && echo "@$M_USER" || echo "$M_EMAIL")"
+    skin::prompt "Your choice"
     m::key; printf '\n'
     case $K in
       1) if [[ -n ${M_ONLYCITY:-} ]]; then M_ONLYCITY=""; else M_ONLYCITY=1; fi ;;
@@ -506,7 +503,7 @@ m::blocked() {
   local b; b=$(m::get "blocks/$M_UID") || { m::fail; m::wait; return; }
   local -a ids=(); local u n i=0
   while IFS= read -r u; do [[ -n $u ]] && ids+=("$u"); done < <(m::keys "${b:-{\}}")
-  m::clear; m::cols; printf '%s  ❤  Blocked%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr
+  m::clear; m::cols; m::head "Blocked"
   (( ${#ids[@]} )) || { printf '\n'; m::wrap "You haven't blocked anyone."; m::wait; return; }
   for u in "${ids[@]}"; do n=$(m::get "profiles/$u" | m::j get -d "(unknown)" name 2>/dev/null); i=$((i+1)); printf '  %d) %s\n' "$i" "$n"; (( i >= 9 )) && break; done
   printf '\n  Press a number to unblock, q to go back '; m::key
@@ -538,7 +535,7 @@ m::admin() {
   local r; r=$(m::req GET "mingle/userReports" && printf '%s' "$M_BODY") || { m::say ERR "Only JITETEE admins can open this (role admin or superadmin)."; return 1; }
   [[ -z $r || $r == null ]] && r="{}"
   while :; do
-    m::clear; m::cols; printf '%s  ❤  Mingle admin%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET"; m::hr
+    m::clear; m::cols; m::head "Mingle admin"
     local -a ids=(); local k i=0
     while IFS= read -r k; do ids+=("$k"); done < <(m::j reports open <<<"$r")
     (( ${#ids[@]} )) || { printf '\n  No open reports.\n'; m::wait; return 0; }
@@ -572,10 +569,9 @@ m::home() {
   while :; do
     m::fresh; local un lk; un=$(m::unread); lk=$(m::get "likedBy/$M_UID" | m::j len 2>/dev/null)
     m::clear; m::cols
-    printf '%s  ❤  Mingle%s   %s%s%s\n' "$C_BOLD$C_MAGENTA" "$C_RESET" "$C_DIM" "$(m::me name)" "$C_RESET"; m::hr
-    printf '\n  %s1%s  Discover\n  %s2%s  Matches %s\n  %s3%s  Likes you %s\n  %s4%s  My profile\n  %s5%s  Settings & safety\n  %s0%s  Exit\n\n' \
-      "$C_GREEN" "$C_RESET" "$C_GREEN" "$C_RESET" "$([[ ${un:-0} -gt 0 ]] && printf '%s(%s new)%s' "$C_GREEN" "$un" "$C_RESET")" "$C_GREEN" "$C_RESET" "$([[ ${lk:-0} -gt 0 ]] && printf '%s(%s)%s' "$C_YELLOW" "$lk" "$C_RESET")" "$C_GREEN" "$C_RESET" "$C_GREEN" "$C_RESET" "$C_GREEN" "$C_RESET"
-    printf '  Choose: '; m::key; printf '\n'
+    m::banner "Hi, $(m::me name)"
+    printf '%s\n' $'1\t🔥\tDiscover\tPeople near you, with a match percentage' $'2\t💬\tMatches\tChat with people who like you back'"${un:+  ($un new)}" $'3\t💛\tLikes you\tSee who is interested'"${lk:+  ($lk)}" $'4\t🧑\tMy profile\tHow others see you' $'5\t🔧\tSettings & safety\tCity filter, blocks, sign out' $'0\t❌\tExit\tBack to Nebula' | skin::menu "Main menu"
+    skin::prompt "Your choice"; m::key; printf '\n'
     case $K in
       1) m::discover ;;
       2) m::matches ;;

@@ -199,9 +199,7 @@ auth::_challenge() {
   [[ $mode == unlock ]] && title="🔒 Locked"
 
   if auth::_fp_enabled; then
-    ui::hr
-    printf "  ${C_BLUE}%s${C_RESET}\n" "$title"
-    printf "  👆 Touch the fingerprint sensor (or cancel to use your password)\n"
+    printf '\n'; printf '%s\n' "👆 Touch the fingerprint sensor (or cancel to use your password)" | skin::box "🔐 $title"
     if auth::_fingerprint; then
       export NEBULA_USER
       auth::_log FP-OK "fingerprint"
@@ -214,9 +212,7 @@ auth::_challenge() {
   fi
 
   while (( tries > 0 )); do
-    ui::hr
-    printf "  ${C_BLUE}🔐 %s${C_RESET}\n" "$title"
-    ui::hr
+    printf '\n'; printf '%s\n' "$([[ $mode == login ]] && echo 'Sign in to continue' || echo 'Enter your password to unlock')" | skin::box "🔐 $title"
     if [[ $mode == login ]]; then
       read -r -p "  👤 Username: " u
     else

@@ -294,7 +294,7 @@ Nebula adapts instead of breaking:
   ${C_GREEN}✔${C_RESET} Network row uses system tools for your IP.
   ${C_GREEN}✔${C_RESET} Reminders: no phone notification, but they pop
     up (and speak, with espeak) at your next prompt.
-  ${C_GREEN}✔${C_RESET} Voice: espeak instead of phone TTS.
+  ${C_GREEN}✔${C_RESET} Voice: your own ONNX (Piper) voice, or espeak instead of phone TTS.
   ${C_RED}✖${C_RESET} Fingerprint unlock: hidden. Your password works.
 EOF
         ;;

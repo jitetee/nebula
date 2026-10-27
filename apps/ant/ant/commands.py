@@ -28,11 +28,11 @@ DANGEROUS = [r"\brm\s+(-[a-zA-Z]*\s+)*(/|~|\$HOME|\*)(\s|$)", r"\bmkfs\b", r"\bd
 
 
 def help_():
+    from .ui import framed_block, term_width
+    W = term_width(40, 100)
     print("")
     for sec, rows in HELP:
-        print(rule(sec))
-        for c, d in rows:
-            print("  %s %s" % (C.cyan(c.ljust(24)), d))
+        print(framed_block(sec, [C.cyan(c.ljust(24)) + C.dim(d) for c, d in rows], width=W))
     print("")
 
 

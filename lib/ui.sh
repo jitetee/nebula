@@ -1,5 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 [[ -r "${NEBULA_HOME:-.}/lib/layout.sh" ]] && source "${NEBULA_HOME:-.}/lib/layout.sh"
+[[ -r "${NEBULA_HOME:-.}/lib/skin.sh" ]] && source "${NEBULA_HOME:-.}/lib/skin.sh"
 # nebula — UI helpers (colors, banners, ls wrappers)
 
 # --- colors ---

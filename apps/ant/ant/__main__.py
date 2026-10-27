@@ -42,13 +42,17 @@ Prefer reading before editing. Prefer apply_patch over multiple edit_file calls 
 """ + (store.load_memory() or "")
 
 
-HELP = """ant — terminal coding agent
+HELP_ROWS = [("ant", "start a new session"), ("ant -c, --continue", "resume the most recent session"),
+             ("ant --session <id>", "resume a specific session"), ("ant -h, --help", "show this help")]
 
-Usage:
-  ant                       start a new session
-  ant -c, --continue        resume the most recent session
-  ant --session <id>        resume a specific session
-  ant -h, --help            show this help"""
+
+def help_text():
+    from .ui import framed_block, term_width, C
+    W = term_width(40, 100)
+    return framed_block("ant — terminal coding agent", [C.cyan(a.ljust(24)) + C.dim(b) for a, b in HELP_ROWS], width=W)
+
+
+
 
 
 def parse_args(argv):
@@ -111,7 +115,7 @@ def rl_prompt(s):
 def main(argv):
     args = parse_args(argv)
     if args["help"]:
-        print(HELP)
+        print(help_text())
         return 0
     cfg = load()
     recent = [{"firstMessage": s.get("firstMessage", ""), "relTime": store.rel_time(s.get("updatedAt"))} for s in store.list_sessions(4)]

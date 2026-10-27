@@ -35,20 +35,20 @@ game::snake() {
   }
   [[ ${SNAKE_FOOD:-} =~ ^[0-9]+$ ]] && food=$SNAKE_FOOD
   while (( ! QUIT )); do
-    g::ln "${C_BOLD}Snake${C_RESET}  score $score  best $best   ${C_DIM}arrows/wasd · q quits${C_RESET}"
-    g::ln "┌${HR}┐"
+    g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Snake${C_RESET} ${C_BLUE}─${C_RESET} score $score  best $best   ${C_DIM}arrows/wasd · q quits${C_RESET}"
+    g::ln "${C_BLUE}╭${HR}╮${C_RESET}"
     local r c s line
     for ((r=0;r<H;r++)); do
-      line="│"
+      line="${C_BLUE}│${C_RESET}"
       for ((c=0;c<W;c++)); do
         i=$((r*W+c))
         if (( i == food )); then line+="${BGC[196]}  "$'\033[0m'
         elif [[ -n ${occ[$i]:-} ]]; then if (( i == body[-1] )); then line+="${BGC[46]}  "$'\033[0m'; else line+="${BGC[34]}  "$'\033[0m'; fi
         else line+="  "; fi
       done
-      g::ln "$line│"
+      g::ln "$line${C_BLUE}│${C_RESET}"
     done
-    g::ln "└${HR}┘"
+    g::ln "${C_BLUE}╰${HR}╯${C_RESET}"
     g::paint
     g::tick "$speed"; (( QUIT )) && break
     dir=$ndir; hd=${body[-1]}; x=$((hd%W)); y=$((hd/W))
@@ -117,18 +117,18 @@ game::tetris() {
     delay=$(( 520 - (level-1)*45 )); (( delay < 90 )) && delay=90
     local -A ov=(); local p r c line
     for p in $cur; do ov[$(( (py + ${p#*,}) * W + px + ${p%,*} ))]=$((ct+1)); done
-    g::ln "${C_BOLD}Tetris${C_RESET}  score $score  best $best  lines $lines  lvl $level"
+    g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Tetris${C_RESET} ${C_BLUE}─${C_RESET} score $score  best $best  lines $lines  lvl $level"
     g::ln "${C_DIM}←→ move · ↑ rotate · ↓ drop · space slam · q${C_RESET}   next: ${BGC[${tcol[nxt]}]}  ${C_RESET}"
-    g::ln "┌${HR}┐"
+    g::ln "${C_BLUE}╭${HR}╮${C_RESET}"
     for ((r=0;r<H;r++)); do
-      line="│"
+      line="${C_BLUE}│${C_RESET}"
       for ((c=0;c<W;c++)); do
         i=$((r*W+c)); local v=${ov[$i]:-${bd[i]}}
         if (( v )); then line+="${BGC[${tcol[v-1]}]}  "$'\033[0m'; else line+="${FGC[238]}· "$'\033[0m'; fi
       done
-      g::ln "$line│"
+      g::ln "$line${C_BLUE}│${C_RESET}"
     done
-    g::ln "└${HR}┘"
+    g::ln "${C_BLUE}╰${HR}╯${C_RESET}"
     g::paint
     g::tick "$delay"; (( QUIT )) && break
     if _t_fits "$px" "$((py+1))" "$cur"; then py=$((py+1)); else _t_lock; fi
@@ -175,7 +175,7 @@ game::life() {
   while (( ! QUIT )); do
     local pop=${S//0/}; pop=${#pop}
     local ps=""; (( paused )) && ps="${C_YELLOW}paused${C_RESET}"
-    g::ln "${C_BOLD}Life${C_RESET}  gen $gen  alive $pop  $ps"
+    g::ln "${C_CYAN}◆${C_RESET} ${C_BOLD}${C_CYAN}Life${C_RESET} ${C_BLUE}─${C_RESET} gen $gen  alive $pop  $ps"
     g::ln "${C_DIM}space pause · n step · r random · c clear · g glider · e r-pentomino · p pulsar · +/- speed · q${C_RESET}"
     local line
     for ((y=0;y<H;y++)); do

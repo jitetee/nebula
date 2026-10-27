@@ -10,17 +10,21 @@ help::_hidden() { [[ -s $NEBULA_CFG/hidden.txt ]] && printf ' %s ' "$(<"$NEBULA_
 
 help::_list() {
   local hide=" "; [[ ${1:-} == --all ]] || hide=$(help::_hidden)
-  printf "\n${C_CYAN}${C_BOLD}Nebula commands${C_RESET}\n"; ui::hint "help <command> for details"
-  local a b lab
+  skin::banner NEBULA "Commands  ·  type: help <command> for details"
+  printf '\n'
+  local a b rows="" title=""
   while IFS=$'\t' read -r a b; do
-    if [[ $a == H ]]; then printf '\n%s%s%s\n' "$C_BOLD$C_CYAN" "$b" "$C_RESET"
-    else printf -v lab '%-11s' "$a"; ui::item "${C_GREEN}${lab}${C_RESET}" 11 "$b"; fi
+    if [[ $a == H ]]; then
+      [[ -n $rows ]] && { printf '%s' "$rows" | skin::menu "$title" --nodot; rows=""; }
+      title=$b
+    else rows+=$'\t\t'"$a"$'\t'"$b"$'\n'; fi
   done < <(awk -F'|' -v hide="$hide" '
     /^@/ { name=substr($1,2); cat=$2; sum=$4
            if (index(hide, " " name " ")) next
            if (!(cat in seen)) { seen[cat]=1; order[++n]=cat }
            items[cat]=items[cat] name "\t" sum "\n" }
     END { for (i=1;i<=n;i++) { print "H\t" order[i]; printf "%s", items[order[i]] } }' "$(help::_file)")
+  [[ -n $rows ]] && printf '%s' "$rows" | skin::menu "$title" --nodot
   local h; h=$(help::_hidden)
   [[ -n ${h// } ]] && ui::hint "Some commands are hidden because this device can't run them. See them with: help --all · fix in: settings"
   ui::hint "Anything else is passed to your shell."; printf '\n'

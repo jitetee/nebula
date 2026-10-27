@@ -83,7 +83,7 @@ device::_api_ok() { [[ $(device::get api_ok) == 1 ]] && command -v termux-batter
 device::cap() {  # device::cap <name> → 0 if this device can do it
   case $1 in
     ai)          command -v tgpt >/dev/null 2>&1 ;;
-    tts)         command -v espeak >/dev/null 2>&1 || command -v festival >/dev/null 2>&1 || { device::_api_ok && command -v termux-tts-speak >/dev/null 2>&1; } ;;
+    tts)         voice::onnx_ready 2>/dev/null || command -v espeak >/dev/null 2>&1 || command -v festival >/dev/null 2>&1 || { device::_api_ok && command -v termux-tts-speak >/dev/null 2>&1; } ;;
     sound)       command -v play >/dev/null 2>&1 ;;
     serve)       command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1 ;;
     qr)          command -v qrencode >/dev/null 2>&1 ;;

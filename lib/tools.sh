@@ -222,13 +222,12 @@ cmd::tour() {
 "📦 Packages|deps opens the package picker any time. doctor --fix finds what's missing."
   )
   local i=0 s title body
-  clear
+  clear; skin::banner TOUR "A 30-second look around Nebula"
   for s in "${steps[@]}"; do
     i=$((i+1)); title=${s%%|*}; body=${s#*|}
-    printf "\n${C_CYAN}${C_BOLD}%s${C_RESET}  ${C_DIM}(%d/%d)${C_RESET}\n" "$title" "$i" "${#steps[@]}"
-    printf '  %s\n' "$body" | ui::wrap "$(( $(ui::cols) - 1 ))" 2
+    printf '\n'; printf '%s\n' "$body" | skin::box "$title  ($i/${#steps[@]})"
     [[ -t 0 ]] || continue
-    read -r -p "  ⏎ next · q to stop " a; [[ ${a,,} == q* ]] && break
+    skin::prompt "Enter = next, q = stop"; read -r a; [[ ${a,,} == q* ]] && break
   done
   mkdir -p "$NEBULA_CFG"; touch "$NEBULA_CFG/.toured"
   printf "\n  ${C_GREEN}That's it!${C_RESET} Type ${C_BOLD}help${C_RESET} any time. Replay with ${C_BOLD}tour${C_RESET}.\n\n" | ui::wrap "$(( $(ui::cols) - 1 ))" 2
@@ -240,15 +239,14 @@ cmd::keys() {
     command -v termux-reload-settings >/dev/null 2>&1 || { ui::say_status ERR "termux-reload-settings not found (are you in Termux?)"; return 1; }
     termux-reload-settings && ui::say_status OK "Termux settings reloaded."; return
   fi
-  printf '%s%s⌨  Extra keys%s  %s(swipe a button up for the key in brackets)%s\n' "$C_CYAN" "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
   {
     printf '  %s\n' "VOL+ (BRT+) · VOL- (BRT-) · MUTE (TORCH) – volume, brightness, flashlight; press MUTE again to restore. Need Termux:API."
-    printf '  %s\n' "CTRL (^C) · lock (^D) – interrupt, end of input; lock locks Nebula now"
+    printf '  %s\n' "CTRL (^C) – interrupt (CTRL then d = end of input) · ENTER (lock) – Enter key; swipe up to lock Nebula now"
     printf '  %s\n' "TAB (hist) – Ctrl-R history search · ALT (dir) – Alt-C pick a folder and cd · / (file) – Ctrl-T pick a file"
     printf '  %s\n' "UP (clr) – clear screen · ESC (keyboard) – show/hide the on-screen keyboard"
     printf '  %s\n' "PGUP (HOME) · PGDN (END) – paging, line start/end"
     printf '  %s\n' "Symbols: * (&) · - (_) · | (') · { ([) · $ (() · BKSP (\") · ~ (\`) · } (]) · ) (;)"
-  } | ui::wrap "$(( $(ui::cols) - 1 ))" 4
+  } | sed 's/^  //' | skin::box "⌨  Extra keys (swipe a button up for the key in brackets)"
   ui::hint "Edit assets/termux.properties, then: keys reload"
 }
 
