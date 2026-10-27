@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.12
+- lite voice engine
+
 ## 0.9.11
 - voice engine update and ui improvements
 

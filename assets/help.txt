@@ -279,8 +279,8 @@
   profile show|new|rm|export|import
   Built-in: default work chill minimal saver
   Applies voice, sounds, auto-lock, startup mode, prompt theme and home screen.
-@voice|Look|on/off/scan/model/test|Toggle Nebula AI voice; use your own ONNX (Piper) voice
-  Your own voice:  voice scan  (finds .onnx voices on the whole device, copies the one you pick into Nebula)  ·  voice model /path/voice.onnx  (needs Piper and an audio player), then voice test.  voice model clear  goes back.
+@voice|Look|on/off/scan/setup/model/test|Toggle Nebula AI voice; use your own ONNX (Piper) voice
+  Your own voice:  voice setup (installs what it needs, no compiling)  ·  voice scan  (finds .onnx voices on the whole device, copies the one you pick into Nebula)  ·  voice model /path/voice.onnx  (needs Piper and an audio player), then voice test.  voice model clear  goes back.
   Works from any shell:  nebula voice off   ·   or start muted: nebula --no-voice
 @sounds|Look|on/off|Toggle UI sounds
   Needs sox for sound effects. Also in: settings → Features.

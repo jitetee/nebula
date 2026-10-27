@@ -11,16 +11,44 @@ fi
 # ── ONNX voice (Piper) ───────────────────────────────────────────────────
 # Put a Piper voice (NAME.onnx plus NAME.onnx.json next to it) anywhere and run:  voice model /path/NAME.onnx
 # The path is saved in $NEBULA_CFG/voice.model  (NEBULA_VOICE_MODEL overrides it).
-# Needs the `piper` program (or the python package piper-tts) and any audio player.
+# Needs python-numpy + python-onnxruntime + espeak (voice setup installs them) and any audio player.
 voice::model() {
   local m=${NEBULA_VOICE_MODEL:-}
   [[ -z $m && -s $NEBULA_CFG/voice.model ]] && m=$(<"$NEBULA_CFG/voice.model")
   [[ -n $m && -r $m ]] && printf '%s' "$m"
 }
 
-voice::_piper_cmd() {   # → the command that runs Piper, or nothing
+# Engines, best first: the real `piper` program, the piper-tts python package, or Nebula's own
+# lib/piper_lite.py (needs only: pkg install python-numpy python-onnxruntime espeak — no compiling).
+voice::_lite_ok() {
+  command -v python3 >/dev/null 2>&1 && python3 -c 'import numpy, onnxruntime' >/dev/null 2>&1 \
+    && { command -v espeak-ng >/dev/null 2>&1 || command -v espeak >/dev/null 2>&1; }
+}
+voice::_piper_cmd() {   # → the command that runs a Piper voice, or nothing
   if command -v piper >/dev/null 2>&1; then printf 'piper'
-  elif command -v python3 >/dev/null 2>&1 && python3 -c 'import piper' >/dev/null 2>&1; then printf 'python3 -m piper'; fi
+  elif command -v python3 >/dev/null 2>&1 && python3 -c 'import piper' >/dev/null 2>&1; then printf 'python3 -m piper'
+  elif voice::_lite_ok; then printf 'python3 %s/lib/piper_lite.py' "$NEBULA_HOME"; fi
+}
+
+# voice::why → what is still missing for the ONNX voice (one per line; empty = ready)
+voice::why() {
+  [[ -z $(voice::model) ]] && echo "no voice selected (run: voice scan)"
+  if [[ -z $(voice::_piper_cmd) ]]; then
+    command -v python3 >/dev/null 2>&1 && python3 -c 'import numpy' >/dev/null 2>&1 || echo "python-numpy missing"
+    command -v python3 >/dev/null 2>&1 && python3 -c 'import onnxruntime' >/dev/null 2>&1 || echo "python-onnxruntime missing"
+    command -v espeak-ng >/dev/null 2>&1 || command -v espeak >/dev/null 2>&1 || echo "espeak missing"
+  fi
+  [[ -z $(voice::_player) ]] && echo "no audio player (sox, mpv or paplay)"
+  return 0
+}
+
+# voice::setup → install what the ONNX voice needs (Termux packages; no compiling)
+voice::setup() {
+  if command -v pkg >/dev/null 2>&1; then
+    pkg install -y python-numpy python-onnxruntime espeak sox
+  else
+    echo "Install: python3 numpy onnxruntime espeak-ng and an audio player (sox/mpv)"; return 1
+  fi
 }
 
 voice::_player() {      # first audio player found

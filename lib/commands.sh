@@ -438,15 +438,18 @@ cmd::voice_toggle() {
       printf '0\n' > "$cfg"
       ui::say_status OK "Voice muted (saved)"
       ;;
-    scan|find|detect)
+    scan|find|detect|search)
       cmd::voice_scan ;;
+    setup|install)
+      skin::box "🗣 ONNX voice setup" <<< "Installs: python-numpy, python-onnxruntime, espeak, sox (no compiling needed)"
+      voice::setup && ui::say_status OK "Ready. Next: voice scan, then voice test" || ui::say_status ERR "Setup did not finish. Check your connection and run: voice setup" ;;
     model)
       shift
       case "${1:-}" in
         ""|show) local m; m=$(voice::model)
                  if [[ -n $m ]]; then ui::say_status OK "ONNX voice: $m"; else ui::say_status INFO "No ONNX voice set. Use: voice model /path/to/voice.onnx"; fi
-                 [[ -z $(voice::_piper_cmd) ]] && ui::say_status WARN "Piper not found. Install it (pip install piper-tts) or put the piper program in PATH."
-                 [[ -z $(voice::_player) ]] && ui::say_status WARN "No audio player found (pkg install sox  or  mpv)." ;;
+                 local w; while IFS= read -r w; do [[ -n $w ]] && ui::say_status WARN "$w"; done < <(voice::why)
+                 [[ -n $(voice::why) ]] && ui::hint "Fix the missing parts with: voice setup" ;;
         clear|off) rm -f "$NEBULA_CFG/voice.model"; ui::say_status OK "ONNX voice cleared; using the built-in voice." ;;
         *) local f=${1/#\~/$HOME}
            [[ -r $f && $f == *.onnx ]] || { ui::say_status ERR "Need a readable .onnx file: $1"; return 1; }
@@ -459,10 +462,15 @@ cmd::voice_toggle() {
       NEBULA_VOICE=1; export NEBULA_VOICE
       if voice::onnx_ready; then
         skin::spin "Speaking with your ONNX voice" voice::_onnx_say "Hello, this is your Nebula voice." || ui::say_status ERR "The ONNX voice failed. Check: voice model"
-      else voice::say "Hello, this is your Nebula voice."; ui::say_status INFO "Using the built-in voice (no usable ONNX voice yet: voice model)"; fi
+      else
+        local w; while IFS= read -r w; do [[ -n $w ]] && ui::say_status WARN "ONNX voice not ready: $w"; done < <(voice::why)
+        ui::hint "Run: voice setup   (installs python-numpy, python-onnxruntime, espeak, sox)"
+        voice::say "Hello, this is your Nebula voice."; ui::say_status INFO "Using the built-in voice for now."
+      fi
       ;;
     *)
       ui::say_status INFO "Voice is currently: $([[ ${NEBULA_VOICE:-1} -eq 1 ]] && echo on || echo off)$(voice::onnx_ready && echo ' · ONNX voice')"
+      [[ -n $(voice::model) ]] && { local w; while IFS= read -r w; do [[ -n $w ]] && ui::say_status WARN "ONNX voice: $w"; done < <(voice::why); }
       if [[ -z $(voice::model) && -t 0 && -t 1 ]] && ui::confirm "No ONNX voice yet. Look for voice files on this device?" Y; then cmd::voice_scan; fi
       ;;
   esac
