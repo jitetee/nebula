@@ -418,7 +418,7 @@ cmd::voice_scan() {
   fi
   if voice::install "$pick"; then
     ui::say_status OK "Copied $(basename "$pick") (and its .json) to $(voice::dir) and selected it."
-    ui::say_status INFO "Try it: voice test"
+    ui::say_status INFO "Try it: voice test"; voice::warm
   else ui::say_status ERR "Could not copy the voice into $(voice::dir)"; return 1; fi
 }
 
@@ -455,7 +455,7 @@ cmd::voice_toggle() {
            [[ -r $f && $f == *.onnx ]] || { ui::say_status ERR "Need a readable .onnx file: $1"; return 1; }
            [[ -r $f.json || -r ${f%.onnx}.json ]] || ui::say_status WARN "No $(basename "$f").json next to the model; Piper needs it."
            mkdir -p "$NEBULA_CFG"; printf '%s\n' "$(cd "$(dirname "$f")" && pwd)/$(basename "$f")" > "$NEBULA_CFG/voice.model"
-           ui::say_status OK "ONNX voice saved. Try: voice test" ;;
+           ui::say_status OK "ONNX voice saved. Try: voice test"; voice::warm ;;
       esac
       ;;
     test)

@@ -89,9 +89,45 @@ voice::_play() {
   esac
 }
 
+# ── fast path for the built-in engine: keep the model loaded in a background server ──────────────
+# Without it every phrase pays for starting Python, importing numpy + onnxruntime and loading the model
+# (several seconds on a phone). The server loads once, answers in a moment, speaks long text sentence by
+# sentence while the next one is being made, and stops by itself after 15 idle minutes.
+voice::_sock() { printf '%s' "${TMPDIR:-/tmp}/nebula-voice-$(id -u).sock"; }
+voice::_is_lite() { [[ $(voice::_piper_cmd) == *piper_lite.py ]]; }
+voice::_server_start() {
+  local sock; sock=$(voice::_sock)
+  [[ -S $sock ]] && return 0
+  rm -f "$sock"
+  ( setsid python3 "$NEBULA_HOME/lib/piper_lite.py" --serve "$sock" --idle "${NEBULA_VOICE_IDLE:-900}" >/dev/null 2>&1 & echo $! > "$sock.pid" )
+  local i; for i in $(seq 1 100); do [[ -S $sock ]] && return 0; sleep 0.05; done
+  return 1
+}
+voice::stop() { local sock; sock=$(voice::_sock); [[ -f $sock.pid ]] && kill "$(cat "$sock.pid")" 2>/dev/null; rm -f "$sock" "$sock.pid"; }
+voice::warm() {   # start loading the model in the background (call when you know speech is coming)
+  [[ ${NEBULA_VOICE:-1} -eq 0 ]] && return 0
+  voice::onnx_ready && voice::_is_lite && { voice::_server_start; ( python3 "$NEBULA_HOME/lib/piper_lite.py" --say "$(voice::_sock)" --model "$(voice::model)" --cache "${NEBULA_CFG:-/tmp}/voice-cache" <<< "." >/dev/null 2>&1 & ); }
+  return 0
+}
+voice::_lite_say() {   # voice::_lite_say <text>  → plays each sentence as soon as it is ready
+  local msg=$1 model sock dir wav tries=0 got
+  model=$(voice::model); sock=$(voice::_sock); dir=${NEBULA_CFG:-/tmp}/voice-cache; mkdir -p "$dir" 2>/dev/null
+  while (( tries < 2 )); do
+    voice::_server_start || return 1
+    got=0
+    while IFS= read -r wav; do
+      [[ -s $wav ]] && { voice::_play "$wav" >/dev/null 2>&1; got=1; }
+    done < <(printf '%s' "$msg" | python3 "$NEBULA_HOME/lib/piper_lite.py" --say "$sock" --model "$model" --cache "$dir" 2>/dev/null; echo)
+    (( got )) && { ls -1t "$dir"/*.wav 2>/dev/null | tail -n +81 | xargs rm -f 2>/dev/null; return 0; }
+    voice::stop; tries=$((tries+1))      # stale server: restart once
+  done
+  return 1
+}
+
 # voice::_onnx_say <text> : make (or reuse) the wav for this text, then play it. Runs in the foreground.
 voice::_onnx_say() {
   local msg=$1 model piper dir wav key
+  voice::_is_lite && { voice::_lite_say "$msg"; return; }
   model=$(voice::model); piper=$(voice::_piper_cmd)
   dir=${NEBULA_CFG:-/tmp}/voice-cache; mkdir -p "$dir" 2>/dev/null
   key=$(printf '%s|%s' "$model" "$msg" | cksum | awk '{print $1}'); wav=$dir/$key.wav
@@ -139,6 +175,7 @@ voice::_legacy_say() {
 }
 
 voice::greet() {
+  voice::warm
   local hour=$(date +%H)
   local user=${NEBULA_USER:-sir}
   local greeting="Good evening"

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.13
+- voice engine speed
+
 ## 0.9.12
 - lite voice engine
 
