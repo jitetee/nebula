@@ -5,7 +5,7 @@ function M.render()
   local cur = vim.api.nvim_get_current_buf()
   local items, idx = {}, 1
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b) then
+    if vim.bo[b].buflisted then
       local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(b), ":t")
       if name == "" then name = "[new]" end
       if vim.bo[b].modified then name = name .. " ●" end
@@ -13,6 +13,7 @@ function M.render()
       if b == cur then idx = #items end
     end
   end
+  if #items == 0 then return "%#TabLineFill#" end
   -- window of buffers around the current one so the line never overflows
   local budget, first, last = vim.o.columns - 2, idx, idx
   local used = #(items[idx] and items[idx].text or "")
@@ -31,6 +32,6 @@ function M.render()
 end
 
 _G.NebulaTabClick = function(minwid) if minwid and minwid > 0 then vim.cmd("buffer " .. minwid) end end
-_G.NebulaTabline = M.render
+_G.NebulaTabline = function() local ok, r = pcall(M.render); return ok and r or "" end
 vim.o.tabline = "%!v:lua.NebulaTabline()"
 return M

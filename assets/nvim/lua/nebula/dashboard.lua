@@ -8,17 +8,18 @@ local logo = {
   "╚═╝  ╚═══╝╚══════╝╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝",
 }
 local small = { "N E B U L A" }
+local I = require("nebula.icons")
 local function find_files()
   local ok, b = pcall(require, "telescope.builtin")
   if ok then b.find_files() else vim.cmd("edit .") end
 end
 local items = {
-  { "f", "Find file", find_files },
-  { "r", "Recent files", "<cmd>browse oldfiles<cr>" },
-  { "n", "New file", "<cmd>enew<cr>" },
-  { "p", "Plugins", "<cmd>Lazy<cr>" },
-  { "c", "Copilot doctor", "<cmd>NebulaCopilot<cr>" },
-  { "q", "Quit", "<cmd>qa<cr>" },
+  { "f", "Find file", find_files, I.search },
+  { "r", "Recent files", "<cmd>browse oldfiles<cr>", I.recent },
+  { "n", "New file", "<cmd>enew<cr>", I.new },
+  { "p", "Plugins", "<cmd>Lazy<cr>", I.plug },
+  { "c", "Copilot doctor", "<cmd>NebulaCopilot<cr>", I.copilot },
+  { "q", "Quit", "<cmd>qa<cr>", I.quit },
 }
 
 local function show()
@@ -32,7 +33,7 @@ local function show()
   add("", nil)
   add("Neovim, the Nebula way  ·  v" .. (vim.fn.readfile((vim.env.NEBULA_HOME or "") .. "/VERSION", "", 1)[1] or ""), "NebulaDashTag")
   add("", nil)
-  for _, it in ipairs(items) do add(string.format("%s  %s", it[1], it[2]), "NebulaDashText") end
+  for _, it in ipairs(items) do add(string.format("%s  %s  %s", it[4], it[1], it[2]), "NebulaDashText") end
 
   local w = 0
   for _, l in ipairs(lines) do w = math.max(w, vim.fn.strdisplaywidth(l)) end

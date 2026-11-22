@@ -78,6 +78,8 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 **Neovim, Nebula style:** `nv setup` once, then `nv file.md`. Green theme, statusline, tabs, fuzzy finder, completion, LSP and GitHub Copilot, all under its own name so your own `~/.config/nvim` is safe. `nv doctor` finds out why Copilot is not working; `Space ?` lists the keys; your tweaks live in `$NEBULA_CFG/nvim/user.lua`.
 
+![Nebula nvim](docs/screenshots/cli-nv-code.png)
+
 **Make it yours:** `theme studio` (prompt designer with live preview; presets `nebula compact minimal forest sky hacker classic zen`), `home edit` / `home preset <name>` (startup screen), `profile use work` (switch voice, lock timer, prompt and home at once), `layout auto|phone|wide`.
 
 **Device-aware:** `settings` scans your phone, explains what's wrong with one-key fixes, and hides commands your device can't run. Compact startup turns on automatically on low-RAM / 32-bit phones.

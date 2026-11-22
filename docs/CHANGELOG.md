@@ -3,6 +3,7 @@
 ## 0.9.14
 - **New: `nv`, Neovim in the Nebula look.** `nv setup` links Nebula's own Neovim config (`assets/nvim`, plain Lua, readable in one sitting) under its own name, so your `~/.config/nvim` is never touched, and fetches a small plugin set with lazy.nvim. You get the phosphor-green theme, a one-line global statusline, buffer tabs that fit small screens, a start screen, Telescope, gitsigns, completion, LSP for servers you already have installed (no Mason, which does not work on Termux), syntax colours when `clang` is present, and `Space ?` for a key cheat sheet. Your tweaks go in `$NEBULA_CFG/nvim/user.lua` and survive updates. Every piece is gated, so Neovim still starts without git, node or a compiler.
 - **GitHub Copilot that works on Termux.** Copilot uses the language server bundled inside copilot.vim instead of fetching it through `npx` on every start (the usual reason it silently does nothing), has Tab-to-accept that plays well with the completion menu, and `nv doctor` (or `:NebulaCopilot` inside nvim) checks Neovim, Node.js, the plugin, sign-in, network and that the server actually starts.
+- Icons: Nerd Font glyphs by default, `NEBULA_ICONS=plain` (or `vim.g.nebula_icons = "plain"`) for any font; `:NebulaIcons` and `nv doctor` show a glyph test so you can see at once whether your font draws them.
 - `nodejs` added to the optional package list.
 
 ## 0.9.13

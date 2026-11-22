@@ -1,5 +1,6 @@
 -- One global statusline: mode · git branch · file · diagnostics · copilot · filetype · position.
 local M = {}
+local I = require("nebula.icons")
 
 local modes = {
   n = { "NORMAL", "NebulaMode" }, i = { "INSERT", "NebulaModeIns" }, v = { "VISUAL", "NebulaModeVis" },
@@ -11,22 +12,22 @@ local function diag()
   local e = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
   local w = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
   local out = ""
-  if e > 0 then out = out .. "%#NebulaSLErr# " .. e end
-  if w > 0 then out = out .. "%#NebulaSLWarn# " .. w end
+  if e > 0 then out = out .. "%#NebulaSLErr# " .. I.error .. " " .. e end
+  if w > 0 then out = out .. "%#NebulaSLWarn# " .. I.warn .. " " .. w end
   return out
 end
 
 local function git()
   local b = vim.b.gitsigns_head
-  if b and b ~= "" then return "%#NebulaSLGit#  " .. b .. " " end
+  if b and b ~= "" then return "%#NebulaSLGit# " .. I.branch .. " " .. b .. " " end
   return ""
 end
 
 local function copilot()
   if vim.g.loaded_copilot ~= 1 and vim.fn.exists("*copilot#Enabled") == 0 then return "" end
   local ok, on = pcall(vim.fn["copilot#Enabled"])
-  if ok and on == 1 then return "%#NebulaSLOk#  " end
-  return "%#NebulaSLDim#  "
+  if ok and on == 1 then return "%#NebulaSLOk# " .. I.copilot .. " " end
+  return "%#NebulaSLDim# " .. I.copilot .. " "
 end
 
 function M.render()
@@ -46,6 +47,6 @@ function M.render()
   return table.concat(parts)
 end
 
-_G.NebulaStatusline = M.render
+_G.NebulaStatusline = function() local ok, r = pcall(M.render); return ok and r or " nebula " end
 vim.o.statusline = "%!v:lua.NebulaStatusline()"
 return M

@@ -30,7 +30,7 @@ local function add(name, s) if not off(name) then table.insert(spec, s) end end
 -- fuzzy finder (rg/fd make it faster but are not required)
 add("telescope", {
   "nvim-telescope/telescope.nvim", cmd = "Telescope", dependencies = { "nvim-lua/plenary.nvim" },
-  opts = { defaults = { prompt_prefix = "❯ ", selection_caret = "➤ ", border = true,
+  opts = { defaults = { prompt_prefix = "❯ ", selection_caret = "❯ ", border = true,
     layout_strategy = vim.o.columns < 100 and "vertical" or "horizontal" } },
 })
 -- git marks in the gutter + branch name for the statusline
@@ -40,13 +40,14 @@ add("gitsigns", {
     topdelete = { text = "▔" }, changedelete = { text = "▎" } } },
 })
 -- syntax highlighting needs a C compiler (Termux: pkg install clang)
+M.ts_langs = { "lua", "vimdoc", "bash", "python", "javascript", "json", "markdown", "html", "css" }
 if has("cc") or has("gcc") or has("clang") then
   add("treesitter", {
-    "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", event = { "BufReadPost", "BufNewFile" },
+    "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate",   -- master builds parsers with just a C compiler (no tree-sitter CLI) event = { "BufReadPost", "BufNewFile" },
     config = function()
       local ok, ts = pcall(require, "nvim-treesitter.configs")
-      if ok then ts.setup({ ensure_installed = { "lua", "vim", "vimdoc", "bash", "python", "javascript", "json", "markdown", "html", "css" },
-        highlight = { enable = true }, indent = { enable = true } }) end
+      -- parsers are fetched by `nv plugins` (quietly); nothing is downloaded while you are typing
+      if ok then ts.setup({ highlight = { enable = true }, indent = { enable = true } }) end
     end,
   })
 end
@@ -120,4 +121,12 @@ if ok then
     performance = { rtp = { disabled_plugins = { "gzip", "tarPlugin", "tohtml", "tutor", "zipPlugin" } } },
   })
 end
+-- called headless by `nv plugins`: build the syntax parsers once
+function M.install_parsers()
+  local okl, lz = pcall(require, "lazy")
+  if not okl then return end
+  pcall(lz.load, { plugins = { "nvim-treesitter" } })
+  if vim.fn.exists(":TSInstallSync") == 2 then pcall(vim.cmd, "TSInstallSync " .. table.concat(M.ts_langs, " ")) end
+end
+
 return M

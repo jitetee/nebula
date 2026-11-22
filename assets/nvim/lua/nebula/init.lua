@@ -14,6 +14,7 @@ function M.setup()
   vim.g.maplocalleader = ","
   safe("nebula.options")
   safe("nebula.theme")
+  safe("nebula.icons")
   safe("nebula.keymaps")
   safe("nebula.statusline")
   safe("nebula.tabline")

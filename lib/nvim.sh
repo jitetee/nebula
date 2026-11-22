@@ -73,6 +73,10 @@ nv::plugins() {
   ui::say_status INFO "Fetching plugins (first run takes a minute)…"
   nv::_run --headless "+Lazy! sync" +qa >"$NEBULA_CFG/nvim-plugins.log" 2>&1
   local rc=$?
+  if (( rc == 0 )) && { command -v cc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1 || command -v gcc >/dev/null 2>&1; }; then
+    ui::say_status INFO "Building syntax colours (one time)…"
+    nv::_run --headless "+lua local ok,p=pcall(require,'nebula.plugins'); if ok and p.install_parsers then p.install_parsers() end" +qa >>"$NEBULA_CFG/nvim-plugins.log" 2>&1
+  fi
   if (( rc == 0 )); then ui::say_status OK "Plugins are up to date."
   else ui::say_status WARN "Plugin sync had problems. Log: $NEBULA_CFG/nvim-plugins.log"; fi
   return $rc
@@ -100,6 +104,8 @@ nv::doctor() {
   if [[ -e $stray ]]; then
     ui::say_status WARN "Found $stray. A plain Neovim loads it, Nebula's setup does not (it uses its own name). Nothing to do unless you use plain nvim too."
   fi
+
+  ui::say_status INFO "Icon test: $(printf '\ue0a0 \uf057 \uf071 \uf4b8 \uf15b')   (boxes or ? mean your font lacks icons: NEBULA_ICONS=plain nv)"
 
   local auth="$HOME/.config/github-copilot"
   if [[ -s $auth/apps.json || -s $auth/hosts.json ]]; then ui::say_status OK "Signed in to GitHub Copilot"
