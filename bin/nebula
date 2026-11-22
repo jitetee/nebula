@@ -40,6 +40,7 @@ source "$NEBULA_HOME/lib/home.sh"
 source "$NEBULA_HOME/lib/security.sh"
 source "$NEBULA_HOME/lib/device.sh"
 source "$NEBULA_HOME/lib/dev.sh"
+source "$NEBULA_HOME/lib/nvim.sh"
 source "$NEBULA_HOME/lib/games.sh"
 source "$NEBULA_HOME/lib/arcade.sh"
 source "$NEBULA_HOME/lib/cloud.sh"
@@ -263,6 +264,7 @@ USAGE:
   nebula ant | jtlearn         AI coding agent | study notes and quizzes
   nebula report [message]      Send a bug report or idea to the developer
   nebula dev | deploy          Run bots/sites in the background | publish to Firebase
+  nebula nv [setup|doctor]     Neovim in the Nebula look (+ Copilot doctor)
   nebula doctor                Audit optional deps + nebula health
   nebula motd                  Print the motd banner
   nebula banner <text>         Build custom banner (letters/digits only)
@@ -331,6 +333,7 @@ main() {
     update)    shift; cmd::update "$@"; exit $? ;;
     deps)      bash "$NEBULA_HOME/install/install.sh" --deps-only; exit $? ;;
     theme)     shift; cmd::theme "$@"; exit $? ;;
+    nvim)      shift; cmd::nv "$@"; exit $? ;;
     "")        : ;;
     *)
       if declare -F "cmd::${1}" >/dev/null 2>&1; then

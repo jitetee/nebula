@@ -6,7 +6,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.13-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.14-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -75,6 +75,8 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 **`play`:** finds songs anywhere on the phone, tolerates typos (`play sumer vibs`, `--shuffle`, `--bg`, `--reindex`, `stop`). Needs `mpg123`, `sox` or `mpv`.
 
 **Helpful typing:** ghost suggestions (accept with →) and a Tab picker that understands commands, folders, tool names, songs and files. No `fzf` needed.
+
+**Neovim, Nebula style:** `nv setup` once, then `nv file.md`. Green theme, statusline, tabs, fuzzy finder, completion, LSP and GitHub Copilot, all under its own name so your own `~/.config/nvim` is safe. `nv doctor` finds out why Copilot is not working; `Space ?` lists the keys; your tweaks live in `$NEBULA_CFG/nvim/user.lua`.
 
 **Make it yours:** `theme studio` (prompt designer with live preview; presets `nebula compact minimal forest sky hacker classic zen`), `home edit` / `home preset <name>` (startup screen), `profile use work` (switch voice, lock timer, prompt and home at once), `layout auto|phone|wide`.
 

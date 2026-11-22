@@ -26,7 +26,8 @@ unzip|e|Archive extraction
 nano|e|Simple text editor
 python|e|Python runtime
 tmux|e|Terminal multiplexer
-neovim|e|Modern vim editor
+neovim|e|Modern vim editor (`nv` gives it the Nebula look)
+nodejs|e|Runs GitHub Copilot inside Neovim
 openssh|e|SSH client/server
 whois|e|Domain lookup
 dnsutils|e|dig / nslookup

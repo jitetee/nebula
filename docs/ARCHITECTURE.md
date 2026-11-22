@@ -16,6 +16,8 @@ nebula/
 │   ├── termux.properties     # 3-row extra-keys layout
 │   ├── memes.txt             # bundled meme URLs (offline fallback)
 │   └── fonts/FIRACODE_NERD.md # pointer to the Nerd Font upstream
+├── assets/nvim/              # `nv`: Neovim config (init.lua + lua/nebula/*: theme, statusline, tabline,
+│                             #   dashboard, keymaps, plugins, copilot); linked as ~/.config/nebula
 ├── motd/
 │   ├── init.sh               # runs motd.d/NN-* in order
 │   └── motd.d/

@@ -123,6 +123,14 @@
   Example: dev start site --port 8080
   Example: dev errors mybot
   Example: dev logs mybot -f
+@nv|Tools|[setup/doctor/plugins/reset] [file]|Neovim in the Nebula look, with a Copilot doctor
+  Green theme, statusline, tabs, start screen, fuzzy finder, completion, LSP and GitHub Copilot.
+  It lives under its own name, so your ~/.config/nvim is never touched.
+  doctor finds out why Copilot is not working (node, sign-in, server, network).
+  Inside nvim: Space ? lists the keys. Your tweaks: $NEBULA_CFG/nvim/user.lua
+  Example: nv setup
+  Example: nv doctor
+  Example: nv notes.md
 @deploy|Tools|[--only hosting]|Publish a Firebase site (asks first)
   Runs firebase deploy in the current folder after you confirm.
   Needs firebase.json and the Firebase CLI (nebula install firebase-tools).
