@@ -21,6 +21,7 @@ function M.setup()
   safe("nebula.dashboard")
   safe("nebula.plugins")      -- lazy.nvim + the tiered plugin list (degrades without git)
   safe("nebula.copilot")      -- Copilot settings + :NebulaCopilot doctor
+  safe("nebula.ai")           -- Ant-powered AI coding (ask / edit / fix / agent)
   -- user overrides last, so they win
   local cfg = vim.env.NEBULA_CFG
   if cfg and cfg ~= "" then

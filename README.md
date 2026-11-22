@@ -6,7 +6,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.14-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.15-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -76,7 +76,7 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 **Helpful typing:** ghost suggestions (accept with →) and a Tab picker that understands commands, folders, tool names, songs and files. No `fzf` needed.
 
-**Neovim, Nebula style:** `nv setup` once, then `nv file.md`. Green theme, statusline, tabs, fuzzy finder, completion, LSP and GitHub Copilot, all under its own name so your own `~/.config/nvim` is safe. `nv doctor` finds out why Copilot is not working; `Space ?` lists the keys; your tweaks live in `$NEBULA_CFG/nvim/user.lua`.
+**Neovim, Nebula style:** run `nv setup` once, then just type `nvim`. Green theme, statusline, tabs, fuzzy finder, completion, LSP, GitHub Copilot and **AI coding powered by Ant** (`Space a a` ask, `Space a e` edit with a diff preview, `Space a g` agent). Your old config is backed up and `nv uninstall` restores it. `nv doctor` and `:NebulaCopilot` find out why Copilot is not working; `Space ?` lists the keys; your tweaks live in `$NEBULA_CFG/nvim/user.lua`.
 
 ![Nebula nvim](docs/screenshots/cli-nv-code.png)
 

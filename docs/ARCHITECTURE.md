@@ -17,7 +17,7 @@ nebula/
 │   ├── memes.txt             # bundled meme URLs (offline fallback)
 │   └── fonts/FIRACODE_NERD.md # pointer to the Nerd Font upstream
 ├── assets/nvim/              # `nv`: Neovim config (init.lua + lua/nebula/*: theme, statusline, tabline,
-│                             #   dashboard, keymaps, plugins, copilot); linked as ~/.config/nebula
+│                             #   dashboard, keymaps, plugins, copilot); linked as ~/.config/nvim by `nv setup`; ai.lua talks to `ant --rpc` (apps/ant/ant/rpc.py)
 ├── motd/
 │   ├── init.sh               # runs motd.d/NN-* in order
 │   └── motd.d/

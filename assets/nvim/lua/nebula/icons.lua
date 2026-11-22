@@ -9,11 +9,13 @@ M.sets = {
     branch = u(0xE0A0), error = u(0xF057), warn = u(0xF071), info = u(0xF05A), hint = u(0xF0EB),
     copilot = u(0xF4B8), file = u(0xF15B), folder = u(0xF07B), search = u(0xF002), recent = u(0xF1DA),
     new = u(0xF15B), plug = u(0xF1E6), quit = u(0xF011), lock = u(0xF023), git_add = u(0xF055), sep = u(0xE0B1),
+    ok = u(0xF00C), bad = u(0xF00D), note = u(0xF05A),
     logo = u(0xF135), bolt = u(0xF0E7), sparkle = u(0xF4B8), prompt = u(0xF054), face = u(0xF118), planet = u(0xF0AC),
   },
   plain = {   -- only characters nearly every monospace font has
     branch = "@", error = "x", warn = "!", info = "i", hint = "-", copilot = "*", file = "-", folder = ">",
     search = "/", recent = "~", new = "+", plug = "#", quit = "x", lock = "=", git_add = "+", sep = "|",
+    ok = "+", bad = "x", note = "i",
     logo = "◉", bolt = "!", sparkle = "*", prompt = "❯", face = "☺", planet = "o",
   },
 }

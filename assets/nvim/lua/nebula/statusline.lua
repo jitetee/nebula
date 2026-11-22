@@ -23,6 +23,11 @@ local function git()
   return ""
 end
 
+local function ai()
+  if vim.g.nebula_ai_busy then return "%#NebulaSLWarn# " .. I.bolt .. " ant… " end
+  return ""
+end
+
 local function copilot()
   if vim.g.loaded_copilot ~= 1 and vim.fn.exists("*copilot#Enabled") == 0 then return "" end
   local ok, on = pcall(vim.fn["copilot#Enabled"])
@@ -39,6 +44,7 @@ function M.render()
     "%#NebulaSL# %t%m%r ",
     diag(),
     "%=",
+    ai(),
     copilot(),
     narrow and "" or ("%#NebulaSLDim# " .. (vim.bo.filetype ~= "" and vim.bo.filetype or "no ft") .. " "),
     "%#NebulaSL# %l:%c ",

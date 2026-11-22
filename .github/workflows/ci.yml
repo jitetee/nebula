@@ -16,6 +16,18 @@ jobs:
         run: |
           pip install -q fonttools
           python3 -c "from fontTools.ttLib import TTFont; f=TTFont('assets/fonts/nebula.ttf'); c=f.getBestCmap(); assert all(0xE400+i in c for i in range(6)), 'missing icons'; print(f['name'].getDebugName(1))"
+      - name: nvim UI uses only glyphs the font has
+        run: |
+          python3 - <<'PY'
+          import glob
+          from fontTools.ttLib import TTFont
+          cm = TTFont('assets/fonts/nebula.ttf').getBestCmap()
+          bad = []
+          for f in glob.glob('assets/nvim/**/*.lua', recursive=True):
+              for c in set(open(f, encoding='utf-8').read()):
+                  if ord(c) > 127 and ord(c) not in cm: bad.append((f, c, hex(ord(c))))
+          assert not bad, bad
+          PY
       - name: python compile
         run: python3 -m compileall -q lib apps
       - name: rules are valid JSON

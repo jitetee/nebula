@@ -43,7 +43,8 @@ Prefer reading before editing. Prefer apply_patch over multiple edit_file calls 
 
 
 HELP_ROWS = [("ant", "start a new session"), ("ant -c, --continue", "resume the most recent session"),
-             ("ant --session <id>", "resume a specific session"), ("ant -h, --help", "show this help")]
+             ("ant --session <id>", "resume a specific session"), ("ant --ask <question>", "one plain answer (for scripts)"), ("ant --rpc", "JSON mode for editors (Neovim)"),
+             ("ant -h, --help", "show this help")]
 
 
 def help_text():
@@ -113,6 +114,12 @@ def rl_prompt(s):
 
 
 def main(argv):
+    if argv and argv[0] == "--rpc":      # editors (Neovim): JSON lines over stdin/stdout, same config as ant
+        from .rpc import serve
+        return serve()
+    if argv and argv[0] == "--ask":      # scripts: one question, plain answer (nebula/jtlearn use this)
+        from .rpc import ask_cli
+        return ask_cli(argv[1:])
     args = parse_args(argv)
     if args["help"]:
         print(help_text())
