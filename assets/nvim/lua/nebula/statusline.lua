@@ -34,7 +34,7 @@ function M.render()
   local m = modes[vim.fn.mode()] or { vim.fn.mode():upper(), "NebulaMode" }
   local narrow = vim.o.columns < 60
   local parts = {
-    "%#" .. m[2] .. "# " .. (narrow and m[1]:sub(1, 1) or m[1]) .. " ",
+    "%#" .. m[2] .. "# " .. I.logo .. " " .. (narrow and m[1]:sub(1, 1) or m[1]) .. " ",
     git(),
     "%#NebulaSL# %t%m%r ",
     diag(),

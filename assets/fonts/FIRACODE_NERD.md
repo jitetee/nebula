@@ -1,16 +1,24 @@
 # Fonts
 
-The installer downloads **FiraCode Nerd Font Regular** at install-time from:
+`nebula.ttf` is **Nebula Mono**: FiraCode Nerd Font Mono plus Nebula's own icons, built by
+`tools/make-font.py` (see the top of that file). The installer links it as Termux's font.
 
+| Glyph | Code | Use |
+|---|---|---|
+| logo | U+E400 | Nebula mark (statusline, start screen) |
+| bolt | U+E401 | speed / AI |
+| sparkle | U+E402 | Copilot / suggestions |
+| prompt | U+E403 | prompts |
+| face | U+E404 | the friendly face |
+| planet | U+E405 | space theme |
+
+All Nerd Font icons (lsd, git, etc.) and FiraCode's ligatures are still in it. Rebuild with your own icons:
+
+```bash
+curl -fsSLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
+unzip FiraCode.zip FiraCodeNerdFontMono-Regular.ttf
+pip install fonttools
+python3 tools/make-font.py --base FiraCodeNerdFontMono-Regular.ttf
 ```
-https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
-```
 
-This is the font nebula's UI is designed around (icons in `lsd`, box-drawing in the banner, the Nebula face glyphs).
-
-We don't commit the TTF itself because:
-- It's ~2 MB and Nerd Fonts is already a well-maintained upstream
-- The upstream release URL is stable (always `latest`)
-- Users get font bug fixes automatically on re-install
-
-If the download ever fails, nebula still works — the banner falls back to plain box-drawing and `lsd` icons degrade to a unicode theme.
+Without this font Nebula still works: the banner uses plain box-drawing and `NEBULA_ICONS=plain` swaps icons for symbols any font has.

@@ -105,7 +105,7 @@ nv::doctor() {
     ui::say_status WARN "Found $stray. A plain Neovim loads it, Nebula's setup does not (it uses its own name). Nothing to do unless you use plain nvim too."
   fi
 
-  ui::say_status INFO "Icon test: $(printf '\ue0a0 \uf057 \uf071 \uf4b8 \uf15b')   (boxes or ? mean your font lacks icons: NEBULA_ICONS=plain nv)"
+  ui::say_status INFO "Icon test: $(printf '\ue400 \ue401 \ue402 \ue403 \ue404 \ue405 | \ue0a0 \uf057 \uf4b8')   (first six are Nebula's own; boxes mean the font is not Nebula Mono: NEBULA_ICONS=nerd|plain nv)"
 
   local auth="$HOME/.config/github-copilot"
   if [[ -s $auth/apps.json || -s $auth/hosts.json ]]; then ui::say_status OK "Signed in to GitHub Copilot"

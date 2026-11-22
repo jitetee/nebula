@@ -31,7 +31,7 @@ local function show()
   local function add(text, hl) table.insert(lines, text); table.insert(marks, hl) end
   for _, l in ipairs(art) do add(l, "NebulaDashLogo") end
   add("", nil)
-  add("Neovim, the Nebula way  ·  v" .. (vim.fn.readfile((vim.env.NEBULA_HOME or "") .. "/VERSION", "", 1)[1] or ""), "NebulaDashTag")
+  add(I.logo .. "  Neovim, the Nebula way  ·  v" .. (vim.fn.readfile((vim.env.NEBULA_HOME or "") .. "/VERSION", "", 1)[1] or ""), "NebulaDashTag")
   add("", nil)
   for _, it in ipairs(items) do add(string.format("%s  %s  %s", it[4], it[1], it[2]), "NebulaDashText") end
 
