@@ -24,7 +24,7 @@ if (( ! ${NSH_SKIP_COMPLETION:-0} )); then
 
 # nebula <TAB>: command names from the help registry, plus per-command arguments
 _nebula_complete() {
-  local reg="${NEBULA_HOME:-$NSH_HOME/..}/assets/help.txt" cur sub
+  local reg="$("${NEBULA_HOME:-$NSH_HOME/..}/lib/registry.sh" 2>/dev/null)" cur sub
   local -a names
   names=(${(f)"$(awk -F'|' '/^@/{print substr($1,2)}' "$reg" 2>/dev/null)"})
   [[ -s $NEBULA_CFG/hidden.txt ]] && names=(${names:|${=$(<"$NEBULA_CFG/hidden.txt")}})
@@ -161,7 +161,7 @@ alias la="_nebula_ls -lah"
 
 # ── 6b. nebula commands inside plain zsh ─────────────────────────────────
 # Names from the help registry (space-padded for fast matching)
-_nebula_names=" $(awk -F'|' '/^@/{print substr($1,2)}' "${NEBULA_HOME:-$NSH_HOME/..}/assets/help.txt" 2>/dev/null | tr '\n' ' ') "
+_nebula_names=" $(awk -F'|' '/^@/{print substr($1,2)}' "$("${NEBULA_HOME:-$NSH_HOME/..}/lib/registry.sh" 2>/dev/null)" 2>/dev/null | tr '\n' ' ') "
 
 # Typing a Nebula command (status, backup, remind, fix…) just works; typos get
 # a "did you mean".

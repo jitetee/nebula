@@ -66,7 +66,7 @@ def parse_args(argv):
             o["resume"] = argv[i] if i < len(argv) else None
         elif t in ("-c", "--continue", "--resume"):
             o["cont"] = True
-        elif t in ("-h", "--help"):
+        elif t in ("-h", "--help", "help", "?"):
             o["help"] = True
         elif t.startswith("--session="):
             o["resume"] = t.split("=", 1)[1]
@@ -204,6 +204,8 @@ def main(argv):
         if not text:
             continue
         try:
+            if text in ("help", "?", "h"):          # help always answers, with or without the slash
+                commands.help_(); continue
             if text == "/":
                 commands.palette(ctx()); continue
             if text.startswith("/"):

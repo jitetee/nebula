@@ -28,6 +28,11 @@ jobs:
                   if ord(c) > 127 and ord(c) not in cm: bad.append((f, c, hex(ord(c))))
           assert not bad, bad
           PY
+      - name: consistency (help everywhere) + core tests
+        run: |
+          sudo apt-get install -y neovim >/dev/null
+          bash lib/check.sh
+          bash tools/test-core.sh
       - name: python compile
         run: python3 -m compileall -q lib apps
       - name: rules are valid JSON

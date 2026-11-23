@@ -1,10 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 # nebula — help system. Reads assets/help.txt (the command registry).
 
-help::_file() { printf '%s' "$NEBULA_HOME/assets/help.txt"; }
+help::_file() { registry::file; }
 
 # All command names, one per line
 help::names() { awk -F'|' '/^@/{print substr($1,2)}' "$(help::_file)"; }
+
+help::has() { grep -q "^@$1|" "$(help::_file)" 2>/dev/null; }
 
 help::_hidden() { [[ -s $NEBULA_CFG/hidden.txt ]] && printf ' %s ' "$(<"$NEBULA_CFG/hidden.txt")"; }
 

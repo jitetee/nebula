@@ -13,7 +13,7 @@ cmd::ant() {
   local dir="$NEBULA_HOME/apps/ant"
   [[ -f $dir/ant/__main__.py ]] || { ui::say_status ERR "ant is missing from this install. Run: nebula update"; return 1; }
   apps::need python3 python || { ui::say_status ERR "ant needs Python 3"; return 1; }
-  PYTHONPATH="$dir" exec python3 -m ant "$@"
+  NEBULA_HOME="$NEBULA_HOME" NEBULA_CFG="$NEBULA_CFG" PYTHONPATH="$dir:$NEBULA_HOME/lib" exec python3 -m ant "$@"
 }
 
 cmd::jtlearn() {
@@ -26,6 +26,6 @@ cmd::jtlearn() {
     [[ -d $dir/data/config ]] && cp -an "$dir/data/config/." "$keep/config/" 2>/dev/null
     rm -rf "$dir/data/config"; ln -s "$keep/config" "$dir/data/config"
   fi
-  PYTHONPATH="$dir" exec python3 -m jtlearn "$@"
+  NEBULA_HOME="$NEBULA_HOME" NEBULA_CFG="$NEBULA_CFG" PYTHONPATH="$dir:$NEBULA_HOME/lib" exec python3 -m jtlearn "$@"
 }
-cmd::learn()   { cmd::jtlearn "$@"; }
+cmd::learn()   { cmd::jtlearn "$@"; }   # alias-of: jtlearn

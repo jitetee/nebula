@@ -24,6 +24,7 @@ source "$NEBULA_HOME/lib/voice.sh"
 source "$NEBULA_HOME/lib/sound.sh"
 source "$NEBULA_HOME/lib/auth.sh"
 source "$NEBULA_HOME/lib/commands.sh"
+source "$NEBULA_HOME/lib/registry.sh"
 source "$NEBULA_HOME/lib/help.sh"
 source "$NEBULA_HOME/lib/md.sh"
 source "$NEBULA_HOME/lib/update.sh"
@@ -41,6 +42,8 @@ source "$NEBULA_HOME/lib/security.sh"
 source "$NEBULA_HOME/lib/device.sh"
 source "$NEBULA_HOME/lib/dev.sh"
 source "$NEBULA_HOME/lib/nvim.sh"
+source "$NEBULA_HOME/lib/plugins.sh"
+source "$NEBULA_HOME/lib/check.sh"
 source "$NEBULA_HOME/lib/games.sh"
 source "$NEBULA_HOME/lib/arcade.sh"
 source "$NEBULA_HOME/lib/cloud.sh"
@@ -126,7 +129,7 @@ nebula::_record() {
 nebula::shadowed() {
   local c=$1 a=$2
   case $c in
-    install|play|passwd|ip) [[ $a == -* || $a == +* ]] && command -v "$c" >/dev/null 2>&1 ;;
+    install|play|passwd|ip) [[ $a != -h && $a != --help && ( $a == -* || $a == +* ) ]] && command -v "$c" >/dev/null 2>&1 ;;
     date|time) [[ -n $a ]] ;;
     *) return 1 ;;
   esac
@@ -172,6 +175,7 @@ nebula::repl() {
       '!'*) nebula::run_shell "${line#!}"; continue ;;      # !cmd → exactly as typed, straight to Termux
       '?'*) cmd::tell "${line#\?}"; continue ;;            # ?request → plain English
     esac
+    if [[ $args == -h || $args == --help ]] && help::has "$cmd"; then cmd::help "$cmd"; continue; fi
     if nebula::shadowed "$cmd" "$args"; then nebula::run_shell "$line"; continue; fi
     device::gate "$cmd" || continue
     case "$cmd" in
@@ -291,6 +295,7 @@ EOF
 }
 
 main() {
+  plugin::load_all          # plugins add commands + help; a broken plugin is skipped, never fatal
   # Parse flags that can appear before a subcommand
   local passthrough=()
   while (( $# )); do
@@ -307,6 +312,8 @@ main() {
   set -- "${passthrough[@]:-}"
 
   # One-shot mode: `nebula ask ...`, `nebula joke`, etc.
+  # `nebula <anything> --help` always shows that command's help (core, app or plugin)
+  if [[ $# -eq 2 && ( $2 == -h || $2 == --help ) ]] && help::has "$1"; then cmd::help "$1"; exit $?; fi
   [[ -n ${1:-} ]] && { device::gate "$1" || exit 1; }
   case "${1:-}" in
     ask)       shift; cmd::ask "$@"; exit $? ;;

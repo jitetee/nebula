@@ -1,0 +1,35 @@
+*nebula.txt*  Nebula Neovim: keys, AI, Copilot, help                     *nebula*
+
+                                                                   *nebula-help*
+Help from anywhere ~
+  :NebulaHelp            keys, AI and a list of every Nebula command
+  :NebulaHelp {topic}    help for one command (ant, jtlearn, play, plugin, ...)
+  <Space>?               every key mapping          <Space>hh  this help
+  <Space>hs              search help topics
+
+                                                                    *nebula-keys*
+Keys ~
+  <Space>ff / fg / fb    find files / search text / buffers
+  <Space>e               file tree          <Space>w  save      <Space>q  close
+  <S-h> / <S-l>          previous / next buffer
+  gd / gr / K            definition / references / docs (when a language server runs)
+
+                                                                      *nebula-ai*
+AI coding (powered by Ant) ~
+  <Space>aa   ask about the selection or the code around the cursor
+  <Space>ae   edit with an instruction, preview the diff, <CR> applies
+  <Space>ax   explain          <Space>af   fix diagnostics on the line
+  <Space>ag   agent: Ant works on the project, asks before writing or running
+  <Space>at   Ant in a terminal split (continues the same sessions as `ant -c`)
+  Same provider, model and key as `ant` and `nebula ai`. Check: :AntStatus
+
+                                                                 *nebula-copilot*
+Copilot ~
+  :NebulaCopilot         status, sign in, on/off, suggestions panel, log
+  Tab accepts a suggestion; Alt-] / Alt-[ cycle; Ctrl-] dismisses.
+
+                                                                 *nebula-plugins*
+Plugins ~
+  A Nebula plugin can ship Neovim code in nvim.lua. See `nebula help plugin`.
+
+ vim:tw=78:ft=help:norl:

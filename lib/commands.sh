@@ -7,8 +7,8 @@ cmd::about() {
 }
 
 cmd::_need_tgpt() {
-  if ! command -v tgpt >/dev/null 2>&1; then
-    ui::say_status ERR "tgpt not installed. Run: pkg install tgpt  (or see README)"
+  if ! command -v tgpt >/dev/null 2>&1 && ! ai::use_ant; then
+    ui::say_status ERR "No AI available: pkg install tgpt (free) or run: ai setup  (your own key)"
     return 1
   fi
 }
@@ -28,7 +28,7 @@ cmd::joke() {
   local t=${topics[RANDOM % ${#topics[@]}]}
   local nonce=$RANDOM
   printf "${C_YELLOW}😄${C_RESET} "
-  local joke; joke=$(tgpt "Tell me ONE fresh short clean genuinely funny joke about $t. Different from your last one. Just the joke, no preamble. [seed=$nonce]" 2>/dev/null); printf "%s\n" "$joke" | md::render; voice::say "$(md::plain "$joke")"
+  local joke; joke=$(ai::_complete "Tell me ONE fresh short clean genuinely funny joke about $t. Different from your last one. Just the joke, no preamble. [seed=$nonce]" 2>/dev/null); printf "%s\n" "$joke" | md::render; voice::say "$(md::plain "$joke")"
 }
 
 cmd::fact() {
@@ -39,7 +39,7 @@ cmd::fact() {
   local t=${topics[RANDOM % ${#topics[@]}]}
   local nonce=$RANDOM
   printf "${C_CYAN}💡${C_RESET} "
-  local fact; fact=$(tgpt "Give me ONE surprising fun fact about $t in 1-2 sentences. Something most people don't know. No preamble. [seed=$nonce]" 2>/dev/null); printf "%s\n" "$fact" | md::render; voice::say "$(md::plain "$fact")"
+  local fact; fact=$(ai::_complete "Give me ONE surprising fun fact about $t in 1-2 sentences. Something most people don't know. No preamble. [seed=$nonce]" 2>/dev/null); printf "%s\n" "$fact" | md::render; voice::say "$(md::plain "$fact")"
 }
 
 cmd::meme() {
@@ -354,6 +354,21 @@ cmd::doctor() {
   _nebula_doctor_check "python"    python3
   _nebula_doctor_check "termux-api" termux-notification
   printf '\n'
+  # Nebula's own parts: editor, font, AI, plugins, consistency
+  if declare -F nv::_linked >/dev/null && nv::_linked; then printf "  ${C_GREEN}✔${C_RESET} nvim: Nebula setup active\n"
+  else printf "  ${C_YELLOW}○${C_RESET} nvim: plain Neovim — run: nv setup\n"; fi
+  if [[ $(readlink -f "$HOME/.termux/font.ttf" 2>/dev/null) == "$(readlink -f "$NEBULA_HOME/assets/fonts/nebula.ttf" 2>/dev/null)" ]]; then
+    printf "  ${C_GREEN}✔${C_RESET} font: Nebula Mono\n"
+  else printf "  ${C_YELLOW}○${C_RESET} font: not Nebula Mono (icons fall back; see assets/fonts)\n"; fi
+  if declare -F ai::_py >/dev/null && command -v python3 >/dev/null 2>&1; then
+    local _ai; _ai=$(ai::_py status 2>/dev/null | sed 's/^backend: //')
+    case $_ai in none*|"") printf "  ${C_YELLOW}○${C_RESET} ai: %s\n" "${_ai:-not set up}" ;; *) printf "  ${C_GREEN}✔${C_RESET} ai: %s\n" "$_ai" ;; esac
+  fi
+  local _np; _np=$(registry::plugin_dirs | wc -l | tr -d ' ')
+  printf "  ${C_GREEN}✔${C_RESET} plugins: %s active ${C_DIM}(plugin list)${C_RESET}\n" "$_np"
+  local _ck; _ck=$(check::run 2>&1 | tail -1)
+  if [[ $_ck == *consistent* ]]; then printf "  ${C_GREEN}✔${C_RESET} every command, app and plugin has help\n"
+  else printf "  ${C_RED}✖${C_RESET} help gaps found — run: check\n"; fi
   local ok=1 f
   for f in "$NEBULA_HOME/bin/nebula" "$NEBULA_HOME/motd/init.sh" "$NEBULA_HOME/lib/auth.sh" "$NEBULA_HOME/assets/help.txt"; do
     if [[ -e $f ]]; then
@@ -396,7 +411,7 @@ cmd::doctor() {
   fi
 }
 
-cmd::voice_scan() {
+cmd::voice_scan() {   # alias-of: voice
   local -a found=(); local f
   local _st; _st=$(mktemp)
   voice::_scan_to() { voice::scan > "$1"; }
@@ -422,7 +437,7 @@ cmd::voice_scan() {
   else ui::say_status ERR "Could not copy the voice into $(voice::dir)"; return 1; fi
 }
 
-cmd::voice_toggle() {
+cmd::voice_toggle() {   # alias-of: voice
   local cfg="$NEBULA_CFG/voice"
   case "${1:-}" in
     on)

@@ -2,8 +2,21 @@
 # nebula — Nebula AI commands: chat, explain, fix, summarize, translate
 
 # ai::_complete <prompt>  → prints the reply (non-streaming)
+ai::_py() { PYTHONPATH="$NEBULA_HOME/lib${PYTHONPATH:+:$PYTHONPATH}" NEBULA_HOME="$NEBULA_HOME" NEBULA_CFG="$NEBULA_CFG" python3 -m nebula_core.ai "$@"; }
+
+# Which AI answers: ant (your own provider + key) or tgpt (free). One choice for everything: `nebula ai`.
+ai::backend() {
+  if command -v python3 >/dev/null 2>&1; then ai::_py backend-name 2>/dev/null && return; fi
+  command -v tgpt >/dev/null 2>&1 && echo tgpt || echo none
+}
+ai::use_ant() { [[ $(ai::backend) == ant ]]; }
+
 ai::_complete() {
   local out
+  if ai::use_ant; then
+    out=$(ai::_py "$1" 2>/dev/null)
+    [[ -n $out ]] && { printf '%s\n' "$out"; return; }
+  fi
   out=$(tgpt -q "$1" 2>/dev/null)
   [[ -z $out ]] && out=$(tgpt "$1" 2>/dev/null)
   printf '%s\n' "$out"
@@ -139,4 +152,13 @@ cmd::ask() {
   [[ -z $q ]] && { ui::say_status WARN "Usage: ask <question>"; return 1; }
   printf "${C_BLUE}${C_BOLD}🤖 Nebula AI${C_RESET}\n"
   ai::_think "$q"
+}
+
+cmd::ai() {
+  case "${1:-status}" in
+    status|"") ai::_py status ;;
+    backend)   shift; if [[ -z ${1:-} ]]; then ai::_py backend; else ai::_py backend "$1"; fi ;;
+    setup)     ui::say_status INFO "Opening ant: type /setup to pick a provider and paste your key."; cmd::ant ;;
+    *)         cmd::help ai ;;
+  esac
 }

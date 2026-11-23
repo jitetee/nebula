@@ -33,6 +33,7 @@ def help_():
     print("")
     for sec, rows in HELP:
         print(framed_block(sec, [C.cyan(c.ljust(24)) + C.dim(d) for c, d in rows], width=W))
+    print(C.dim("  more: nebula help ant   ·   ai: nebula ai status   ·   editor: Space a a in nvim"))
     print("")
 
 

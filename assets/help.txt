@@ -129,6 +129,7 @@
   AI: Space a a ask, Space a e edit selection, Space a g agent. Same provider and key as `ant`.
   doctor finds out why Copilot is not working (node, sign-in, server, network).
   Inside nvim: Space ? lists the keys. Your tweaks: $NEBULA_CFG/nvim/user.lua
+  Help inside nvim: :NebulaHelp (any Nebula command), Space h h, Space ?, :help nebula, ? on the start screen.
   Example: nv setup
   Example: nv doctor
   Example: nv notes.md
@@ -140,9 +141,12 @@
   Example: report the play command finds no songs
 @ant|Fun|[args]|AI coding agent that reads, edits and runs in your project
   Works in the folder you run it from. Pure Python, nothing extra to install. Type /help inside it; /setup picks a provider and key. Ctrl-C cancels a running turn.
+  Help: ant -h · ant help · /help or just  help  inside it. Same AI as the shell and Neovim (nebula ai status).
+  In Neovim: Space a a ask · a e edit · a g agent (no terminal needed).
   Example: ant
 @jtlearn|Fun|[command]|Learn with notes, quizzes, a rage-bait game and offline AI
   Alias: learn. Pure Python, nothing extra to install. Try: jtlearn study, jtlearn quiz, jtlearn daily, jtlearn rage.
+  Help: jtlearn -h · jtlearn help · press ? in the menu. The tutor uses your own AI when `nebula ai backend ant` is set.
   Example: jtlearn rage
 @mingle|Fun|[logout|admin]|Dating in your terminal: discover, match and chat (18+)
   Sign in with email and password, or a username and key (no email needed). Discover people, like or pass, chat when you both like each other, block and report. Nothing extra to install.
@@ -301,3 +305,27 @@
 @ls|Files||List files with icons
   Aliases: ll (long)
 @cd|Files|<dir>|Change directory
+
+@check|Tools||Check that every command, app and plugin has help
+  Nebula's consistency rules. Add a command or plugin without a help entry and this tells you.
+  Also runs in CI before every push.
+  Example: check
+@plugin|Tools|[list/new/enable/disable]|Add your own commands as plugins
+  plugin list            what is installed (bundled and yours)
+  plugin new <name>      scaffold plugins in your data folder: plugin.sh + help.txt
+  plugin disable <name>  switch one off (enable brings it back)
+  A plugin gets help, tab-completion, `<name> --help`, Neovim :NebulaHelp and the AI backend for free.
+  Guide: docs/PLUGINS.md
+  Example: plugin new greet
+@ai|AI|[status/backend]|Which AI Nebula uses everywhere
+  One choice for ask, chat, explain, fix, jtlearn's tutor and plugins.
+  ai status               show the backend in use
+  ai backend ant          use your own provider and key from `ant` (OpenRouter, OpenAI, Anthropic...)
+  ai backend tgpt         use the free tgpt
+  ai backend auto         ant when it has a key, else tgpt (default)
+  Set up the key once: run `ant`, then /setup.
+  Example: ai backend ant
+@hw|Tools|vol/bright/torch|Phone hardware keys for the extra-keys row
+  hw vol up|down|mute  ·  hw bright up|down  ·  hw torch
+  Needs Termux:API (pkg install termux-api and the app).
+  Example: hw torch

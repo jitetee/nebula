@@ -19,6 +19,7 @@ local items = {
   { "n", "New file", "<cmd>enew<cr>", I.new },
   { "p", "Plugins", "<cmd>Lazy<cr>", I.plug },
   { "c", "Copilot doctor", "<cmd>NebulaCopilot<cr>", I.copilot },
+  { "?", "Help", "<cmd>NebulaHelp<cr>", I.note },
   { "q", "Quit", "<cmd>qa<cr>", I.quit },
 }
 

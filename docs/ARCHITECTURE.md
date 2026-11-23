@@ -16,6 +16,11 @@ nebula/
 │   ├── termux.properties     # 3-row extra-keys layout
 │   ├── memes.txt             # bundled meme URLs (offline fallback)
 │   └── fonts/FIRACODE_NERD.md # pointer to the Nerd Font upstream
+├── lib/nebula_core/          # shared Python layer: paths, help registry, AI backend (ant, jtlearn, plugins import it)
+├── lib/registry.sh           # merges assets/help.txt + plugin help.txt: the ONE command registry
+├── lib/plugins.sh            # plugin loader + `nebula plugin`; lib/check.sh = `nebula check` (consistency rules)
+├── plugins/                  # bundled plugins (yours live in $NEBULA_CFG/plugins); see docs/PLUGINS.md
+├── tools/                    # make-font.py, test-core.sh, mock_ai_server.py
 ├── assets/nvim/              # `nv`: Neovim config (init.lua + lua/nebula/*: theme, statusline, tabline,
 │                             #   dashboard, keymaps, plugins, copilot); linked as ~/.config/nvim by `nv setup`; ai.lua talks to `ant --rpc` (apps/ant/ant/rpc.py)
 ├── motd/

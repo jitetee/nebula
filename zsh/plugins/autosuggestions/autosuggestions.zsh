@@ -39,7 +39,7 @@ _nebula_frecent_load() {
 _nebula_mark_stale() { _nebula_frecent_stale=1 }
 _nebula_names_load() {
   emulate -L zsh
-  local reg="${NEBULA_HOME}/assets/help.txt" l
+  local reg="$("${NEBULA_HOME}/lib/registry.sh" 2>/dev/null)" l
   local -a hidden=() all=()
   [[ -s $NEBULA_CFG/hidden.txt ]] && hidden=( ${=$(<"$NEBULA_CFG/hidden.txt")} )
   [[ -r $reg ]] && while IFS= read -r l; do [[ $l == @* ]] && all+=( ${${l%%|*}#@} ); done < "$reg"

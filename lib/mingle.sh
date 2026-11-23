@@ -459,7 +459,7 @@ m::wingman() {   # prints up to 3 opening lines
   command -v tgpt >/dev/null 2>&1 || return 0
   local p; p=$(m::get "profiles/$1") || return 0
   local info; info=$(m::j wing "$M_ME" <<<"$p"); local mine=""   # (includes my interests)
-  tgpt -q "Suggest exactly 3 short, friendly, respectful opening messages (max 15 words each) to send to this person on a dating app. $info $mine Output only the 3 lines, no numbering, no quotes." 2>/dev/null | sed 's/^[0-9.\-\* ]*//' | grep -v '^$' | head -3
+  ai::_complete "Suggest exactly 3 short, friendly, respectful opening messages (max 15 words each) to send to this person on a dating app. $info $mine Output only the 3 lines, no numbering, no quotes." 2>/dev/null | sed 's/^[0-9.\-\* ]*//' | grep -v '^$' | head -3
 }
 
 # ── my profile / settings ──────────────────────────────────────────────────

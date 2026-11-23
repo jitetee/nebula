@@ -3388,7 +3388,13 @@ class VerseEngine:
     # ─── AI World Generator (from Course Catalog + Parallel tgpt) ────
 
     def _call_tgpt(self, prompt: str, system: str = "", timeout: int = 120) -> str:
-        """Call tgpt AI via subprocess. Returns response text or empty string."""
+        """Call the AI (Nebula's shared backend when it is ant, else tgpt). Returns response text or empty string."""
+        try:
+            from nebula_core import ai as nai
+            if nai.backend_name() == "ant":
+                return nai.ask(prompt, system) or ""
+        except Exception:
+            pass
         import subprocess
         import shutil
 

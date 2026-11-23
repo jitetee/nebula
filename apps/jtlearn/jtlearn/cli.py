@@ -182,6 +182,21 @@ def main(ctx, version):
         ctx.invoke(play)
 
 
+@main.command("help")
+@click.argument("topic", required=False)
+def help_command(topic):
+    """Show help (also: jtlearn -h, or press ? in the menu). `jtlearn help <nebula command>` works too."""
+    try:
+        from nebula_core import help as nhelp
+        txt = nhelp.render(topic or "jtlearn", color=False)
+        if txt:
+            click.echo(txt)
+            return
+    except Exception:
+        pass
+    print(main.format_help("jtlearn"))
+
+
 @main.command()
 def play():
     """Launch interactive learning system menu - Learning First!"""
@@ -1103,7 +1118,7 @@ def show_help():
     cli_table.add_row("jtlearn config --edit", "Edit settings interactively")
     cli_table.add_row("jtlearn config --reset", "Reset to defaults")
     cli_table.add_row("jtlearn --version", "Show version")
-    cli_table.add_row("jtlearn --help", "Show CLI help")
+    cli_table.add_row("jtlearn --help / -h / help", "Show CLI help")
     console.print(cli_table)
     console.print()
     

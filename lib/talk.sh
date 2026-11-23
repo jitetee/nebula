@@ -36,7 +36,7 @@ cmd::english() {
     *) ui::say_status INFO "Plain-English mode: $(nl::mode)   ·   english ask | auto | off"; printf '   %sask%s  offer to translate sentences · %sauto%s  run read-only plans at once · %soff%s  never\n' "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" "$C_BOLD" "$C_RESET" | ui::wrap "$(( $(ui::cols) - 1 ))" 5 ;;
   esac
 }
-cmd::nl() { cmd::english "$@"; }      # old name, kept so existing habits still work
+cmd::nl() { cmd::english "$@"; }      # alias-of: english. old name, kept so existing habits still work
 # does this look like a sentence rather than a mistyped command?
 nl::wanted() {
   [[ $(nl::mode) == off ]] && return 1
@@ -192,7 +192,7 @@ cmd::tell() {
 
 # ── 3. the entry point for "command not found" (zsh handler and nebula shell) ─
 # exit: 0 = installed, run the original command again   20 = plan written to data/.plan.sh   1 = nothing to do
-cmd::cnf() {
+cmd::cnf() {   # internal: command-not-found hook
   local c=${1:-}; shift
   [[ -t 0 && -t 1 ]] || return 1
   [[ -n $c && $c != */* ]] || return 1

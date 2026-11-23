@@ -36,6 +36,17 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 TGPT_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _nebula_answer(prompt: str, system: str):
+    """If Nebula's shared AI backend is `ant` (your own provider + key), answer through it. None → use tgpt as before."""
+    try:
+        from nebula_core import ai as nai
+        if nai.backend_name() != "ant":
+            return None
+        return nai.ask(prompt, system) or None
+    except Exception:
+        return None
+
+
 class AIChat:
     """AI Chat interface using tgpt CLI (termux-ai backend)"""
 
@@ -182,7 +193,15 @@ class AIChat:
         }
 
     def chat(self, message: str) -> Optional[str]:
-        """Send message via tgpt CLI"""
+        """Send message via tgpt CLI (or Nebula's shared backend when that is ant)"""
+        shared = _nebula_answer(message, self.system_prompt)
+        if shared:
+            self.chat_history.append({"role": "user", "content": message})
+            self.chat_history.append({"role": "assistant", "content": shared})
+            self.save_chat_history()
+            if self.auto_save_to_brain:
+                self._save_to_knowledge_brain(message, shared)
+            return shared
         if not self.tgpt_path:
             show_error("tgpt not found. Install termux-ai or tgpt.")
             show_info("Run: pkg install termux-ai")

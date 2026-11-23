@@ -7,7 +7,7 @@ NEBULA_HOME="${NEBULA_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 NEBULA_CFG="${NEBULA_CFG:-$NEBULA_HOME/data}"
 hide=" "; [[ -s $NEBULA_CFG/hidden.txt ]] && hide=" $(<"$NEBULA_CFG/hidden.txt") "
 {
-  awk -F'|' -v hide="$hide" '/^@/{n=substr($1,2); if (!index(hide," " n " ")) print n}' "$NEBULA_HOME/assets/help.txt"
+  awk -F'|' -v hide="$hide" '/^@/{n=substr($1,2); if (!index(hide," " n " ")) print n}' "$(NEBULA_HOME="$NEBULA_HOME" NEBULA_CFG="$NEBULA_CFG" "$NEBULA_HOME/lib/registry.sh")"
   (( only )) || compgen -c 2>/dev/null
 } | sort -u | awk -v w="$w" '
 function lev(a,b,   la,lb,i,j,cost,p,c,m) {
