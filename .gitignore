@@ -25,3 +25,4 @@ dist/
 # per-user app state (kept in Nebula's data folder instead)
 apps/jtlearn/data/config/
 apps/ant/.ant/
+data-gallery/

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.17
+- **One palette everywhere.** `nebula palette [nebula|ocean|amber|rose|violet|mono]` switches the colours of the shell, `ant`, `jtlearn` and Neovim at once (`nebula_core/theme.py` writes `$NEBULA_CFG/palette.json`, every tool reads it). `theme` still styles only your prompt.
+- **Nebula Mono now draws the UI symbols too:** ✔ ✖ ✗ ⚠ ℹ ➤ ▸ ▾ ★ ↺ are in the font, so status lines look the same in the shell, `ant`, `jtlearn` and Neovim instead of borrowing another font.
+- **Neovim, finished:** a file tree in Nebula glyphs (`Space e`), a path breadcrumb above every file, diagnostic icons in the gutter and inline, small toast notifications (no more "Press ENTER" walls), inline git blame, and your recent files on the start screen (`1` to `4`).
+- **`tools/gallery.py`** renders the main screens at phone width (56 columns, also 40) and flags broken boxes and wrapped frames. CI runs it, so layout bugs show up before you do. `--png` saves screenshots of every screen.
+- 29 core tests (palette added).
+
 ## 0.9.16
 - **Help is everywhere, and stays everywhere.** One registry (`assets/help.txt` + each plugin's `help.txt`) now feeds the shell, tab-completion, "did you mean", `ant`, `jtlearn` and Neovim. `nebula <anything> --help` always shows that command's help (even `play`, which used to be swallowed by sox). `ant -h|help|?` and plain `help` inside it, `jtlearn -h|help|?`, `:NebulaHelp [topic]`, `Space h h`, `Space h s`, `:help nebula` and `?` on the Neovim start screen all answer. New help entries: `ai`, `plugin`, `check`, `hw`.
 - **`nebula check`** enforces the consistency rules (every command, plugin and app has help, entries match commands, apps answer `--help`, Neovim has `:NebulaHelp`). It runs in `nebula doctor` and in CI, so a new command without help cannot be pushed.

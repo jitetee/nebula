@@ -329,3 +329,8 @@
   hw vol up|down|mute  ·  hw bright up|down  ·  hw torch
   Needs Termux:API (pkg install termux-api and the app).
   Example: hw torch
+@palette|Look|[name/list/reset]|One colour scheme for the shell, ant, jtlearn and Neovim
+  palette            list: nebula (default green), ocean, amber, rose, violet, mono
+  palette ocean      switch everything at once (new windows pick it up; Neovim on restart)
+  Different from `theme`, which styles only your prompt.
+  Example: palette violet

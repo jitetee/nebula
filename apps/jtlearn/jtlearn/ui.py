@@ -17,23 +17,35 @@ from jtlearn._rich import box
 
 console = Console()
 
+def _nebula_palette():
+    """Shared Nebula palette (`nebula palette <name>`); None when jtlearn runs outside Nebula."""
+    try:
+        from nebula_core import theme as _th
+        pal = _th.load()
+        return {k: pal[k]["idx"] for k in ("primary", "second", "accent", "danger", "border", "muted", "text")}
+    except Exception:
+        return None
+
+
+_NP = _nebula_palette() or {"primary": 48, "second": 120, "accent": 221, "danger": 203, "border": 35, "muted": 245, "text": 255}
+
 # Default color palette (fallback if theme loading fails)
-DEFAULT_COLORS = {            # the J.I.T.E.T.E.E. phosphor-green look, same as Nebula and the website
-    "primary": "color(48)",
-    "secondary": "color(120)",
-    "accent": "color(221)",
-    "danger": "color(203)",
-    "info": "color(35)",
-    "success": "color(120)",
-    "warning": "color(221)",
-    "muted": "color(245)",
-    "banner": "color(48)",
-    "border": "color(35)",
-    "header": "bold color(48)",
-    "menu_number": "color(221)",
-    "menu_text": "color(255)",
-    "table_header": "bold color(48)",
-    "panel_title": "bold color(48)",
+DEFAULT_COLORS = {            # the J.I.T.E.T.E.E. phosphor-green look by default; follows `nebula palette`
+    "primary": f"color({_NP['primary']})",
+    "secondary": f"color({_NP['second']})",
+    "accent": f"color({_NP['accent']})",
+    "danger": f"color({_NP['danger']})",
+    "info": f"color({_NP['border']})",
+    "success": f"color({_NP['second']})",
+    "warning": f"color({_NP['accent']})",
+    "muted": f"color({_NP['muted']})",
+    "banner": f"color({_NP['primary']})",
+    "border": f"color({_NP['border']})",
+    "header": f"bold color({_NP['primary']})",
+    "menu_number": f"color({_NP['accent']})",
+    "menu_text": f"color({_NP['text']})",
+    "table_header": f"bold color({_NP['primary']})",
+    "panel_title": f"bold color({_NP['primary']})",
 }
 
 # Active colors (will be loaded from theme)

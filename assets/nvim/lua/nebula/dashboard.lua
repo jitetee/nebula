@@ -35,6 +35,19 @@ local function show()
   add(I.logo .. "  Neovim, the Nebula way  ·  v" .. (vim.fn.readfile((vim.env.NEBULA_HOME or "") .. "/VERSION", "", 1)[1] or ""), "NebulaDashTag")
   add("", nil)
   for _, it in ipairs(items) do add(string.format("%s  %s  %s", it[4], it[1], it[2]), "NebulaDashText") end
+  local recent = {}
+  for _, f in ipairs(vim.v.oldfiles or {}) do
+    if #recent >= 4 then break end
+    if vim.fn.filereadable(f) == 1 and not f:find("/doc/", 1, true) then table.insert(recent, f) end
+  end
+  if #recent > 0 then
+    add("", nil); add("Recent", "NebulaDashTag")
+    for i, f in ipairs(recent) do
+      local short = vim.fn.fnamemodify(f, ":~:.")
+      if #short > 40 then short = "…" .. short:sub(-39) end
+      add(string.format("%d  %s", i, short), "NebulaDashText")
+    end
+  end
 
   local w = 0
   for _, l in ipairs(lines) do w = math.max(w, vim.fn.strdisplaywidth(l)) end
@@ -51,6 +64,9 @@ local function show()
   end
   for _, it in ipairs(items) do
     vim.keymap.set("n", it[1], it[3], { buffer = buf, nowait = true, silent = true })
+  end
+  for i, f in ipairs(recent) do
+    vim.keymap.set("n", tostring(i), function() vim.cmd("edit " .. vim.fn.fnameescape(f)) end, { buffer = buf, nowait = true, silent = true })
   end
   vim.bo[buf].modifiable = false
   vim.bo[buf].buftype = "nofile"

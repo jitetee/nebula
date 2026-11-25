@@ -13,6 +13,7 @@ export C_YELLOW=$'\033[38;5;221m'
 export C_CYAN=$'\033[38;5;48m'      # J.I.T.E.T.E.E. phosphor green, same as the website
 export C_MAGENTA=$'\033[38;5;157m'   # soft mint accent
 export C_BLUE=$'\033[38;5;35m'
+[[ -r ${NEBULA_CFG:-}/palette.sh ]] && source "$NEBULA_CFG/palette.sh"   # `nebula palette <name>`
 export C_WHITE=$'\033[38;5;255m'
 export C_UNDER=$'\033[4m'
 export C_ORANGE=$'\033[38;5;215m'

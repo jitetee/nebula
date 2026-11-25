@@ -34,6 +34,12 @@ t "plugin name clash refused"        bash -c "! bash '$H/bin/nebula' plugin new 
 t "plugin disable hides it"          bash -c "bash '$H/bin/nebula' plugin disable greet >/dev/null && ! PYTHONPATH='$H/lib' python3 -m nebula_core.help --names | grep -qw greet"
 t "plugin enable brings it back"     bash -c "bash '$H/bin/nebula' plugin enable greet >/dev/null && PYTHONPATH='$H/lib' python3 -m nebula_core.help --names | grep -qw greet"
 
+echo "palette"
+t "palette ocean switches everything" bash -c "bash '$H/bin/nebula' palette ocean >/dev/null && grep -q '\"ocean\"' '$NEBULA_CFG/palette.json' && grep -q 'C_CYAN=.*45m' '$NEBULA_CFG/palette.sh'"
+t "jtlearn follows the palette"      bash -c "cd '$H/apps/jtlearn' && PYTHONPATH='$H/apps/jtlearn:$H/lib' python3 -c \"from jtlearn.ui import DEFAULT_COLORS as D; assert D['primary']=='color(45)', D['primary']\""
+t "ant follows the palette"          bash -c "cd '$H/apps/ant' && env -u NO_COLOR FORCE_COLOR=2 PYTHONPATH='$H/apps/ant:$H/lib' python3 -c \"from ant.theme import T; assert '38;5;45' in T.accent('x'), repr(T.accent('x'))\""
+t "palette back to nebula"           bash -c "bash '$H/bin/nebula' palette reset >/dev/null && grep -q '\"nebula\"' '$NEBULA_CFG/palette.json'"
+
 echo "one AI backend"
 PORT=$((20000 + RANDOM % 20000))
 python3 "$H/tools/mock_ai_server.py" $PORT & MOCK=$!; sleep 1

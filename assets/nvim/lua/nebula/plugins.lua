@@ -36,8 +36,27 @@ add("telescope", {
 -- git marks in the gutter + branch name for the statusline
 add("gitsigns", {
   "lewis6991/gitsigns.nvim", event = { "BufReadPre", "BufNewFile" },
-  opts = { signs = { add = { text = "▎" }, change = { text = "▎" }, delete = { text = "▁" },
+  opts = { current_line_blame = true, current_line_blame_opts = { delay = 700, virt_text_pos = "eol" },
+    current_line_blame_formatter = "  <author> · <author_time:%R>",
+    signs = { add = { text = "▎" }, change = { text = "▎" }, delete = { text = "▁" },
     topdelete = { text = "▔" }, changedelete = { text = "▎" } } },
+})
+-- file tree in Nebula's glyphs (works without devicons)
+add("tree", {
+  "nvim-tree/nvim-tree.lua", cmd = { "NvimTreeToggle", "NvimTreeFindFile", "NvimTreeOpen" },
+  opts = function()
+    local I = require("nebula.icons")
+    return {
+      hijack_cursor = true, sync_root_with_cwd = true, update_focused_file = { enable = true },
+      view = { width = vim.o.columns < 80 and 24 or 30, signcolumn = "no" },
+      renderer = { group_empty = true, highlight_git = "name", indent_markers = { enable = true },
+        icons = { show = { file = true, folder = true, folder_arrow = true, git = true }, git_placement = "after",
+          glyphs = { default = I.file, symlink = I.file, folder = { arrow_closed = "▸", arrow_open = "▾", default = I.folder, open = I.folder, empty = I.folder, empty_open = I.folder, symlink = I.folder, symlink_open = I.folder },
+            git = { unstaged = "~", staged = "+", unmerged = "!", renamed = "→", untracked = "?", deleted = "x", ignored = "·" } } } },
+      filters = { dotfiles = false, custom = { "^.git$", "node_modules", "__pycache__" } },
+      git = { ignore = false }, actions = { open_file = { quit_on_open = vim.o.columns < 80 } },
+    }
+  end,
 })
 -- syntax highlighting needs a C compiler (Termux: pkg install clang)
 M.ts_langs = { "lua", "vimdoc", "bash", "python", "javascript", "json", "markdown", "html", "css" }

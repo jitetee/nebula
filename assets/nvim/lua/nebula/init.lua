@@ -23,6 +23,7 @@ function M.setup()
   safe("nebula.copilot")      -- Copilot settings + :NebulaCopilot doctor
   safe("nebula.ai")           -- Ant-powered AI coding (ask / edit / fix / agent)
   safe("nebula.help")         -- :NebulaHelp, same registry as the shell
+  safe("nebula.polish")       -- diagnostics look, toast notifications, breadcrumb
   safe("nebula.plugins_ext")  -- nvim.lua from Nebula plugins
   -- user overrides last, so they win
   local cfg = vim.env.NEBULA_CFG

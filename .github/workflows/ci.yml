@@ -15,7 +15,7 @@ jobs:
       - name: font loads and has the Nebula icons
         run: |
           pip install -q fonttools
-          python3 -c "from fontTools.ttLib import TTFont; f=TTFont('assets/fonts/nebula.ttf'); c=f.getBestCmap(); assert all(0xE400+i in c for i in range(6)), 'missing icons'; print(f['name'].getDebugName(1))"
+          python3 -c "from fontTools.ttLib import TTFont; f=TTFont('assets/fonts/nebula.ttf'); c=f.getBestCmap(); assert all(0xE400+i in c for i in range(6)) and all(x in c for x in (0x2714,0x2716,0x2717,0x26A0,0x2139,0x27A4,0x25B8,0x2605)), 'missing icons'; print(f['name'].getDebugName(1))"
       - name: nvim UI uses only glyphs the font has
         run: |
           python3 - <<'PY'
@@ -33,6 +33,10 @@ jobs:
           sudo apt-get install -y neovim >/dev/null
           bash lib/check.sh
           bash tools/test-core.sh
+      - name: screens fit a phone (56 columns)
+        run: |
+          pip install -q pyte
+          python3 tools/gallery.py --check --cols 56
       - name: python compile
         run: python3 -m compileall -q lib apps
       - name: rules are valid JSON

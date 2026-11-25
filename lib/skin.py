@@ -35,8 +35,21 @@ def fg(n):
 BOLD = "" if PLAIN else "\x1b[1m"
 DIM = "" if PLAIN else "\x1b[2m"
 RS = "" if PLAIN else RESET
+def _palette():   # `nebula palette <name>` writes this; defaults = the Nebula green
+    d = {"primary": 48, "second": 120, "accent": 221, "danger": 203, "border": 35, "muted": 245, "text": 255}
+    try:
+        import json
+        p = json.load(open(os.path.join(os.environ.get("NEBULA_CFG") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"), "palette.json")))
+        for k in d:
+            d[k] = p[k]["idx"]
+    except Exception:
+        pass
+    return d
+
+
+_P = _palette()
 PRIMARY, SECOND, ACCENT, DANGER, INFO, MUTED, BORDER, TEXT = (
-    fg(48), fg(120), fg(221), fg(203), fg(35), fg(245), fg(35), fg(255))
+    fg(_P["primary"]), fg(_P["second"]), fg(_P["accent"]), fg(_P["danger"]), fg(_P["border"]), fg(_P["muted"]), fg(_P["border"]), fg(_P["text"]))
 
 STYLES = {
     "rounded": "╭╮╰╯─│├┤┬┴┼",

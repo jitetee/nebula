@@ -6,6 +6,7 @@
 Get the base from https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
 Needs fontTools (pip install fonttools). Both fonts are SIL OFL 1.1 (see assets/fonts/LICENSE-FONT.md).
 
+UI symbols (✔ ✖ ✗ ⚠ ℹ ➤ ▸ ★ ↺) are drawn at their normal Unicode positions so the shell, ant and jtlearn show them the same everywhere.
 Nebula icons live in a free private-use block, so they never clash with Nerd Font glyphs:
   U+E400 logo    U+E401 bolt    U+E402 sparkle   U+E403 prompt   U+E404 face   U+E405 planet
 Every shape is a plain polygon, so the build is easy to read and tweak.
@@ -88,8 +89,65 @@ def planet():
         [cw(ellipse(CX, CY, 600, 170, 24)), ccw(ellipse(CX, CY, 500, 95, 24))]
 
 
+def seg(x1, y1, x2, y2, w):
+    """A thick line as a rectangle (overlapping segments simply union)."""
+    dx, dy = x2 - x1, y2 - y1
+    L = math.hypot(dx, dy) or 1
+    nx, ny = -dy / L * w / 2, dx / L * w / 2
+    return cw([(x1 + nx, y1 + ny), (x2 + nx, y2 + ny), (x2 - nx, y2 - ny), (x1 - nx, y1 - ny)])
+
+
+def rect(x1, y1, x2, y2):
+    return cw([(x1, y1), (x1, y2), (x2, y2), (x2, y1)])
+
+
+def check():          # U+2714 heavy check mark
+    return [seg(150, 640, 460, 330, 190), seg(460, 330, 1060, 1120, 190)]
+
+
+def cross():          # U+2716 heavy multiplication x
+    return [seg(200, 220, 1000, 1020, 190), seg(200, 1020, 1000, 220, 190)]
+
+
+def ballot():         # U+2717 ballot x (lighter)
+    return [seg(220, 240, 980, 1000, 120), seg(220, 1000, 980, 240, 120)]
+
+
+def warning():        # U+26A0 warning sign
+    return [cw([(600, 1420), (1130, 120), (70, 120)]), ccw([(600, 1060), (905, 300), (295, 300)]),
+            cw([(550, 520), (550, 900), (650, 900), (650, 520)]), cw(circle(600, 395, 62))]
+
+
+def info():           # U+2139 information source
+    return ring(CX, CY, 600, 470) + [cw(circle(600, 950, 75)), rect(535, 330, 665, 790)]
+
+
+def arrowhead():      # U+27A4 black rightwards arrowhead
+    return [cw([(120, 1200), (1100, 620), (120, 40), (360, 620)])]
+
+
+def tri_right():      # U+25B8 small right-pointing triangle
+    return [cw([(330, 1010), (930, 620), (330, 230)])]
+
+
+def tri_down():       # U+25BE small down-pointing triangle
+    return [cw([(230, 900), (970, 900), (600, 340)])]
+
+
+def star5():          # U+2605 black star
+    return [cw(star(CX, 640, 650, 270, points=5, rot=90))]
+
+
+def undo():           # U+21BA anticlockwise open circle arrow
+    return [cw(arc_band(CX, CY, 520, 380, 50, 340)), cw([(840, 1090), (1130, 1010), (900, 790)])]
+
+
 ICONS = [(0xE400, "nebula.logo", logo), (0xE401, "nebula.bolt", bolt), (0xE402, "nebula.sparkle", sparkle),
-         (0xE403, "nebula.prompt", prompt), (0xE404, "nebula.face", face), (0xE405, "nebula.planet", planet)]
+         (0xE403, "nebula.prompt", prompt), (0xE404, "nebula.face", face), (0xE405, "nebula.planet", planet),
+         # symbols the Nebula UI uses at their normal Unicode positions, so every line looks the same everywhere
+         (0x2714, "uni2714", check), (0x2716, "uni2716", cross), (0x2717, "uni2717", ballot), (0x26A0, "uni26A0", warning),
+         (0x2139, "uni2139", info), (0x27A4, "uni27A4", arrowhead), (0x25B8, "uni25B8", tri_right), (0x25BE, "uni25BE", tri_down),
+         (0x2605, "uni2605", star5), (0x21BA, "uni21BA", undo)]
 
 
 def make_glyph(contours, glyf):
@@ -132,7 +190,7 @@ def main():
         elif n.nameID == 6: n.string = ps
         elif n.nameID == 0: n.string = str(n.toUnicode()) + " | Nebula icons: Copyright 2026 J.I.T.E.T.E.E."
     font.save(a.out)
-    print("wrote", a.out, "with", len(ICONS), "Nebula icons at U+E400..U+E%03X" % (0x400 + len(ICONS) - 1))
+    print("wrote", a.out, "with Nebula icons U+E400..E405 and", len(ICONS) - 6, "UI symbols")
 
 
 if __name__ == "__main__":

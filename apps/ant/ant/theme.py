@@ -39,23 +39,39 @@ def bg(n):
     return _wrap("48;5;%d" % n)
 
 
+def _p():
+    """Shared Nebula palette (`nebula palette`); ant still works on its own with the defaults."""
+    d = {"primary": 48, "second": 120, "accent": 221, "danger": 203, "border": 35, "soft": 157, "muted": 244}
+    try:
+        from nebula_core import theme as _th
+        pal = _th.load()
+        for k in d:
+            d[k] = pal[k]["idx"]
+    except Exception:
+        pass
+    return d
+
+
+_PAL = _p()
+
+
 class _T:
     dim = staticmethod(_wrap("2"))
     bold = staticmethod(_wrap("1"))
     italic = staticmethod(_wrap("3"))
     underline = staticmethod(_wrap("4"))
     # Nebula greens (same family as the website and the rest of Nebula)
-    accent = staticmethod(fg(48))
-    accentSoft = staticmethod(fg(157))
-    accentDeep = staticmethod(fg(35))
+    accent = staticmethod(fg(_PAL["primary"]))
+    accentSoft = staticmethod(fg(_PAL["soft"]))
+    accentDeep = staticmethod(fg(_PAL["border"]))
     accentBg = staticmethod(_wrap("48;5;22;38;5;157"))
-    user = staticmethod(fg(120))
+    user = staticmethod(fg(_PAL["second"]))
     assistant = staticmethod(fg(194))
-    tool = staticmethod(fg(48))
-    warn = staticmethod(fg(220))
-    error = staticmethod(fg(203))
-    success = staticmethod(fg(120))
-    muted = staticmethod(fg(244))
+    tool = staticmethod(fg(_PAL["primary"]))
+    warn = staticmethod(fg(_PAL["accent"]))
+    error = staticmethod(fg(_PAL["danger"]))
+    success = staticmethod(fg(_PAL["second"]))
+    muted = staticmethod(fg(_PAL["muted"]))
     addBg = staticmethod(_wrap("48;5;22"))
     delBg = staticmethod(_wrap("48;5;52"))
     add = staticmethod(fg(120))

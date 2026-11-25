@@ -20,7 +20,9 @@ map("n", "<leader>fg", tele("live_grep"), "Search text (needs ripgrep)")
 map("n", "<leader>fb", tele("buffers", "ls"), "Buffers")
 map("n", "<leader>fr", tele("oldfiles", "browse oldfiles"), "Recent files")
 map("n", "<leader>fh", tele("help_tags", "help"), "Help pages")
-map("n", "<leader>e", function() vim.cmd("Lexplore 28") end, "File tree")
+map("n", "<leader>e", function()
+  if vim.fn.exists(":NvimTreeToggle") == 2 then vim.cmd("NvimTreeToggle") else vim.cmd("Lexplore 28") end
+end, "File tree")
 
 -- buffers / windows
 map("n", "<S-l>", "<cmd>bnext<cr>", "Next buffer")

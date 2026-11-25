@@ -8,6 +8,20 @@ M.c = {
   danger = "#ff5f5f", info = "#5fd7ff", purple = "#af87ff", orange = "#ffaf5f",
 }
 
+-- `nebula palette <name>` writes $NEBULA_CFG/palette.json; use it when present (same roles as the shell)
+do
+  local f = (vim.env.NEBULA_CFG or "") .. "/palette.json"
+  if vim.fn.filereadable(f) == 1 then
+    local ok, p = pcall(vim.json.decode, table.concat(vim.fn.readfile(f), "\n"))
+    if ok and type(p) == "table" and p.primary then
+      local c = M.c
+      c.primary, c.second, c.accent, c.danger = p.primary.hex, p.second.hex, p.accent.hex, p.danger.hex
+      c.border, c.fg, c.muted = p.border.hex, p.text.hex, p.muted.hex
+      if p.bg then c.bg = p.bg end
+    end
+  end
+end
+
 function M.apply()
   local c = M.c
   vim.cmd("highlight clear")
@@ -51,6 +65,12 @@ function M.apply()
     NebulaModeRep = { fg = c.bg, bg = c.danger, bold = true },
     NebulaSL = { fg = c.fg, bg = c.bg2 }, NebulaSLDim = { fg = c.muted, bg = c.bg2 }, NebulaSLGit = { fg = c.second, bg = c.bg2 },
     NebulaSLErr = { fg = c.danger, bg = c.bg2 }, NebulaSLWarn = { fg = c.accent, bg = c.bg2 }, NebulaSLOk = { fg = c.primary, bg = c.bg2 },
+    NebulaWinbar = { fg = c.primary, bg = c.bg, bold = true }, NebulaWinbarDim = { fg = c.muted, bg = c.bg },
+    WinBar = { fg = c.muted, bg = c.bg }, WinBarNC = { fg = c.muted, bg = c.bg },
+    NvimTreeNormal = { fg = c.fg, bg = c.bg2 }, NvimTreeNormalNC = { fg = c.fg, bg = c.bg2 }, NvimTreeEndOfBuffer = { fg = c.bg2, bg = c.bg2 },
+    NvimTreeFolderName = { fg = c.primary }, NvimTreeOpenedFolderName = { fg = c.primary, bold = true }, NvimTreeRootFolder = { fg = c.accent, bold = true },
+    NvimTreeFolderIcon = { fg = c.border }, NvimTreeIndentMarker = { fg = c.line }, NvimTreeGitDirty = { fg = c.accent }, NvimTreeGitNew = { fg = c.second },
+    NvimTreeCursorLine = { bg = c.bg3 }, NvimTreeWinSeparator = { fg = c.line, bg = c.bg2 },
     NebulaDashLogo = { fg = c.primary, bold = true }, NebulaDashTag = { fg = c.muted }, NebulaDashKey = { fg = c.accent }, NebulaDashText = { fg = c.second },
     CopilotSuggestion = { fg = "#4a6a56", italic = true },
   }
