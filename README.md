@@ -80,6 +80,8 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 
 ![Nebula nvim](docs/screenshots/cli-nv-code.png)
 
+**Master manual:** `docs/Nebula-Master-Manual.pdf` covers every command, app, plugin and setting (rebuild it any time with `python3 tools/make-manual.py`).
+
 **Make it yours:** `theme studio` (prompt designer with live preview; presets `nebula compact minimal forest sky hacker classic zen`), `home edit` / `home preset <name>` (startup screen), `profile use work` (switch voice, lock timer, prompt and home at once), `layout auto|phone|wide`.
 
 **Device-aware:** `settings` scans your phone, explains what's wrong with one-key fixes, and hides commands your device can't run. Compact startup turns on automatically on low-RAM / 32-bit phones.

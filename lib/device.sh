@@ -116,7 +116,7 @@ DEVICE_GATED="ask joke fact chat explain fix summarize translate tell voice serv
 # One-line "what's missing" for a capability: <reason>|<package or empty>|<fix command or empty>
 device::cap_help() {
   case $1 in
-    ai)          echo "needs the tgpt package|tgpt|pkg install -y tgpt" ;;
+    ai)          echo "needs an AI: tgpt (free) or your own key in ant (nebula ai setup)|tgpt|pkg install -y tgpt" ;;
     tts)         echo "needs a voice engine (espeak)|espeak|pkg install -y espeak" ;;
     sound)       echo "needs sox for UI sounds|sox|pkg install -y sox" ;;
     serve)       echo "needs python|python|pkg install -y python" ;;
