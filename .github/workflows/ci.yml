@@ -47,6 +47,9 @@ jobs:
           NEBULA_HOME=$PWD python3 lib/skin.py banner NEBULA --tag test | grep -q "╔"
       - name: bundled .jif files validate
         run: |
-          for f in apps/jtlearn/data/jif/*.jif; do python3 apps/jtlearn/jif_tool.py validate "$f" || exit 1; done
+          shopt -s nullglob
+          files=(apps/jtlearn/data/jif/*.jif)
+          if (( ${#files[@]} == 0 )); then echo "no bundled .jif files (they are optional)"; exit 0; fi
+          for f in "${files[@]}"; do python3 apps/jtlearn/jif_tool.py validate "$f" || exit 1; done
       - name: help renders
         run: NEBULA_HOME=$PWD HOME=$(mktemp -d) bash bin/nebula --help | grep -q Commands

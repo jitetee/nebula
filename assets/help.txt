@@ -334,3 +334,30 @@
   palette ocean      switch everything at once (new windows pick it up; Neovim on restart)
   Different from `theme`, which styles only your prompt.
   Example: palette violet
+@files|Apps||File manager with mouse/touch, like Windows Explorer
+  Address bar with a clickable path, toolbar (New, Copy, Cut, Paste, Rename, Delete, Info, Find, Sort), a sidebar of places,
+  a details pane with previews, a Trash with Restore, zip/unzip, search, multi-select.
+  Tap a row to select, double-tap to open, tap a column header to sort. The Select button turns taps into ticks.
+  Keys: Enter open · Backspace up · Space tick · c x v copy/cut/paste · d trash · r rename · n/N new file/folder · i info · / filter · ? help
+  Example: files ~/storage/downloads
+@monitor|Apps||Live system info: CPU, memory, storage, battery, network, processes
+  Tabs: Overview, Processes (K stops one, asking first), Storage, Network, Nebula. Updates every second.
+  Keys: Tab or ←/→ switch tab · 1-5 jump · r refresh · q quit
+  Example: monitor
+@player|Apps|[folder or files]|Audio player with library, queue, seek bar and volume
+  Finds music in your phone's Music folders (or give it a folder). Plays through mpv (pkg install mpv).
+  Tap the buttons, tap the bar to seek, double-tap a track to play.
+  Keys: Space pause · n/p next/prev · ←/→ seek · +/- volume · s shuffle · r repeat · Tab queue · a add · / search
+  Example: player ~/storage/music
+@gui|Apps||Tile launcher for every Nebula app
+  One screen with tiles for Files, Monitor, Player, Save media, Code, Ant, Learn, Git, GitHub, Firebase, Accounts and Palette.
+  Tap a tile or press its number.
+  Example: gui
+@svn|Apps|[link] [options]|Save video or audio from a link (YouTube, TikTok, Instagram and more)
+  svn <link>          step-by-step: check the link, pick video or audio, quality, folder, download
+  svn                 asks for the link (pastes from your clipboard if Termux:API is installed)
+  svn <link> -a       audio only (mp3) with the defaults, no questions
+  svn <link> -v 720   video at 720p, no questions     (-f mp4|mp3|m4a|opus, -o <folder>, --list shows formats)
+  svn history         what you saved before          svn --update  update the downloader     svn --doctor  check setup
+  Needs yt-dlp and ffmpeg (pkg install yt-dlp ffmpeg). Save only what you have the right to, and follow each site's terms.
+  Example: svn https://youtube.com/shorts/6xhyB8Hlznc
