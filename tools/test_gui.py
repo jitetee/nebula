@@ -16,14 +16,35 @@ def free_port():
     s = socket.socket(); s.bind(("127.0.0.1", 0)); p = s.getsockname()[1]; s.close(); return p
 
 
+CUR = [""]
+
+
 def ok(name, cond):
     global PASS, FAIL
     PASS += bool(cond); FAIL += (not cond)
     print(("  ✔ " if cond else "  ✖ ") + name)
+    if not cond and os.environ.get("GITHUB_ACTIONS"):
+        print("::error title=GUI test failed::%s: %s" % (CUR[0], name))
 
 
 def section(t):
+    CUR[0] = t
     print("\n" + t)
+
+
+def until(fn, secs=6):
+    end = time.time() + secs
+    while time.time() < end:
+        try:
+            if fn():
+                return True
+        except Exception:
+            pass
+        time.sleep(0.2)
+    try:
+        return bool(fn())
+    except Exception:
+        return False
 
 
 def start(*a):
@@ -39,14 +60,14 @@ def gone(s, secs=6):
     return False
 
 
-def seen(s, text, secs=4):
+def seen(s, text, secs=6):
     """Poll the screen for text (slow phones and busy CI need a moment)."""
     end = time.time() + secs
     while time.time() < end:
-        if s.has(text):
+        if text in s.text():
             return True
         s.pump(0.2)
-    return s.has(text)
+    return text in s.text()
 
 
 def base_env(extra=None):
@@ -66,24 +87,24 @@ try:
     open(os.path.join(ft, "notes.txt"), "w").write("hello"); open(os.path.join(ft, "Documents", "a.md"), "w").write("x")
     env = base_env()
     s = Session([PY, "-m", "nebula_gui.files", ft], cols=100, rows=28, env=env, cwd=ft)
-    ok("lists folders and files", s.has("Documents/") and s.has("notes.txt"))
-    s.keys("j"); s.keys("j"); s.keys(" "); ok("space ticks a row", s.has("1 selected"))
-    s.click(30, 4, 0.05); s.click(30, 4); ok("double-tap opens a folder", s.has("a.md"))
-    s.keys("\x7f"); s.keys("n"); s.keys("fresh.txt"); s.keys("\r"); ok("new file", os.path.exists(os.path.join(ft, "fresh.txt")))
-    s.keys("d"); s.keys("\r"); ok("delete goes to the trash", not os.path.exists(os.path.join(ft, "fresh.txt")) and any(f.endswith(".info") for f in os.listdir(os.path.join(T, "cfg", "trash"))))
-    s.keys("t"); s.keys("R"); ok("restore from trash", os.path.exists(os.path.join(ft, "fresh.txt")))
-    s.keys("\x7f"); s.keys("/"); s.keys("note"); s.keys("\r"); ok("filter", s.has("notes.txt") and not s.has("Documents/"))
-    s.keys("?"); ok("help pager", s.has("Files help")); s.keys("q"); s.keys("q"); s.keys("q"); ok("q quits", gone(s)); s.close()
-    n = Session([PY, "-m", "nebula_gui.files", ft], cols=56, rows=26, env=env, cwd=ft); ok("phone width renders", n.has("Files") and n.has("notes.txt")); n.close()
+    ok("lists folders and files", seen(s, "Documents/") and seen(s, "notes.txt"))
+    s.keys("j"); s.keys("j"); s.keys(" "); ok("space ticks a row", seen(s, "1 selected"))
+    s.click(30, 4, 0.05); s.click(30, 4); ok("double-tap opens a folder", seen(s, "a.md"))
+    s.keys("\x7f"); s.keys("n"); s.keys("fresh.txt"); s.keys("\r"); ok("new file", until(lambda: os.path.exists(os.path.join(ft, "fresh.txt"))))
+    s.keys("d"); s.keys("\r"); ok("delete goes to the trash", until(lambda: not os.path.exists(os.path.join(ft, "fresh.txt")) and any(f.endswith(".info") for f in os.listdir(os.path.join(T, "cfg", "trash")))))
+    s.keys("t"); s.keys("R"); ok("restore from trash", until(lambda: os.path.exists(os.path.join(ft, "fresh.txt"))))
+    s.keys("\x7f"); s.keys("/"); s.keys("note"); s.keys("\r"); ok("filter", seen(s, "notes.txt") and not s.has("Documents/"))
+    s.keys("?"); ok("help pager", seen(s, "Files help")); s.keys("q"); s.keys("q"); s.keys("q"); ok("q quits", gone(s)); s.close()
+    n = Session([PY, "-m", "nebula_gui.files", ft], cols=56, rows=26, env=env, cwd=ft); ok("phone width renders", seen(n, "Files") and seen(n, "notes.txt")); n.close()
 
     section("Monitor")
     s = Session([PY, "-m", "nebula_gui.monitor"], cols=64, rows=26, env=env, wait=2.0)
-    ok("overview", s.has("CPU") and s.has("Memory")); s.keys("\t"); ok("processes tab", seen(s, "COMMAND")); s.keys("5"); ok("nebula tab", seen(s, "Version"))
+    ok("overview", seen(s, "CPU") and seen(s, "Memory")); s.keys("\t"); ok("processes tab", seen(s, "COMMAND")); s.keys("5"); ok("nebula tab", seen(s, "Version"))
     s.keys("q"); ok("q quits", gone(s)); s.close()
 
     section("Launcher")
     s = Session([PY, "-m", "nebula_gui.launcher"], cols=56, rows=26, env=env)
-    ok("tiles", s.has("Files") and s.has("Save media") and s.has("GitHub") and s.has("Firebase")); s.keys("q"); ok("q quits", gone(s)); s.close()
+    ok("tiles", seen(s, "Files") and seen(s, "Save media") and seen(s, "GitHub") and seen(s, "Firebase")); s.keys("q"); ok("q quits", gone(s)); s.close()
 
     if shutil.which("mpv"):
         section("Player")
@@ -93,9 +114,9 @@ try:
             w = wave.open(os.path.join(mus, nme + ".wav"), "w"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(22050)
             w.writeframes(b"".join(struct.pack("<h", int(8000 * math.sin(2 * math.pi * f * i / 22050))) for i in range(22050 * 6))); w.close()
         s = Session([PY, "-m", "nebula_gui.player", mus], cols=64, rows=24, env=base_env({"NEBULA_PLAYER_AO": "null"}), wait=2.0)
-        ok("library", s.has("Alpha Song") and s.has("2 tracks")); s.keys("\r", 1.5); ok("playback starts", s.has("Alpha Song") and not s.has("Nothing playing"))
-        time.sleep(1.5); s.pump(0.6); ok("progress advances", s.has("0:01") or s.has("0:02") or s.has("0:03"))
-        s.keys("+", 0.4); ok("volume", s.has("75%")); s.keys("\t", 0.4); ok("queue tab", s.has("Queue (2)")); s.keys("q"); ok("q quits", gone(s, 8)); s.close()
+        ok("library", seen(s, "Alpha Song") and seen(s, "2 tracks")); s.keys("\r", 1.5); ok("playback starts", seen(s, "Alpha Song") and not s.has("Nothing playing"))
+        ok("progress advances", until(lambda: (s.pump(0.3) or True) and any(x in s.text() for x in ("0:01", "0:02", "0:03")), 8))
+        s.keys("+", 0.4); ok("volume", seen(s, "75%")); s.keys("\t", 0.4); ok("queue tab", seen(s, "Queue (2)")); s.keys("q"); ok("q quits", gone(s, 8)); s.close()
     else:
         print("\nPlayer: skipped (mpv not installed)")
 
@@ -104,18 +125,18 @@ try:
     e = base_env({"HOME": sh, "NEBULA_SVN_YTDLP": "%s %s" % (PY, os.path.join(H, "tools", "mock_ytdlp.py"))})
     URL = "https://youtube.com/shorts/6xhyB8Hlznc?si=e_Wmk5RLZ-I4FYkC"
     s = Session([PY, "-m", "nebula_gui.svn", URL], cols=56, rows=24, env=e, wait=2.0)
-    ok("found card", s.has("Found it") and s.has("Mock Video Title")); s.keys("\r"); ok("type step", s.has("What do you want to save?"))
-    s.keys("1"); ok("quality list", s.has("1080p") and s.has("720p")); s.keys("j"); s.keys("j"); s.keys("\r"); ok("save-to step", s.has("Where should it go?"))
-    s.keys("\r", 0.8); time.sleep(2.5); s.pump(0.8); ok("done screen", s.has("Saved"))
-    ok("mp4 written", any(f.endswith(".mp4") for r, _, fs in os.walk(sh) for f in fs)); s.keys("q"); gone(s); s.close()
+    ok("found card", seen(s, "Found it") and seen(s, "Mock Video Title")); s.keys("\r"); ok("type step", seen(s, "What do you want to save?"))
+    s.keys("1"); ok("quality list", seen(s, "1080p") and seen(s, "720p")); s.keys("j"); s.keys("j"); s.keys("\r"); ok("save-to step", seen(s, "Where should it go?"))
+    s.keys("\r", 0.8); ok("done screen", seen(s, "Saved", 20))
+    ok("mp4 written", until(lambda: any(f.endswith(".mp4") for r, _, fs in os.walk(sh) for f in fs))); s.keys("q"); gone(s); s.close()
     s = Session([PY, "-m", "nebula_gui.svn", "https://instagram.com/p/private123"], cols=56, rows=24, env=e, wait=2.0)
-    ok("private link gives a friendly error", s.has("needs a login")); s.close()
+    ok("private link gives a friendly error", seen(s, "needs a login")); s.close()
     out = subprocess.run([PY, "-m", "nebula_gui.svn", URL, "-a", "-o", os.path.join(T, "aud")], env=dict(os.environ, **e), capture_output=True, text=True, timeout=60)
     ok("non-interactive audio (-a)", out.returncode == 0 and any(f.endswith(".mp3") for f in os.listdir(os.path.join(T, "aud"))))
 
     section("repo (mock GitHub)")
     gp = free_port(); start(PY, os.path.join(H, "tools", "mock_github.py"), str(gp)); time.sleep(1)
-    re_ = base_env({"GITHUB_API_URL": "http://127.0.0.1:%d" % gp})
+    re_ = base_env({"GITHUB_API_URL": "http://127.0.0.1:%d" % gp, "GITHUB_TOKEN": "", "GH_TOKEN": ""})
 
     def run(script, *a, cwd=None, env_=None, inp=None):
         r = subprocess.run([PY, os.path.join(H, "plugins", script, script + ".py"), *a], cwd=cwd or T, capture_output=True, text=True, env=dict(os.environ, **(env_ or re_)), input=inp, timeout=60)
@@ -131,7 +152,7 @@ try:
     rc, o = run("repo", "delete", "newrepo", "--confirm", "mockuser/newrepo"); ok("delete with typed full name", rc == 0)
     rc, o = run("repo", "merge", "hello", "7", "--yes"); ok("PR merge with checks", rc == 0 and "merged #7" in o)
     s = Session([PY, os.path.join(H, "plugins/repo/repo.py")], cols=100, rows=26, env=dict(os.environ, **re_), wait=2.0)
-    ok("full-screen repo list", s.has("hello") and s.has("secret")); s.keys("d"); ok("delete asks to type the full name", s.has("Type")); s.keys("\x1b"); s.keys("q"); s.close()
+    ok("full-screen repo list", seen(s, "hello") and seen(s, "secret")); s.keys("d"); ok("delete asks to type the full name", seen(s, "Type")); s.keys("\x1b"); s.keys("q"); s.close()
 
     section("gitx (real git)")
     wd = os.path.join(T, "gx"); os.makedirs(wd)
@@ -171,7 +192,7 @@ try:
     rc, o = run("accounts", cwd=pj, env_=fe); ok("accounts checklist", "mockuser" in o and "dev@example.com" in o and "AI backend" in o)
     rc, o = run("project", "next", cwd=pj, env_=fe); ok("project next answers via the AI backend", rc == 0 and "MOCK" in o)
     s = Session([PY, os.path.join(H, "plugins/fire/fire.py")], cols=70, rows=24, env=dict(os.environ, **fe), cwd=pj, wait=2.5)
-    ok("fire dashboard", s.has("Firebase") and s.has("WHAT TO DEPLOY")); s.keys("q"); s.close()
+    ok("fire dashboard", seen(s, "Firebase") and seen(s, "WHAT TO DEPLOY")); s.keys("q"); s.close()
 finally:
     for p in procs:
         p.terminate()
