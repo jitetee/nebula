@@ -1,0 +1,10 @@
+@project|Dev|[next/review/merge/deploy/explain/ask]|Ask your project: what to do next, review changes, merge or deploy?, explain the repo
+  project                a menu of questions to ask about the project you are standing in
+  project next           the next 3 steps, from your git state, TODOs and files
+  project review         reviews your uncommitted changes: bugs, risks, missing tests
+  project merge <branch> should I merge it? (checks conflicts, size and risk first)
+  project deploy         is it safe to deploy, and what exactly (hosting, rules, functions)?
+  project explain        what this project is and how it is laid out
+  project ask "question" anything else, answered from the real repo context
+  The AI is whichever you chose (nebula ai status). Nothing leaves your phone except the question and a trimmed project summary.
+  Example: project merge feature/login

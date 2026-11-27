@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0
+- **Real UIs in the terminal.** A new toolkit, `nebula_core.tui` (palette colours, Nebula icons, mouse and touch, dialogs: confirm with typed-name protection, prompt, choose, form, pager), and four apps on top of it: **`files`** (Explorer-style: address bar, toolbar, places, details pane, Trash with Restore, copy/cut/paste with conflict choices, zip, search, multi-select), **`monitor`** (live CPU/memory/storage/battery/network/processes), **`player`** (library, queue, seek bar, volume, shuffle/repeat through mpv) and **`gui`** (tile launcher).
+- **`svn`: save media from links.** `svn <link>` checks the link, then asks video or audio, quality (with size estimates), folder and name style, and downloads with live progress. `-a`, `-v 720`, `-f mp3|m4a|opus|mp4`, `-o`, `--list`, `--cookies`, `history`, `--update`, `--doctor` skip the questions. Uses yt-dlp (+ ffmpeg); friendly messages for private, removed, rate-limited and offline cases.
+- **Developer plugins** (bundled): **`repo`** (GitHub create/edit/visibility/archive/delete/branches/PRs/issues, token stored with mode 600, delete needs the full name typed), **`gitx`** (dashboard + advisor, secret and large-file detection, merge conflict prediction without touching your files, force-push with lease and typed branch name, AI commit messages), **`fire`** (Firebase login check, per-target change status, guarded deploy, preview channels), **`accounts`** (one checklist of every login with the exact fix), **`project`** (ask your repo: next steps, review, merge?, deploy?).
+- `nebula_core.devtools` (GitHub client, git helpers, project context) and `docs/UI_IDEAS.md`.
+- CI: fixed the old `.jif` step that had failed every run since October; new steps run the GUI/dev tests (`tools/test_gui.py`, 56 checks with mock GitHub, Firebase and AI) and check the new screens at phone width.
+
 ## 0.9.17
 - **One palette everywhere.** `nebula palette [nebula|ocean|amber|rose|violet|mono]` switches the colours of the shell, `ant`, `jtlearn` and Neovim at once (`nebula_core/theme.py` writes `$NEBULA_CFG/palette.json`, every tool reads it). `theme` still styles only your prompt.
 - **Nebula Mono now draws the UI symbols too:** ✔ ✖ ✗ ⚠ ℹ ➤ ▸ ▾ ★ ↺ are in the font, so status lines look the same in the shell, `ant`, `jtlearn` and Neovim instead of borrowing another font.

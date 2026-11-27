@@ -22,6 +22,11 @@ SCENES = {   # name: (command, seconds to wait)
     "check":    (N + ["check"], 20),
     "about":    (N + ["about"], 4),
     "settings": (N + ["settings"], 4),
+    "launcher": (["python3", "-m", "nebula_gui.launcher"], 3),
+    "monitor":  (["python3", "-m", "nebula_gui.monitor"], 3),
+    "files":    (["python3", "-m", "nebula_gui.files", HOME], 3),
+    "svn":      (["python3", "-m", "nebula_gui.svn", "--doctor"], 4),
+    "gui-help": (["python3", "-m", "nebula_gui", "--help"], 3),
     "ant-help": (["python3", "-m", "ant", "-h"], 4),
     "jt-help":  (["python3", "-m", "jtlearn", "-h"], 6),
 }
@@ -33,12 +38,13 @@ def render(cmd, wait, cols, rows=60):
     import pyte
     screen = pyte.Screen(cols, rows); stream = pyte.ByteStream(screen)
     env = dict(os.environ, **ENV, NEBULA_CFG=os.path.join(HOME, "data-gallery"), LINES=str(rows), COLUMNS=str(cols))
+    app = None
     if cmd[0] == "python3":
-        app = "ant" if "ant" in cmd else "jtlearn"
+        app = "gui" if cmd[2].startswith("nebula_gui") else cmd[2]
         env["PYTHONPATH"] = "%s:%s" % (os.path.join(HOME, "apps", app), os.path.join(HOME, "lib"))
     pid, fd = pty.fork()
     if pid == 0:
-        os.chdir(os.path.join(HOME, "apps", cmd[2]) if cmd[0] == "python3" else HOME)
+        os.chdir(os.path.join(HOME, "apps", app) if app else HOME)
         os.execvpe(cmd[0], cmd, env)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
     end = time.time() + wait

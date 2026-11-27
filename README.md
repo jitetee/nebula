@@ -6,7 +6,7 @@
 
 ### The AI-powered terminal helper for Termux
 
-[![Version](https://img.shields.io/badge/version-0.9.17-8A2BE2)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-8A2BE2)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Termux%20(Android%207%2B)-3DDC84)](https://termux.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -79,6 +79,10 @@ nebula install yt-dlp -v     nebula install log          nebula uninstall cmatri
 **Neovim, Nebula style:** run `nv setup` once, then just type `nvim`. Green theme, statusline, tabs, fuzzy finder, completion, LSP, GitHub Copilot and **AI coding powered by Ant** (`Space a a` ask, `Space a e` edit with a diff preview, `Space a g` agent). Your old config is backed up and `nv uninstall` restores it. `nv doctor` and `:NebulaCopilot` find out why Copilot is not working; `Space ?` lists the keys; your tweaks live in `$NEBULA_CFG/nvim/user.lua`.
 
 ![Nebula nvim](docs/screenshots/cli-nv-code.png)
+
+**Apps with a real UI (mouse/touch + keyboard):** `gui` is a tile home screen; `files` is a Windows-Explorer-style file manager with Trash, search and zip; `monitor` shows CPU, memory, storage, battery, network and processes live; `player` plays your music with a seek bar and queue; `svn <link>` saves video or audio from YouTube, TikTok, Instagram and more in guided steps (video/audio, quality, folder).
+
+**For developers:** `repo` (GitHub: create, edit, make public/private, archive, delete with a typed-name safety, branches, PRs, issues), `gitx` (interactive git with an advisor, secret detection, safe merge check and force-push), `fire` (Firebase: login check, what changed, guarded deploy of hosting, functions and rules), `accounts` (every login at a glance), `project` (ask your repo: what next, review, merge?, deploy?). Ideas for more: `docs/UI_IDEAS.md`.
 
 **Master manual:** `docs/Nebula-Master-Manual.pdf` covers every command, app, plugin and setting (rebuild it any time with `python3 tools/make-manual.py`).
 

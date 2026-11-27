@@ -1,0 +1,11 @@
+@fire|Dev|[status/login/deploy/preview/projects/ask]|Firebase: login check, what changed, and a safe guided deploy of hosting, functions and rules
+  fire                   full-screen dashboard: account, project, every deploy target with its state, advice, and a Deploy button
+  fire status            account, project and each target (hosting, functions, Firestore/Storage/Database rules) with changes since the last git commit
+  fire login             sign in (uses the Firebase CLI; works on a phone without a browser)
+  fire projects          the projects your account can see           fire use <project>   make one the default here
+  fire deploy [targets] [--project id] [--yes]   targets: hosting, functions, firestore, storage, database (default: you choose)
+  fire preview [channel]  deploy hosting to a temporary preview link instead of live
+  fire ask "question"    asks the AI whether to deploy, and what, using your repo state
+  Rules changes ask for typed confirmation, because they decide who can read your data.
+  Needs the Firebase CLI: npm install -g firebase-tools
+  Example: fire deploy hosting

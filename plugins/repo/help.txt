@@ -1,0 +1,12 @@
+@repo|Dev|[list/create/edit/delete/…]|GitHub repositories: interactive create, edit, delete, branches, pull requests, issues
+  repo                   full-screen manager: your repos, details, and buttons for every action
+  repo login             save a GitHub token (hidden input; stored with mode 600; fine-grained tokens work)
+  repo whoami            who you are logged in as, token type, scopes, expiry
+  repo list              your repositories          repo view <name>      details of one
+  repo create <name> [--private] [--desc "text"]    make a new repository
+  repo edit <name> [--desc "text"] [--private|--public] [--homepage url] [--rename new]
+  repo delete <name>     asks you to type the full name first (needs the delete_repo permission)
+  repo archive <name>    read-only (use --undo to bring it back)
+  repo prs <name>        open pull requests; repo merge <name> <number> [--squash|--rebase] checks mergeability first
+  repo ask <name> "question"   asks the AI about a repo you have cloned (uses your chosen backend)
+  Example: repo create my-site --private --desc "My website"

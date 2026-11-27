@@ -406,6 +406,25 @@ def main():
            P("The J.I.T.E.T.E.E. learning app (notes, quizzes, verses, AI tutor). Press `?` in its menu for help. The tutor uses your own AI when `nebula ai backend ant` is set."),
            code(re.sub(r"\x1b\[[0-9;]*m", "", sh([sys.executable, "-m", "jtlearn", "-h"], cwd=os.path.join(HOME, "apps", "jtlearn"), env={"PYTHONPATH": os.path.join(HOME, "apps", "jtlearn") + ":" + os.path.join(HOME, "lib")})), 7.2)]
 
+    st += [Paragraph("GUI apps: files, monitor, player, gui", S["H2"]),
+           P("Full-screen apps with mouse and touch support, built on `nebula_core.tui`. Tap buttons, tap rows, double-tap to open; everything also works from the keyboard. Press `?` inside any of them."),
+           table([["App", "What it is", "Main keys"],
+                  ["`files`", "Windows-Explorer-style file manager: address bar, toolbar, places, details pane, Trash with Restore, zip, search", "Enter open · Bksp up · Space tick · c x v · d trash · r rename · n/N new · i info · / filter"],
+                  ["`monitor`", "Live CPU, memory, storage, battery, network, processes, Nebula info", "Tab/←→ tabs · 1-5 jump · K stop a process"],
+                  ["`player`", "Audio player with library, queue, seek bar, volume (mpv)", "Space · n/p · ←/→ seek · +/- · s shuffle · r repeat"],
+                  ["`gui`", "Tile launcher for every app", "number or tap"]], [W * 0.14, W * 0.5, W * 0.36], mono0=True),
+           Paragraph("svn: save media from links", S["H2"]),
+           P("`svn <link>` checks the link with yt-dlp, then asks: video or audio, quality (with size estimates), folder and name style, and downloads with live progress. Flags skip the questions."),
+           code("svn https://youtube.com/shorts/6xhyB8Hlznc      # guided steps\nsvn <link> -a                  # audio (mp3), defaults\nsvn <link> -v 720              # video at 720p\nsvn <link> -f m4a -o ~/music   # format and folder\nsvn <link> --list              # every available format\nsvn history · svn --update · svn --doctor · svn sites"),
+           Paragraph("Developer plugins", S["H2"]),
+           table([["Command", "What it does"],
+                  ["`repo`", "GitHub: create, edit, public/private, archive, delete (type the full name), branches, pull requests (mergeability check), issues, clone; token kept private (mode 600)"],
+                  ["`gitx`", "Interactive git: advisor (what to do next), secret and large-file detection, AI commit messages, safe push, merge conflict prediction that never touches your files, force-push with lease and typed branch name"],
+                  ["`fire`", "Firebase: login check, what changed per target, guarded deploy of hosting, functions and rules (rules need typed confirmation), preview channels"],
+                  ["`accounts`", "One checklist of every login: git identity, GitHub (token type, scopes, expiry), Firebase, AI, Copilot, SSH, Termux"],
+                  ["`project`", "Ask your project: next steps, review uncommitted changes, should I merge a branch?, is it safe to deploy?, explain the repo"]], [W * 0.16, W * 0.84], mono0=True),
+           Paragraph("Ideas for more UI and plugins: docs/UI_IDEAS.md", S["small"])]
+
     # Neovim
     nv = os.path.join(HOME, "assets", "nvim", "lua", "nebula")
     keys = []
@@ -435,9 +454,9 @@ def main():
            P("Edit `plugin.sh` and `help.txt`. A scaffolded plugin looks like this:"),
            code("# plugin.sh\ncmd::greet() {\n  case \"${1:-}\" in\n    \"\") ui::say_status OK \"greet works\" ;;\n    *)  ui::say_status INFO \"greet got: $*\" ;;\n  esac\n}\n\n# help.txt\n@greet|Plugins|[args]|one line about what greet does\n  What it does, in a sentence or two.\n  Example: greet hello")]
     st += [Paragraph("nebula_core API", S["H2"]), P("A small standard-library layer every tool imports instead of re-implementing things.")]
-    import nebula_core.paths as np_, nebula_core.help as nh_, nebula_core.ai as na_, nebula_core.theme as nt_
+    import nebula_core.paths as np_, nebula_core.help as nh_, nebula_core.ai as na_, nebula_core.theme as nt_, nebula_core.devtools as nd_, nebula_core.icons as ni_
     rows = [["Function", "Does"]]
-    for mod, label in ((np_, "paths"), (nh_, "help"), (na_, "ai"), (nt_, "theme")):
+    for mod, label in ((np_, "paths"), (nh_, "help"), (na_, "ai"), (nt_, "theme"), (nd_, "devtools"), (ni_, "icons")):
         for n, fn in inspect.getmembers(mod, inspect.isfunction):
             if fn.__module__ == mod.__name__ and not n.startswith("_") and fn.__doc__:
                 sig = str(inspect.signature(fn))
@@ -492,6 +511,7 @@ def main():
                   ["`tools/test-core.sh`", "help everywhere, plugins, one AI backend, palette, Neovim help (29 tests)"],
                   ["`tools/gallery.py --check`", "key screens fit a phone: no broken boxes at 56 and 40 columns"],
                   ["`tools/make-font.py`", "rebuilds Nebula Mono with the Nebula icons and UI symbols"],
+                  ["`tools/test_gui.py`", "every GUI app and dev plugin, driven in a pseudo-terminal against mock GitHub/Firebase/AI (56 checks)"],
                   ["`tools/make-manual.py`", "rebuilds this manual from the code"]], [W * 0.36, W * 0.64], mono0=True),
            PageBreak()]
     st += [Paragraph("Changelog", S["H1"])] + md(re.sub(r"^# .*\n", "", open(os.path.join(HOME, "docs", "CHANGELOG.md"), encoding="utf-8").read(), count=1)) + [PageBreak()]

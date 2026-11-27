@@ -1,0 +1,10 @@
+@gitx|Dev|[status/advise/commit/push/pull/merge/ask]|Interactive git with safety checks and an advisor that tells you what to do next
+  gitx                   full-screen dashboard: changes, branch state, advice, and buttons for every action
+  gitx advise            what should I do now? (commit, push, pull, fix conflicts, secrets in staged files …)
+  gitx status            short summary         gitx commit -m "msg" [-a]    commit (-a stages everything first)
+  gitx push              pushes safely; sets the upstream for new branches; refuses non-fast-forward
+  gitx force             force-push done safely: --force-with-lease, shows what would be lost, typed confirmation
+  gitx merge <branch> [--check]   checks for conflicts and shows what comes in before merging; --check only reports
+  gitx ask "question"    asks the AI about this repo (uses your chosen backend: nebula ai status)
+  In the dashboard: Space stage · c commit (AI can suggest the message) · P push · F force · p pull · b branches · m merge · s stash · x discard · u undo commit · l log · i ask
+  Example: gitx merge feature/login --check

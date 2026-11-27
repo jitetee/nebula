@@ -96,8 +96,10 @@ class Launcher(tui.App):
         self.cols = 2 if W < 70 else 3
         pad = 2
         tw = (W - pad * 2 - (self.cols - 1)) // self.cols
-        th = 4
         y0 = 5
+        th = 4
+        if y0 + -(-len(TILES) // self.cols) * th > H - 1:   # short screen: compact tiles (title only)
+            th = 3
         for i, (ic, title, desc, cmd) in enumerate(TILES):
             r, c = divmod(i, self.cols)
             y, x = y0 + r * (th + 0), pad + c * (tw + 1)
@@ -106,7 +108,8 @@ class Launcher(tui.App):
             sel = i == self.cur
             ui.box(y, x, th, tw, "", "primary" if sel else "border")
             ui.text(y + 1, x + 2, "%s  %s" % (ICO(ic), title), "primary" if sel else "text", tw - 4)
-            ui.text(y + 2, x + 2, desc, "dim", tw - 4)
+            if th >= 4:
+                ui.text(y + 2, x + 2, desc, "dim", tw - 4)
             ui.text(y, x + tw - 4, str(i + 1) if i < 9 else "0" if i == 9 else "", "dim", 3)
             ui.region(y, x, th, tw, (lambda ii: (lambda: (setattr(self, "cur", ii), self.run_cmd(ui, TILES[ii][3]))))(i))
         ui.text(H - 1, 1, "tap a tile or press its number · arrows + Enter · ? help · q quit", "dim", W - 2)

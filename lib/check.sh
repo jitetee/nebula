@@ -45,9 +45,10 @@ check::run() {
   # 4. apps answer --help, Neovim has help, entries are complete
   if command -v python3 >/dev/null 2>&1; then
     local app out rc
-    for app in ant jtlearn; do
+    for app in ant jtlearn gui; do
       [[ -d $home/apps/$app ]] || continue; ok
-      out=$(cd "$home/apps/$app" && NEBULA_HOME=$home NEBULA_CFG="${NEBULA_CFG:-$home/data}" PYTHONPATH="$home/apps/$app:$home/lib" timeout 40 python3 -m "$app" --help 2>&1 </dev/null); rc=$?
+      local mod=$app; [[ $app == gui ]] && mod=nebula_gui
+      out=$(cd "$home/apps/$app" && NEBULA_HOME=$home NEBULA_CFG="${NEBULA_CFG:-$home/data}" PYTHONPATH="$home/apps/$app:$home/lib" timeout 40 python3 -m "$mod" --help 2>&1 </dev/null); rc=$?
       (( rc == 0 )) && [[ $(wc -l <<<"$out") -ge 3 && $out != *Traceback* ]] || fail "$app --help does not work (exit $rc)"
     done
   fi

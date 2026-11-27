@@ -1,0 +1,6 @@
+@accounts|Dev|[login <name>/--json]|Check every login at once: git identity, GitHub, Firebase, AI, Copilot, SSH, Termux
+  accounts               a checklist: who you are logged in as on each service, with the exact fix for anything missing
+  accounts login github  save a GitHub token   (also: firebase, ai, copilot)
+  accounts --json        the same as machine-readable JSON
+  GitHub shows the token type, its permissions (so you know if delete is allowed) and when it expires.
+  Example: accounts

@@ -17,6 +17,8 @@ nebula/
 │   ├── memes.txt             # bundled meme URLs (offline fallback)
 │   └── fonts/FIRACODE_NERD.md # pointer to the Nerd Font upstream
 ├── lib/nebula_core/          # shared Python layer: paths, help registry, AI backend (ant, jtlearn, plugins import it)
+├── apps/gui/                 # nebula_gui: files, monitor, player, launcher, svn (all on nebula_core.tui)
+├── lib/nebula_core/tui.py    # terminal-GUI toolkit; icons.py; devtools.py (GitHub, git, project context)
 ├── lib/registry.sh           # merges assets/help.txt + plugin help.txt: the ONE command registry
 ├── lib/plugins.sh            # plugin loader + `nebula plugin`; lib/check.sh = `nebula check` (consistency rules)
 ├── plugins/                  # bundled plugins (yours live in $NEBULA_CFG/plugins); see docs/PLUGINS.md

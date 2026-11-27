@@ -34,6 +34,11 @@ Start one with `nebula plugin new greet`, edit it, then run `nebula greet`.
   Example: name something
 ```
 
+## Bundled plugins
+`repo`, `gitx`, `fire`, `accounts` and `project` ship in `plugins/` and are good templates: each is `plugin.sh` (a thin
+wrapper), `help.txt` and one Python file that uses `nebula_core.tui` for the full-screen part and `nebula_core.devtools`
+for GitHub and git. Tests with mock servers: `python3 tools/test_gui.py`.
+
 ## Shared building blocks
 | Need | Use |
 |---|---|
