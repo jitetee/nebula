@@ -19,12 +19,18 @@ def free_port():
 CUR = [""]
 
 
-def ok(name, cond):
+def ok(name, cond, detail=None):
     global PASS, FAIL
     PASS += bool(cond); FAIL += (not cond)
     print(("  ✔ " if cond else "  ✖ ") + name)
     if not cond and os.environ.get("GITHUB_ACTIONS"):
-        print("::error title=GUI test failed::%s: %s" % (CUR[0], name))
+        d = ""
+        try:
+            d = detail() if callable(detail) else (detail or "")
+        except Exception as e:
+            d = "detail failed: %s" % e
+        d = d.replace("%", "%25").replace("\r", "").replace("\n", "%0A")[:1500]
+        print("::error title=GUI test failed::%s: %s%%0A%s" % (CUR[0], name, d))
 
 
 def section(t):
@@ -89,7 +95,7 @@ try:
     s = Session([PY, "-m", "nebula_gui.files", ft], cols=100, rows=28, env=env, cwd=ft)
     ok("lists folders and files", seen(s, "Documents/") and seen(s, "notes.txt"))
     s.keys("j"); s.keys("j"); s.keys(" "); ok("space ticks a row", seen(s, "1 selected"))
-    s.click(30, 4, 0.05); s.click(30, 4); ok("double-tap opens a folder", seen(s, "a.md"))
+    s.click(30, 4, 0.05); s.click(30, 4); ok("double-tap opens a folder", seen(s, "a.md"), lambda: "screen:\n" + "\n".join(s.lines()[:9]))
     s.keys("\x7f"); s.keys("n"); s.keys("fresh.txt"); s.keys("\r"); ok("new file", until(lambda: os.path.exists(os.path.join(ft, "fresh.txt"))))
     s.keys("d"); s.keys("\r"); ok("delete goes to the trash", until(lambda: not os.path.exists(os.path.join(ft, "fresh.txt")) and any(f.endswith(".info") for f in os.listdir(os.path.join(T, "cfg", "trash")))))
     s.keys("t"); s.keys("R"); ok("restore from trash", until(lambda: os.path.exists(os.path.join(ft, "fresh.txt"))))
@@ -132,7 +138,7 @@ try:
     s = Session([PY, "-m", "nebula_gui.svn", "https://instagram.com/p/private123"], cols=56, rows=24, env=e, wait=2.0)
     ok("private link gives a friendly error", seen(s, "needs a login")); s.close()
     out = subprocess.run([PY, "-m", "nebula_gui.svn", URL, "-a", "-o", os.path.join(T, "aud")], env=dict(os.environ, **e), capture_output=True, text=True, timeout=60)
-    ok("non-interactive audio (-a)", out.returncode == 0 and any(f.endswith(".mp3") for f in os.listdir(os.path.join(T, "aud"))))
+    ok("non-interactive audio (-a)", out.returncode == 0 and any(f.endswith(".mp3") for f in os.listdir(os.path.join(T, "aud"))), lambda: "rc=%s\nout=%s\nerr=%s" % (out.returncode, out.stdout[-500:], out.stderr[-500:]))
 
     section("repo (mock GitHub)")
     gp = free_port(); start(PY, os.path.join(H, "tools", "mock_github.py"), str(gp)); time.sleep(1)
